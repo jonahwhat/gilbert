@@ -29,6 +29,9 @@ def profile(username):
     print(request.method)
     return f"Your Username is {escape(username)}, your method is {request.method}, full method: {request} "
 
-
+@app.route('/function')
+def function():
+    return send_from_directory('public', 'function.js')
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
