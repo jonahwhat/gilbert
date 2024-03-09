@@ -32,6 +32,10 @@ def profile(username):
 @app.route('/function')
 def function():
     return send_from_directory('public', 'function.js')
+
+@app.route('/style.css')
+def css():
+    return send_from_directory('static', 'style.css')
     
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
