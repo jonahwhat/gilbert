@@ -27,8 +27,8 @@ def index():
 # assumes database users with data id password and username per user
 @app.route('/login', methods=['POST'])
 def login(response):
-    username = request.form.get("username")
-    password = request.form.get("password")    
+    username = request.form.get("username_login")
+    password = request.form.get("password_login")    
     
     # Find the user by username
     user = user_collection.find_one({'username': username})
