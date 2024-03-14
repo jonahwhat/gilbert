@@ -17,7 +17,18 @@ def add_security_headers(response):
 @app.route('/index')
 def index():
     return send_from_directory('public', 'index.html')
-
+# assumes database users with data id password and username per user
+@app.route('/login', methods=['POST'])
+def login():
+    user_data = request.json
+    username = user_data['username']
+    password = user_data['password']
+    
+    # Find the user by username
+    user = users_collection.find_one({'username': username})
+    
+    if user and hash(password) == user['password']:
+        session['user_id'] = str(user['_id'])
 
 @app.route('/test')
 def testRoute():
