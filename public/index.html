@@ -1,9 +1,56 @@
+<!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
     <title>CSE312 Project</title>
-    <link rel="stylesheet" type="text/css" href="/static/style.css"/>
-    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
-</head>
-<h1>Hello world</h1>
-<h1>Hello world</h1>
-<img src="/static/holycow.png">
+  </head>
+  <body>
+    <h1>Hello world</h1>
+    <h1>HOLY MOLY!</h1>
+    <img src="/static/holycow.png" />
+    <img src="/static/MBAEBAE.png" />
+    <h1>❤️</h1>
+    <div class="login">
+      <h4>Login:</h4>
+      <form
+        action="/login"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <label
+          >Username:
+          <input id="login-form-username" type="text" name="username_login" />
+        </label>
+        <br />
+        <label
+          >Password:&nbsp;
+          <input id="login-form-pass" type="password" name="password_login" />
+        </label>
+        <input type="submit" value="Post" />
+      </form>
+    </div>
+
+    <div class="register">
+      <h4>Register:</h4>
+      <form
+        action="/register"
+        method="post"
+        enctype="application/x-www-form-urlencoded"
+      >
+        <label
+          >Username:
+          <input id="reg-form-username" type="text" name="username_reg" />
+        </label>
+        <br />
+        <label
+          >Password:&nbsp;
+          <input id="reg-form-pass" type="password" name="password_reg" />
+        </label>
+        <input type="submit" value="Post" />
+      </form>
+    </div>
+  </body>
+</html>
