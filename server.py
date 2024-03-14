@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from flask import Flask, request, send_from_directory, make_response, redirect, url_for, jsonify
 from markupsafe import escape
 from util.auth import *
-
+from flask import session
 app = Flask(__name__)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 
@@ -27,9 +27,8 @@ def index():
 # assumes database users with data id password and username per user
 @app.route('/login', methods=['POST'])
 def login(response):
-    user_data = request.json
-    username = user_data['username']
-    password = user_data['password']
+    username = request.form.get("username")
+    password = request.form.get("password")    
     
     # Find the user by username
     user = user_collection.find_one({'username': username})
@@ -38,7 +37,7 @@ def login(response):
         session['user_id'] = str(user['_id'])
 
     setAuthToken(response, username, auth_collection)
-    return response
+    return redirect(url_for("index"))
 
 @app.route('/test')
 def testRoute():
