@@ -26,7 +26,7 @@ def index():
 
 # assumes database users with data id password and username per user
 @app.route('/login', methods=['POST'])
-def login(response):
+def login():
     username = request.form.get("username_login")
     password = request.form.get("password_login")    
     
@@ -36,7 +36,7 @@ def login(response):
     if user and hash(password) == user['password']:
         session['user_id'] = str(user['_id'])
 
-    setAuthToken(response, username, auth_collection)
+    setAuthToken(username, auth_collection)
     return redirect(url_for("index"))
 
 @app.route('/test')
