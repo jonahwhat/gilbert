@@ -7,7 +7,7 @@
 .main {
   width: 100%;
   height: 100vh;
-  background: url("../img/510603-minimalism-landscape-mountains-lake-clear-sky.jpg");
+  background: url("../img/bg.jpg");
   background-position: center;
   background-size: cover;
   overflow-y: scroll;
@@ -98,4 +98,58 @@
 .like-img {
   width: 30px;
   margin-right: 5px;
+}
+
+.create-post {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.create-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.create-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  padding: 10px 0px;
+}
+
+.create-text {
+  width: 100%;
+  height: 98%;
+  border-radius: 20px;
+  background: #eee;
+  padding: 10px;
+  resize: none;
+}
+
+.create-footer {
+  padding: 15px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+}
+
+.post-button {
+  padding: 7px 20px;
+  border-radius: 20px;
+  background: #73a0c9;
+  color: #fff;
+  font: bold 16px "Arial";
+}
+
+.add-media-button {
+  background: #fff;
+  border: none;
+}
+
+.add-media-button img {
+  width: 35px;
+  margin-right: 10px;
 }
