@@ -44,6 +44,24 @@ def register():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
+@app.route('/create_post', methods=['POST'])
+def create_post():
+    auth_token = request.cookies.get('auth')
+    if not auth_token:
+        return jsonify({'error': 'Authentication required'}), 401
+    username = getUsername(auth_token, auth_collection)
+    if not username:
+        return jsonify({'error': 'Invalid authentication token'}), 401
+    content = request.json.get('content')
+    if not content:
+        return jsonify({'error': 'Post content is required'}), 400
+        new_post = {
+        'author': username,
+        'content': content
+    }
+    posts_collection.insert_one(new_post)
+    return jsonify({'message': 'Post created successfully', 'author': username}), 201
+
 
 @app.route('/login', methods=['POST'])
 def login():
