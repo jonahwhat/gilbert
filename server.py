@@ -36,6 +36,12 @@ def index():
 
     return render_template('index.html', username=username, register_error=register_error, login_error=login_error)
 
+@app.route('/application')
+def app():
+    auth_token = request.cookies.get('auth')
+    username = getUsername(auth_token, auth_collection)
+    return render_template('application.html',username=username)
+
 @app.route('/register',methods=["POST"])
 def register():
     if request.method == "POST":
