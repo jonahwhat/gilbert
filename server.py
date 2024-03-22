@@ -37,7 +37,7 @@ def index():
     return render_template('index.html', username=username, register_error=register_error, login_error=login_error)
 
 @app.route('/application')
-def app():
+def application():
     auth_token = request.cookies.get('auth')
     username = getUsername(auth_token, auth_collection)
     return render_template('application.html',username=username)
