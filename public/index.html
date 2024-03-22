@@ -16,6 +16,15 @@
         <div class="right-nav">
           <h3 class="username">{{Username}}</h3>
           <img class="avatar" src="./img/Profile-Avatar-PNG-Picture.png" />
+          <div class="logout">
+            <form
+              action="/logout"
+              method="post"
+              enctype="application/x-www-form-urlencoded"
+            >
+              <input type="submit" value="Logout" />
+            </form>
+          </div>
         </div>
       </div>
       <div class="feed">
