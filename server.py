@@ -87,10 +87,7 @@ def testRoute():
 def function():
     return send_from_directory('public', 'function.js')
 
-@app.route('/style.css')
-def css():
-    return send_from_directory('static', 'style.css')
-
+ 
 @app.route('/print')
 def printMsg(message):
     app.logger.info(message)
