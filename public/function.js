@@ -1,14 +1,14 @@
 console.log("Hello, World!");
 
 
-function getPost(){
+function updatePost(){
     const request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
-            clearChat();
-            const messages = JSON.parse(this.response);
-            for (const message of messages) {
-                addMessageToChat(message);
+            clearPostMain();
+            const posts = JSON.parse(this.response);
+            for (const post of posts) {
+                displayPost(post);
             }
         }
     }
@@ -16,9 +16,14 @@ function getPost(){
     request.send();
 }
 
+function clearPostMain(){
+    const postMain = document.querySelector(".post-main");
+    postMain.innerHTML = "";
+}
+
 function sendPost(){
-    const postTextBox = document.getElementById("chat-text-box");
-    const message = post.value; //value of the post or message
+    const postTextBox = document.querySelector("create-text");
+    const message = postTextBox.value; //value of the post or message
     postTextBox.value = "";
     // Using AJAX
     const request = new XMLHttpRequest();
@@ -30,20 +35,10 @@ function sendPost(){
     const messageJSON = {"content": message};
     request.open("POST", "/create_post"); // path for sending post
     request.send(JSON.stringify(messageJSON));
-    chatTextBox.focus();
+    postTextBox.focus();
 }
 
-function addPost(messageJSON) {
-    const post = document.getElementById(""); //get id for post 
-    //chatMessages.innerHTML += chatMessageHTML(messageJSON);
-    post.scrollIntoView(false);
-    post.scrollTop = post.scrollHeight - post.clientHeight;
-}
-//function if needed to handle html for post 
-function postHTML(messageJSON) {
-    const username = messageJSON.username;
-    const message = messageJSON.message;
-    const messageId = messageJSON.id;
-    let messageHTML = "" //place html here for individual post
-    return messageHTML;
+//handle the html and display of post here
+function displayPost(){
+
 }
