@@ -71,6 +71,14 @@
   flex-direction: column;
 }
 
+.post-list {
+  width: 40%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
 .post {
   padding: 10px;
   border: solid 1px #ddd;
@@ -109,6 +117,17 @@
   margin-right: 5px;
 }
 
+.like-btn {
+  border-radius: 5px;
+  padding: 4px;
+  background: rgb(209, 209, 209);
+  transition: background-color 0.3s ease;
+}
+.like-btn:hover {
+  background: rgb(164, 164, 164);
+}
+
+
 .create-post {
   display: flex;
   flex-direction: column;
@@ -129,10 +148,16 @@
   padding: 10px 0px;
 }
 
+.post-p {
+  overflow: hidden; 
+  word-wrap: break-word; 
+  white-space: normal; 
+}
+
 .create-text {
   width: 100%;
   height: 98%;
-  border-radius: 20px;
+  border-radius: 10px;
   background: #eee;
   padding: 10px;
   resize: none;
@@ -147,10 +172,14 @@
 
 .post-button {
   padding: 7px 20px;
-  border-radius: 20px;
+  border-radius: 10px;
   background: #73a0c9;
   color: #fff;
   font: bold 16px "Arial";
+  transition: background-color 0.3s ease;
+}
+.post-button:hover {
+  background: rgb(70, 108, 144);
 }
 
 .add-media-button {
