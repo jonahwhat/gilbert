@@ -71,6 +71,14 @@
   flex-direction: column;
 }
 
+.post-list {
+  width: 40%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
 .post {
   padding: 10px;
   border: solid 1px #ddd;
@@ -127,6 +135,12 @@
   justify-content: center;
   height: 150px;
   padding: 10px 0px;
+}
+
+.post-p {
+  overflow: hidden; 
+  word-wrap: break-word; 
+  white-space: normal; 
 }
 
 .create-text {
