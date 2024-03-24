@@ -12,7 +12,7 @@ function updatePost(){
             }
         }
     }
-    request.open("GET", "/post"); //change path to whatever we are using
+    request.open("GET", "/send_posts"); //change path to whatever we are using
     request.send();
 }
 
@@ -22,8 +22,12 @@ function clearPostMain(){
 }
 
 function sendPost(){
-    const postTextBox = document.querySelector("create-text");
+    const postTextBox = document.querySelector(".create-text");
     const message = postTextBox.value; //value of the post or message
+    if (message == "") {
+        return
+    }
+    console.log(message)
     postTextBox.value = "";
     // Using AJAX
     const request = new XMLHttpRequest();
@@ -33,7 +37,8 @@ function sendPost(){
         }
     }
     const messageJSON = {"content": message};
-    request.open("POST", "/create_post"); // path for sending post
+    request.open("POST", "/create_post");
+    request.setRequestHeader("Content-Type", "application/json");
     request.send(JSON.stringify(messageJSON));
     postTextBox.focus();
 }

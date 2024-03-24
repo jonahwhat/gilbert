@@ -1,9 +1,11 @@
-import bcrypt
 from pymongo import MongoClient
 from flask import Flask, render_template, request, send_from_directory, make_response, redirect, session, url_for, jsonify
 from markupsafe import escape
 from util.auth import *
+from util.posts import *
 from flask import session
+
+
 app = Flask(__name__)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.secret_key = 'cse312secretkeymoment1612!'
@@ -16,6 +18,8 @@ db = mongo_client["cse312"]
 user_collection = db["user"]
 # auth_collection stores auth tokens along with username
 auth_collection = db["auth"]
+# posts_collection stores all user posts on the main feed
+posts_collection = db["posts"]
 
 @app.after_request
 def add_security_headers(response):
@@ -40,7 +44,6 @@ def index():
 def application():
     auth_token = request.cookies.get('auth')
     username = getUsername(auth_token, auth_collection)
-    printMsg(username)
     return render_template('application.html', username=username)
 
 @app.route('/register',methods=["POST"])
@@ -53,21 +56,12 @@ def register():
 
 @app.route('/create_post', methods=['POST'])
 def create_post():
-    auth_token = request.cookies.get('auth')
-    if not auth_token:
-        return jsonify({'error': 'Authentication required'}), 401
-    username = getUsername(auth_token, auth_collection)
-    if not username:
-        return jsonify({'error': 'Invalid authentication token'}), 401
-    content = request.json.get('content')
-    if not content:
-        return jsonify({'error': 'Post content is required'}), 400
-        new_post = {
-        'author': username,
-        'content': content
-    }
-    posts_collection.insert_one(new_post)
-    return jsonify({'message': 'Post created successfully', 'author': username}), 201
+    return create_post_response(request, auth_collection, posts_collection)
+
+
+@app.route('/send_posts', methods=['GET'])
+def send_posts():
+    return send_all_posts(posts_collection)
 
 
 @app.route('/login', methods=['POST'])
@@ -86,18 +80,17 @@ def testRoute():
 
 @app.route('/static/js/<path:filename>')
 def function(filename):
-    printMsg(filename)
     return send_from_directory('static/js', filename, mimetype='text/javascript')
 
 @app.route('/static/css/<path:filename>')
 def serve_css(filename):
-    printMsg(filename)
     return send_from_directory('static/css', filename, mimetype='text/css')
 
  
 @app.route('/print')
 def printMsg(message):
-    app.logger.info(message)
+    output = f"\n\033[32m=== Printing to Console ===\033[0m\n\033[97m{message}\033[0m\n\033[32m=== End of Message ===\033[0m"
+    app.logger.info(output)
     return "Check your console"
 
 if __name__ == '__main__':
