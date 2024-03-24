@@ -1,0 +1,12 @@
+body {
+    background-color: #16121c;
+    color: #e3e2e2;
+}
+
+.center{
+    margin-left: 0;
+    margin-right: 0;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+  }

@@ -42,3 +42,7 @@ function sendPost(){
 function displayPost(){
 
 }
+
+function welcome() {
+    document.getElementById("js-test").innerHTML += " This text was added by JavaScript 😀";
+}

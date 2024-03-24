@@ -40,7 +40,8 @@ def index():
 def application():
     auth_token = request.cookies.get('auth')
     username = getUsername(auth_token, auth_collection)
-    return render_template('application.html',username=username)
+    printMsg(username)
+    return render_template('application.html', username=username)
 
 @app.route('/register',methods=["POST"])
 def register():
@@ -71,19 +72,6 @@ def create_post():
 
 @app.route('/login', methods=['POST'])
 def login():
-<<<<<<< HEAD
-    username = request.form.get("username_login")
-    password = request.form.get("password_login")    
-    
-    # Find the user by username
-    user = user_collection.find_one({'username': username})
-    
-    if user and hash(password) == user['password']:
-        session['user_id'] = str(user['_id'])
-
-    setAuthToken(username, auth_collection)
-    return redirect(url_for("index"))
-=======
     return handleLogin(request, user_collection, auth_collection)
 
 @app.route('/logout', methods=['POST'])
@@ -91,15 +79,20 @@ def logout():
     response = make_response(redirect(url_for("index")))
     removeAuthToken(request, response, auth_collection)
     return response
->>>>>>> 6a9f5a5508f183fbfbea10449328bac4ca5ea3d9
 
 @app.route('/test')
 def testRoute():
     return send_from_directory('static', 'holycow.png')
 
-@app.route('/function')
-def function():
-    return send_from_directory('public', 'function.js')
+@app.route('/static/js/<path:filename>')
+def function(filename):
+    printMsg(filename)
+    return send_from_directory('static/js', filename, mimetype='text/javascript')
+
+@app.route('/static/css/<path:filename>')
+def serve_css(filename):
+    printMsg(filename)
+    return send_from_directory('static/css', filename, mimetype='text/css')
 
  
 @app.route('/print')
