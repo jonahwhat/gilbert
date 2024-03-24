@@ -1,6 +1,5 @@
 console.log("Hello, World!");
 
-
 function updatePost(){
     const request = new XMLHttpRequest();
     request.onreadystatechange = function () {
@@ -13,6 +12,18 @@ function updatePost(){
         }
     }
     request.open("GET", "/send_posts"); //change path to whatever we are using
+    request.send();
+}
+
+function likePost(messageId){
+    const request = new XMLHttpRequest();
+
+    request.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            updatePost();
+        }
+    }
+    request.open("POST", "/handle_like/" + messageId);
     request.send();
 }
 
@@ -51,14 +62,12 @@ function welcome() {
 
 function initializePostPage() {
     updatePost()
-
     document.addEventListener("keypress", function (event) {
         if (event.code === "Enter") {
             event.preventDefault();
             sendPost();
         }
     });
-
     setInterval(updatePost, 1000);
 }
 
@@ -67,7 +76,8 @@ function createPostHTML(postJSON) {
     const message = postJSON.content;
     const messageId = postJSON.id;
     const likesNumber = postJSON.likes.length;
-    let postHTML = `<div class="post"><div class="post-header"><img id="post-avatar" class="avatar" src="/static/img/Profile-Avatar-PNG-Picture.png"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button class="like-btn"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber}</h5></button></div></div></div>`
+    // let postHTML = `<div class="post" id="${messageId}"><div class="post-header"><img id="post-avatar" class="avatar" src="/static/img/Profile-Avatar-PNG-Picture.png"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button class="like-btn" onclick="likePost('${messageId}')"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber}</h5></button></div></div></div>`
+    let postHTML = `<div class="post" id="${messageId}"><div class="post-header"><img id="post-avatar" class="avatar" src="/static/img/Profile-Avatar-PNG-Picture.png"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button type="button" class="like-btn" onclick="likePost('${messageId}')"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber} likes</h5></button></div></div></div>`;
     return postHTML;
 }
 

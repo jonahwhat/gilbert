@@ -117,6 +117,11 @@
   margin-right: 5px;
 }
 
+.like-btn {
+  border-radius: 10px;
+  margin: 8px;
+}
+
 .create-post {
   display: flex;
   flex-direction: column;
@@ -146,7 +151,7 @@
 .create-text {
   width: 100%;
   height: 98%;
-  border-radius: 20px;
+  border-radius: 10px;
   background: #eee;
   padding: 10px;
   resize: none;
@@ -161,7 +166,7 @@
 
 .post-button {
   padding: 7px 20px;
-  border-radius: 20px;
+  border-radius: 10px;
   background: #73a0c9;
   color: #fff;
   font: bold 16px "Arial";

@@ -64,6 +64,12 @@ def send_posts():
     return send_all_posts(posts_collection)
 
 
+@app.route('/handle_like/<path:messageId>', methods=['POST'])
+def handle_like(messageId):
+    printMsg(messageId)
+    return handle_post_like(request, auth_collection, posts_collection, messageId)
+
+
 @app.route('/login', methods=['POST'])
 def login():
     return handleLogin(request, user_collection, auth_collection)
