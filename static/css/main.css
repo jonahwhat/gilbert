@@ -118,8 +118,8 @@
 }
 
 .like-btn {
-  border-radius: 10px;
-  margin: 8px;
+  border-radius: 5px;
+  padding: 4px;
 }
 
 .create-post {
@@ -170,6 +170,10 @@
   background: #73a0c9;
   color: #fff;
   font: bold 16px "Arial";
+  transition: background-color 0.3s ease;
+}
+.post-button:hover {
+  background: rgb(70, 108, 144);
 }
 
 .add-media-button {
