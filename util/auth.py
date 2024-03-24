@@ -73,7 +73,7 @@ def handleRegister(request, user_collection):
 def handleLogin(request, user_collection, auth_collection):
     username = str(escape(request.form.get("username_login")))
     password = request.form.get("password_login")    
-    response = make_response(redirect(url_for("index")))
+    response = make_response(redirect(url_for("application")))
 
     # check if username is empty
     if username == "":

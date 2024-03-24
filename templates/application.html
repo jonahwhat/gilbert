@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+    <title>Comment Section</title>
+  </head>
+  <body>
+    <div class="main">
+      <div class="nav-bar">
+        <div class="left-nav">
+          <a href="/"><img src="" />🗣️</a>
+          <h1>Yappers</h1>
+        </div>
+        <div class="right-nav">
+          <h3 class="username">Username: {{username|safe}}</h3>
+          <img
+            class="avatar"
+            src="/static/img/Profile-Avatar-PNG-Picture.png"
+          />
+          <div class="logout">
+            <form
+              action="/logout"
+              method="post"
+              enctype="application/x-www-form-urlencoded"
+            >
+              <input type="submit" value="Logout" />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="feed">
+        <div class="post-main">
+          <div class="create-post">
+            <div class="create-header">
+              <img
+                id="post-avatar"
+                class="avatar"
+                src="/static/img/Profile-Avatar-PNG-Picture.png"
+              />
+              <h3 class="username">Username: {{username|safe}}</h3>
+            </div>
+            <div class="create-body">
+              <textarea
+                class="create-text"
+                placeholder="Yap here"
+                cols="50"
+                rows="10"
+              ></textarea>
+            </div>
+            <div class="create-footer">
+              <button class="add-media-button">
+                <img src="/static/img/media.png" />
+              </button>
+              <button class="post-button">Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/static/js/function.js"></script>
+  </body>
+</html>

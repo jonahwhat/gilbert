@@ -3,14 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
     <title>CSE312 Project</title>
   </head>
+
+  <body onload="welcome();">
+
   <body>
+    <div class="center"><div>
     <h1>Your username is : {{username|safe}}</h1>
-    <img src="/static/MBAEBAE.png" />
-    <h1>❤️</h1>
+    <img src="/static/img/MBAEBAE.png" />
+    <h3 id="js-test">❤️</h3>
     <div class="login">
       <h4>Login:</h4>
       <form
@@ -68,6 +72,8 @@
       </form>
       </div>
 
-
+      <script type="text/javascript" src="/static/js/function.js"></script>
+    </div>
+    </div>
   </body>
 </html>
