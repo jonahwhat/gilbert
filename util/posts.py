@@ -45,3 +45,35 @@ def send_all_posts(posts_collection):
     response.mimetype = 'application/json; charset=utf-8'
 
     return response
+
+def handle_post_like(request, auth_collection, posts_collection, messageId):
+    # Get username, if username = guest, do nothing
+    auth_token = request.cookies.get('auth')
+    username = getUsername(auth_token, auth_collection)
+
+    if username == "Guest":
+        response = make_response("Unauthorized", 403)
+        response.mimetype = 'text/plain; charset=utf-8'
+        return response
+    
+    post = posts_collection.find_one({"id": messageId})
+
+    if username in post["likes"]:
+        updatedLikes = [like for like in post["likes"] if like != username]
+    else:
+        updatedLikes = post["likes"] + [username]
+
+    updatedPost = {
+        "author": post["author"],
+        "content": post["content"],
+        "likes": updatedLikes,
+        "id": post["id"]
+    }
+
+    posts_collection.update_one({"id": messageId}, {"$set": updatedPost})
+
+    # Return updated post as JSON response
+    response = jsonify(updatedPost)
+    response.status_code = 200
+    response.mimetype = 'application/json; charset=utf-8'
+    return response

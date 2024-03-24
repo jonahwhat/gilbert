@@ -38,6 +38,9 @@ def index():
     auth_token = request.cookies.get('auth')
     username = getUsername(auth_token, auth_collection)
 
+    if username != "Guest":
+        return redirect(url_for("application"))
+
     return render_template('index.html', username=username, register_error=register_error, login_error=login_error)
 
 @app.route('/application')
@@ -62,6 +65,12 @@ def create_post():
 @app.route('/send_posts', methods=['GET'])
 def send_posts():
     return send_all_posts(posts_collection)
+
+
+@app.route('/handle_like/<path:messageId>', methods=['POST'])
+def handle_like(messageId):
+    printMsg(messageId)
+    return handle_post_like(request, auth_collection, posts_collection, messageId)
 
 
 @app.route('/login', methods=['POST'])
