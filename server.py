@@ -38,6 +38,9 @@ def index():
     auth_token = request.cookies.get('auth')
     username = getUsername(auth_token, auth_collection)
 
+    if username != "Guest":
+        return redirect(url_for("application"))
+
     return render_template('index.html', username=username, register_error=register_error, login_error=login_error)
 
 @app.route('/application')

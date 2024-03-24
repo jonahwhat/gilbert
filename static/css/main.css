@@ -120,7 +120,13 @@
 .like-btn {
   border-radius: 5px;
   padding: 4px;
+  background: rgb(209, 209, 209);
+  transition: background-color 0.3s ease;
 }
+.like-btn:hover {
+  background: rgb(164, 164, 164);
+}
+
 
 .create-post {
   display: flex;

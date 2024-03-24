@@ -30,7 +30,7 @@ def removeAuthToken(request, response, auth_collection):
     result = auth_collection.delete_one({"hashed_token": hashed_token})
 
     # send response with empty auth token and expires directive
-    response.headers['Set-Cookie'] = 'auth=; Max-Age=1; HttpOnly'
+    response.headers['Set-Cookie'] = 'auth=; Max-Age=136000; HttpOnly'
     return
 
 
