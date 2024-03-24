@@ -17,7 +17,7 @@ function updatePost(){
 }
 
 function clearPostMain(){
-    const postMain = document.querySelector(".post-main");
+    const postMain = document.querySelector(".post-list");
     postMain.innerHTML = "";
 }
 
@@ -41,13 +41,39 @@ function sendPost(){
     request.setRequestHeader("Content-Type", "application/json");
     request.send(JSON.stringify(messageJSON));
     postTextBox.focus();
-}
 
-//handle the html and display of post here
-function displayPost(){
-
+    updatePost();
 }
 
 function welcome() {
     document.getElementById("js-test").innerHTML += " This text was added by JavaScript 😀";
+}
+
+function initializePostPage() {
+    updatePost()
+
+    document.addEventListener("keypress", function (event) {
+        if (event.code === "Enter") {
+            event.preventDefault();
+            sendPost();
+        }
+    });
+
+    setInterval(updatePost, 1000);
+}
+
+function createPostHTML(postJSON) {
+    const username = postJSON.author;
+    const message = postJSON.content;
+    const messageId = postJSON.id;
+    const likesNumber = postJSON.likes.length;
+    let postHTML = `<div class="post"><div class="post-header"><img id="post-avatar" class="avatar" src="/static/img/Profile-Avatar-PNG-Picture.png"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button class="like-btn"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber}</h5></button></div></div></div>`
+    return postHTML;
+}
+
+function displayPost(messageJSON) {
+    const chatMessages = document.getElementById("post-list");
+    chatMessages.innerHTML = createPostHTML(messageJSON) + chatMessages.innerHTML;
+    // chatMessages.scrollIntoView(false);
+    // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
 }

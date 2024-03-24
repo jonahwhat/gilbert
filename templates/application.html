@@ -7,6 +7,9 @@
     <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
     <title>Comment Section</title>
   </head>
+
+  <body onload="initializePostPage();">
+
   <body>
     <div class="main">
       <div class="nav-bar">
@@ -33,7 +36,7 @@
       </div>
       <div class="feed">
         <div class="post-main">
-          <div class="create-post">
+          <div id="post-form" class="create-post">
             <div class="create-header">
               <img
                 id="post-avatar"
@@ -47,7 +50,8 @@
                 class="create-text"
                 placeholder="Yap here"
                 cols="50"
-                rows="10"
+                rows="1"
+                wrap="soft"
               ></textarea>
             </div>
             <div class="create-footer">
@@ -55,11 +59,18 @@
                 <img src="/static/img/media.png" />
               </button>
               <button class="post-button" onclick="sendPost()">Post</button>
-              <button class="post-button" onclick="updatePost()">Update Posts</button>
+              <!-- <button class="post-button" onclick="updatePost()">Update Posts</button> -->
             </div>
           </div>
         </div>
       </div>
+
+      <div class="feed">
+        <div class="post-list" id="post-list">
+
+        </div>
+      </div>
+
     </div>
     <script src="/static/js/function.js"></script>
   </body>
