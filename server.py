@@ -3,11 +3,16 @@ from flask import Flask, render_template, request, send_from_directory, make_res
 from markupsafe import escape
 from util.auth import *
 from util.posts import *
+from util.image import *
 from flask import session
+from werkzeug.utils import secure_filename
+from pathlib import Path
 
 
 app = Flask(__name__)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['UPLOAD_FOLDER'] = 'static'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
 
 # setting up database
@@ -94,6 +99,35 @@ def function(filename):
 @app.route('/static/css/<path:filename>')
 def serve_css(filename):
     return send_from_directory('static/css', filename, mimetype='text/css')
+
+
+@app.route('/image-upload', methods=['POST'])
+def handle_image():
+
+
+    if 'upload_profile_pic' not in request.files:
+        return 'there is no image in the form!'
+    
+    image = request.files['upload_profile_pic']
+    
+    filename = secure_filename(str(escape(image.filename)))
+    printMsg(filename)
+    
+    my_file = Path(__file__).parent.resolve() / filename
+    printMsg(my_file)
+
+
+    image.save(my_file)
+
+    image_url = url_for('static', filename=filename)
+
+
+    # return my_file       
+
+    response = make_response(redirect(url_for("index")))
+    # handle_profile_image_upload()
+    return f'The image is uploaded. You can view it <a href="{image_url}">here</a>.'
+
 
  
 @app.route('/print')
