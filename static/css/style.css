@@ -1,12 +1,70 @@
 body {
-    background-color: #16121c;
-    color: #e3e2e2;
+    background-image: url('../img/river2.jpg');
+    background-size: 100%; /* Adjust the size as needed */
+    background-repeat: no-repeat; /* Ensure the image doesn't repeat */
+    background-position: center; /* Center the image */
+    color: black;
 }
 
-.center{
-    margin-left: 0;
-    margin-right: 0;
-    display:flex;
+.main {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
+    height: 100vh;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.login-form, .register-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    background-size: cover; /* Make the background image cover the entire box */
+    background-position: center; /* Center the background image */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    margin-bottom: 10px;
+}
+
+input {
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 250px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+p {
+    margin-top: 10px;
+    color: red;
+}

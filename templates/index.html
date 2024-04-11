@@ -1,79 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
-    <title>CSE312 Project</title>
-  </head>
-
-  <body onload="welcome();">
-
-  <body>
-    <div class="center"><div>
-    <h1>Your username is : {{username|safe}}</h1>
-    <img src="/static/img/MBAEBAE.png" />
-    <h3 id="js-test">❤️</h3>
-    <div class="login">
-      <h4>Login:</h4>
-      <form
-        action="/login"
-        method="post"
-        enctype="application/x-www-form-urlencoded"
-      >
-        <label
-          >Username:
-          <input id="login-form-username" type="text" name="username_login" />
-        </label>
-        <br />
-        <label
-          >Password:&nbsp;
-          <input id="login-form-pass" type="password" name="password_login" />
-        </label>
-        <input type="submit" value="Post" />
-      </form>
-      <p>{{login_error}}</p>
-
-    </div>
-
-    <div class="register">
-      <h4>Register:</h4>
-      <form
-        action="/register"
-        method="post"
-        enctype="application/x-www-form-urlencoded"
-      >
-        <label
-          >Username:
-          <input id="reg-form-username" type="text" name="username" />
-        </label>
-        <br />
-        <label
-          >Password:&nbsp;
-          <input id="reg-form-pass" type="password" name="password" />
-        </label>
-        <br />
-        <label>Re-enter Password:&nbsp;
-        <input id="reg-form-pass2" type="password" name="password2" />
-      </label>
-        <input type="submit" value="Post" />
-      </form>
-      <p>{{register_error|safe}}</p>
-    </div>
-
-    <div class="logout">
-      <form
-        action="/logout"
-        method="post"
-        enctype="application/x-www-form-urlencoded"
-      >
-      <input type="submit" value="Logout" />
-      </form>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+  <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+  <title>CSE312 Project</title>
+  <style>
+    
+  </style>
+</head>
+<body>
+  <div class="main">
+    <h1>Project Yap</h1>
+    <div class="content">
+      <div class="login-form">
+        <h2>Login</h2>
+        <form action="/login" method="post" enctype="application/x-www-form-urlencoded">
+          <label for="username">Username:</label>
+          <input id="username" type="text" name="username_login" required />
+          <label for="password">Password:</label>
+          <input id="password" type="password" name="password_login" required />
+          <button type="submit">Login</button>
+        </form>
+        <p>{{login_error}}</p>
       </div>
-
-      <script type="text/javascript" src="/static/js/function.js"></script>
+      <div class="register-form">
+        <h2>Register</h2>
+        <form action="/register" method="post" enctype="application/x-www-form-urlencoded">
+          <label for="reg-username">Username:</label>
+          <input id="reg-username" type="text" name="username" required />
+          <label for="reg-password">Password:</label>
+          <input id="reg-password" type="password" name="password" required />
+          <label for="reg-password2">Re-enter Password:</label>
+          <input id="reg-password2" type="password" name="password2" required />
+          <button type="submit">Register</button>
+        </form>
+        <p>{{register_error|safe}}</p>
+      </div>
     </div>
-    </div>
-  </body>
+  </div>
+</body>
 </html>
