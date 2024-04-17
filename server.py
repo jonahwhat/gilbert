@@ -1,3 +1,4 @@
+import os
 from pymongo import MongoClient
 from flask import Flask, render_template, request, send_from_directory, make_response, redirect, session, url_for, jsonify
 from markupsafe import escape
@@ -104,29 +105,7 @@ def serve_css(filename):
 @app.route('/image-upload', methods=['POST'])
 def handle_image():
 
-
-    if 'upload_profile_pic' not in request.files:
-        return 'there is no image in the form!'
-    
-    image = request.files['upload_profile_pic']
-    
-    filename = secure_filename(str(escape(image.filename)))
-    printMsg(filename)
-    
-    my_file = Path(__file__).parent.resolve() / filename
-    printMsg(my_file)
-
-
-    image.save(my_file)
-
-    image_url = url_for('static', filename=filename)
-
-
-    # return my_file       
-
-    response = make_response(redirect(url_for("index")))
-    # handle_profile_image_upload()
-    return f'The image is uploaded. You can view it <a href="{image_url}">here</a>.'
+    return handle_profile_picture_upload(request)
 
 
  
