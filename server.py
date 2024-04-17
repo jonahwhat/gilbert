@@ -1,13 +1,19 @@
+import os
 from pymongo import MongoClient
 from flask import Flask, render_template, request, send_from_directory, make_response, redirect, session, url_for, jsonify
 from markupsafe import escape
 from util.auth import *
 from util.posts import *
+from util.image import *
 from flask import session
+from werkzeug.utils import secure_filename
+from pathlib import Path
 
 
 app = Flask(__name__)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['UPLOAD_FOLDER'] = 'static'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
 
 # setting up database
@@ -20,6 +26,9 @@ user_collection = db["user"]
 auth_collection = db["auth"]
 # posts_collection stores all user posts on the main feed
 posts_collection = db["posts"]
+# profile_image_collection stores all profile images
+profile_image_collection = db["profile_image"]
+
 
 @app.after_request
 def add_security_headers(response):
@@ -47,7 +56,9 @@ def index():
 def application():
     auth_token = request.cookies.get('auth')
     username = getUsername(auth_token, auth_collection)
-    return render_template('application.html', username=username)
+    profile_picture_path = get_profile_image(username, profile_image_collection)
+
+    return render_template('application.html', username=username, profile_picture_path=profile_picture_path)
 
 @app.route('/register',methods=["POST"])
 def register():
@@ -64,13 +75,13 @@ def create_post():
 
 @app.route('/send_posts', methods=['GET'])
 def send_posts():
-    return send_all_posts(posts_collection)
+    return send_all_posts(posts_collection, profile_image_collection)
 
 
 @app.route('/handle_like/<path:messageId>', methods=['POST'])
 def handle_like(messageId):
     printMsg(messageId)
-    return handle_post_like(request, auth_collection, posts_collection, messageId)
+    return handle_post_like(request, auth_collection, posts_collection, messageId, profile_image_collection)
 
 
 @app.route('/login', methods=['POST'])
@@ -94,6 +105,15 @@ def function(filename):
 @app.route('/static/css/<path:filename>')
 def serve_css(filename):
     return send_from_directory('static/css', filename, mimetype='text/css')
+
+
+@app.route('/image-upload', methods=['POST'])
+def handle_image():
+    username = getUsername(request.cookies.get('auth'), auth_collection)
+    handle_profile_picture_upload(request, profile_image_collection, username)
+
+    return redirect(url_for("application"))
+
 
  
 @app.route('/print')

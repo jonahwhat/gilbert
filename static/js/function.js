@@ -72,12 +72,14 @@ function initializePostPage() {
 }
 
 function createPostHTML(postJSON) {
+    // todo edit this to include postJSON.profilepicture
     const username = postJSON.author;
     const message = postJSON.content;
     const messageId = postJSON.id;
     const likesNumber = postJSON.likes.length;
+    const imagePath = postJSON.image_path;
     // let postHTML = `<div class="post" id="${messageId}"><div class="post-header"><img id="post-avatar" class="avatar" src="/static/img/Profile-Avatar-PNG-Picture.png"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button class="like-btn" onclick="likePost('${messageId}')"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber}</h5></button></div></div></div>`
-    let postHTML = `<div class="post" id="${messageId}"><div class="post-header"><img id="post-avatar" class="avatar" src="/static/img/Profile-Avatar-PNG-Picture.png"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button type="button" class="like-btn" onclick="likePost('${messageId}')"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber} likes</h5></button></div></div></div>`;
+    let postHTML = `<div class="post" id="${messageId}"><div class="post-header"><img id="post-avatar" class="avatar" src="${imagePath}"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button type="button" class="like-btn" onclick="likePost('${messageId}')"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber} likes</h5></button></div></div></div>`;
     return postHTML;
 }
 
