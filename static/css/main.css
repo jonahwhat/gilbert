@@ -25,6 +25,7 @@
 
 .left-nav,
 .right-nav {
+  padding: 5px 0;
   display: flex;
   align-items: center;
 }
@@ -43,6 +44,28 @@
   font: bold 18px "Lucida Console";
 }
 
+.imageUploadText {
+  margin-right: 20px;
+  font: 13px "Lucida Console";
+}
+
+.imageUploadText input {
+    padding: 5px 15px;
+    background: #c5c5c5;
+    border-radius: 10px;
+    color: #fff;
+    font: bold 14px Arial;
+}
+
+input::file-selector-button {
+  padding: 5px 15px;
+  background: #000000;
+  border-radius: 10px;
+  color: #fff;
+  font: bold 14px Arial;
+}
+
+
 .avatar {
   width: 50px;
   margin-right: 15px;
@@ -55,6 +78,8 @@
   color: #fff;
   font: bold 14px Arial;
 }
+
+
 
 .feed {
   width: 100vw;
