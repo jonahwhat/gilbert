@@ -126,6 +126,14 @@ def message(data):
     print(f"\n\n{data}\n\n")
     send(data)
 
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Client disconnected')
+
 @app.route('/print')
 def printMsg(message):
     output = f"\n\033[32m=== Printing to Console ===\033[0m\n\033[97m{message}\033[0m\n\033[32m=== End of Message ===\033[0m"
