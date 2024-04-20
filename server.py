@@ -7,6 +7,7 @@ from util.posts import *
 from util.image import *
 from flask import session
 from werkzeug.utils import secure_filename
+from flask_socketio import SocketIO, emit
 from pathlib import Path
 
 
@@ -15,7 +16,8 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['UPLOAD_FOLDER'] = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
-# socket = SocketIO(app)
+socket = SocketIO(app)
+
 # setting up database
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse312"]
@@ -70,13 +72,17 @@ def register():
 
 @app.route('/create_post', methods=['POST'])
 def create_post():
-    socket.emit('new_post', {'message': 'A new post has been created!'})
+    #socket.emit('new_post', {'message': 'A new post has been created!'})
     return create_post_response(request, auth_collection, posts_collection)
 
 
 @app.route('/send_posts', methods=['GET'])
 def send_posts():
     return send_all_posts(posts_collection, profile_image_collection)
+
+@socketio.on('send_post')
+def send_posts():
+    socketio.emit('posts',send_all_posts(posts_collection, profile_image_collection))
 
 
 @app.route('/handle_like/<path:messageId>', methods=['POST'])
@@ -115,8 +121,11 @@ def handle_image():
 
     return redirect(url_for("application"))
 
+@socketio.on('message')
+def message(data):
+    print(f"\n\n{data}\n\n")
+    send(data)
 
- 
 @app.route('/print')
 def printMsg(message):
     output = f"\n\033[32m=== Printing to Console ===\033[0m\n\033[97m{message}\033[0m\n\033[32m=== End of Message ===\033[0m"
@@ -124,4 +133,5 @@ def printMsg(message):
     return "Check your console"
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8080)
+    socket.run(app, debug = True) # new line added
+    #app.run(debug=True, host='0.0.0.0', port=8080)
