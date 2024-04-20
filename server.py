@@ -7,6 +7,7 @@ from util.posts import *
 from util.image import *
 from flask import session
 from werkzeug.utils import secure_filename
+from flask_socketio import SocketIO
 from pathlib import Path
 
 
@@ -15,7 +16,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['UPLOAD_FOLDER'] = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
-
+socket = SocketIO(app)
 # setting up database
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse312"]
@@ -70,6 +71,7 @@ def register():
 
 @app.route('/create_post', methods=['POST'])
 def create_post():
+    socket.emit('new_post', {'message': 'A new post has been created!'})
     return create_post_response(request, auth_collection, posts_collection)
 
 
