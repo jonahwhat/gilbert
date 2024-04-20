@@ -89,3 +89,19 @@ function displayPost(messageJSON) {
     // chatMessages.scrollIntoView(false);
     // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
 }
+
+function initializeWebSocket() {
+    var socket = io.connect(window.location.protocol + '//' + window.location.host);
+    socket.on('connect', function() {
+        console.log('Connected to server');
+    });
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+    });
+    socket.on('message', function(data) {
+        console.log('Received message:', data);
+    });
+    socket.on('new_post', function(data) {
+        console.log('New post:', data);
+    });
+}

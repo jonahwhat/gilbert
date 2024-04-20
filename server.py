@@ -7,7 +7,6 @@ from util.posts import *
 from util.image import *
 from flask import session
 from werkzeug.utils import secure_filename
-from flask_socketio import SocketIO
 from pathlib import Path
 
 
@@ -16,7 +15,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['UPLOAD_FOLDER'] = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
-socket = SocketIO(app)
+# socket = SocketIO(app)
 # setting up database
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse312"]
