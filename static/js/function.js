@@ -91,7 +91,8 @@ function displayPost(messageJSON) {
 }
 
 function initializeWebSocket() {
-    var socket = io.connect(window.location.protocol + '//' + window.location.host);
+    socket = io()
+    socket.connect('http://localhost:8080/')
     socket.on('connect', function() {
         console.log('Connected to server');
     });
