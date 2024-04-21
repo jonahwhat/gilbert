@@ -5,6 +5,7 @@ from markupsafe import escape
 from util.auth import *
 from util.posts import *
 from util.image import *
+from util.websockets import *
 from flask import session
 from werkzeug.utils import secure_filename
 from flask_socketio import SocketIO, emit
@@ -16,18 +17,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['UPLOAD_FOLDER'] = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
-
-def authenticate_socketio_request():
-    auth_token = request.args.get('auth_token')
-    username = getUsername(auth_token, auth_collection)
-    if username is None:
-        return False
-    else:
-        request.username = username
-        return True
-
-# authenicate before the websocket connection occurs
-socket = SocketIO(app, middleware=[(authenticate_socketio_request,)])
+socket = SocketIO(app)
 
 # setting up database
 mongo_client = MongoClient("mongo")
@@ -70,6 +60,8 @@ def application():
     auth_token = request.cookies.get('auth')
     username = getUsername(auth_token, auth_collection)
     profile_picture_path = get_profile_image(username, profile_image_collection)
+    session['username'] = username
+    session['profile_picture_path'] = profile_picture_path
 
     return render_template('application.html', username=username, profile_picture_path=profile_picture_path)
 
@@ -77,32 +69,19 @@ def application():
 def register():
     if request.method == "POST":
         return handleRegister(request, user_collection)
+
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
 @app.route('/create_post', methods=['POST'])
 def create_post():
-    socket.emit('new_post', {'message': 'A new post has been created!'})
+    # socket.emit('new_post', {'message': 'A new post has been created!'})
     return create_post_response(request, auth_collection, posts_collection)
 
 
 @app.route('/send_posts', methods=['GET'])
 def send_posts():
-    # auth_token = request.cookies.get('auth')
-    # username = getUsername(auth_token, auth_collection)
-    # message = ""
-    # if username:
-    #     posts = list(posts_collection.find({}))
-    #     if posts:  # Check if there are any posts
-    #         message = posts[-1]["content"]  # Get the content from the first post
-    #         socket.emit('new_post', {'username': username, 'message': message}) 
     return send_all_posts(posts_collection, profile_image_collection)
-
-@socket.on('send_post')
-def send_posts():
-    
-    socket.emit('posts',send_all_posts(posts_collection, profile_image_collection))
-
 
 @app.route('/handle_like/<path:messageId>', methods=['POST'])
 def handle_like(messageId):
@@ -114,19 +93,23 @@ def handle_like(messageId):
 def login():
     return handleLogin(request, user_collection, auth_collection)
 
+
 @app.route('/logout', methods=['POST'])
 def logout():
     response = make_response(redirect(url_for("index")))
     removeAuthToken(request, response, auth_collection)
     return response
 
+
 @app.route('/test')
 def testRoute():
     return send_from_directory('static', 'holycow.png')
 
+
 @app.route('/static/js/<path:filename>')
 def function(filename):
     return send_from_directory('static/js', filename, mimetype='text/javascript')
+
 
 @app.route('/static/css/<path:filename>')
 def serve_css(filename):
@@ -139,13 +122,33 @@ def handle_image():
     handle_profile_picture_upload(request, profile_image_collection, username)
     return redirect(url_for("application"))
 
-@socket.on('message')
-def message(data):
-    print(f"\n\n{data}\n\n")
-    send(data)
 
+
+#* Websockets *#
+@socket.on('create_post_ws')
+def message(data):
+
+    username = session.get("username")
+    profile_picture_path = session.get("profile_picture_path")
+
+    new_post = create_post_json(data, username, profile_picture_path)
+    # printMsg(new_post)
+    
+    socket.emit('new_post', new_post)
+
+    posts_collection.insert_one(new_post)
+
+
+@socket.on('connect')
+def handle_connect():
+    printMsg(session.get('username'))
+
+
+
+#* Util *#
 def error_handler(e):
     print('An error occurred:', e)
+
 
 @app.route('/print')
 def printMsg(message):
@@ -155,4 +158,5 @@ def printMsg(message):
 
 if __name__ == '__main__':
     # socket.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
+    #app.run(debug=True, host='0.0.0.0', port=8080)
     app.run(debug=True, host='0.0.0.0', port=8080)
