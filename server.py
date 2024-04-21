@@ -72,7 +72,7 @@ def register():
 
 @app.route('/create_post', methods=['POST'])
 def create_post():
-    #socket.emit('new_post', {'message': 'A new post has been created!'})
+    socket.emit('new_post', {'message': 'A new post has been created!'})
     return create_post_response(request, auth_collection, posts_collection)
 
 
@@ -80,9 +80,9 @@ def create_post():
 def send_posts():
     return send_all_posts(posts_collection, profile_image_collection)
 
-@socketio.on('send_post')
+@socket.on('send_post')
 def send_posts():
-    socketio.emit('posts',send_all_posts(posts_collection, profile_image_collection))
+    socket.emit('posts',send_all_posts(posts_collection, profile_image_collection))
 
 
 @app.route('/handle_like/<path:messageId>', methods=['POST'])
@@ -118,21 +118,12 @@ def serve_css(filename):
 def handle_image():
     username = getUsername(request.cookies.get('auth'), auth_collection)
     handle_profile_picture_upload(request, profile_image_collection, username)
-
     return redirect(url_for("application"))
 
-@socketio.on('message')
+@socket.on('message')
 def message(data):
     print(f"\n\n{data}\n\n")
     send(data)
-
-@socketio.on('connect')
-def handle_connect():
-    print('Client connected')
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('Client disconnected')
 
 @app.route('/print')
 def printMsg(message):
@@ -141,5 +132,5 @@ def printMsg(message):
     return "Check your console"
 
 if __name__ == '__main__':
-    socket.run(app, debug = True) # new line added
-    #app.run(debug=True, host='0.0.0.0', port=8080)
+    #socket.run(app, debug=True, host='0.0.0.0', port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8080)
