@@ -1,5 +1,34 @@
 console.log("Hello, World!");
 
+const ws = true;
+let socket = null
+
+function initWS() {
+    // Establish a WebSocket connection with the server
+    socket = io();
+    console.log("socket: ", socket)
+
+    // Called whenever data is received from the server over the WebSocket connection
+    // socket.onmessage = function (ws_message) {
+    //     const message = JSON.parse(ws_message.data);
+    //     console.log(message)
+
+    //     const messageType = message.messageType;
+    //     console.log(message.messageType)
+
+    //     if (messageType === "chatMessage") {
+    //         addMessageToChat(message);
+    //     } else if (messageType === "onlineUser") {
+    //         addToOnlineList(message)
+    //     } else if (messageType === "removeOnlineUser") {
+    //         removeFromOnlineList(message)
+    //     } else {
+    //         // send message to WebRTC
+    //         processMessageAsWebRTC(message, messageType);
+    //     }
+    // };
+}
+
 function updatePost(){
     const request = new XMLHttpRequest();
     request.onreadystatechange = function () {
@@ -41,17 +70,23 @@ function sendPost(){
     console.log(message)
     postTextBox.value = "";
     // Using AJAX
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            console.log(this.response);
+    if (ws) {
+        socket.emit('create_post_ws', message);
+        console.log("hello")
+    } else {
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                console.log(this.response);
+            }
         }
+        const messageJSON = {"content": message};
+        request.open("POST", "/create_post");
+        request.setRequestHeader("Content-Type", "application/json");
+        request.send(JSON.stringify(messageJSON));
+        postTextBox.focus();
     }
-    const messageJSON = {"content": message};
-    request.open("POST", "/create_post");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(JSON.stringify(messageJSON));
-    postTextBox.focus();
+
 
     updatePost();
 }
@@ -68,11 +103,13 @@ function initializePostPage() {
             sendPost();
         }
     });
-    setInterval(updatePost, 1000);
+
+    if (!ws) {
+        setInterval(updatePost, 5000);
+    }
 }
 
 function createPostHTML(postJSON) {
-    // todo edit this to include postJSON.profilepicture
     const username = postJSON.author;
     const message = postJSON.content;
     const messageId = postJSON.id;
@@ -91,8 +128,11 @@ function displayPost(messageJSON) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Establish WebSocket connection
-    var socket = io('http://localhost:8080');
+
+    if (ws) {
+        initWS()
+    }
+
 
     // Event listener for when the WebSocket connection is established
     socket.on('connect', function() {
@@ -117,5 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for when a 'new_post' event is received from the server
     socket.on('new_post', function(data) {
         console.log('New post:', data);
+
+
+        const messageType = data.messageType;
+        console.log(messageType)
+
+        if (messageType === "post") {
+            displayPost(data);
+        }
+
     });
 });

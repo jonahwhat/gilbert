@@ -4,7 +4,6 @@ from flask import Flask, render_template, request, send_from_directory, make_res
 from markupsafe import escape
 from util.auth import *
 from util.image import *
-from server import printMsg
 from flask import session
 
 # create post, add to database, returns 201 created json response
