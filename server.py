@@ -16,7 +16,18 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['UPLOAD_FOLDER'] = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
-socket = SocketIO(app)
+
+def authenticate_socketio_request():
+    auth_token = request.args.get('auth_token')
+    username = getUsername(auth_token, auth_collection)
+    if username is None:
+        return False
+    else:
+        request.username = username
+        return True
+
+# authenicate before the websocket connection occurs
+socket = SocketIO(app, middleware=[(authenticate_socketio_request,)])
 
 # setting up database
 mongo_client = MongoClient("mongo")
@@ -66,7 +77,6 @@ def application():
 def register():
     if request.method == "POST":
         return handleRegister(request, user_collection)
-
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
@@ -78,10 +88,19 @@ def create_post():
 
 @app.route('/send_posts', methods=['GET'])
 def send_posts():
+    # auth_token = request.cookies.get('auth')
+    # username = getUsername(auth_token, auth_collection)
+    # message = ""
+    # if username:
+    #     posts = list(posts_collection.find({}))
+    #     if posts:  # Check if there are any posts
+    #         message = posts[-1]["content"]  # Get the content from the first post
+    #         socket.emit('new_post', {'username': username, 'message': message}) 
     return send_all_posts(posts_collection, profile_image_collection)
 
 @socket.on('send_post')
 def send_posts():
+    
     socket.emit('posts',send_all_posts(posts_collection, profile_image_collection))
 
 
@@ -135,5 +154,5 @@ def printMsg(message):
     return "Check your console"
 
 if __name__ == '__main__':
-    socket.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
-    #app.run(debug=True, host='0.0.0.0', port=8080)
+    # socket.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
+    app.run(debug=True, host='0.0.0.0', port=8080)
