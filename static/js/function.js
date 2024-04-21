@@ -90,27 +90,32 @@ function displayPost(messageJSON) {
     // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
 }
 
-document.addEventListener('DOMContentLoaded', () =>{
-    var socket = io.connect('http://' + document.domain)
-    socket = io()
-    socket.connect('http://localhost:8080/')
+document.addEventListener('DOMContentLoaded', () => {
+    // Establish WebSocket connection
+    var socket = io('http://localhost:8080');
+
+    // Event listener for when the WebSocket connection is established
     socket.on('connect', function() {
-        socket.send('Connected to server');
+        console.log('Connected to server');
     });
 
+    // Event listener for when the WebSocket connection is disconnected
     socket.on('disconnect', function() {
         console.log('Disconnected from server');
     });
 
-    socket.on('message', data => {
-        socket.send('Received message:', data);
+    // Event listener for when a message is received from the server
+    socket.on('message', function(data) {
+        console.log('Received message:', data);
     });
 
-    socket.on('send_post' ,data => {
-        socket.send("Received Post:", data);
-    })
+    // Event listener for when a 'send_post' event is received from the server
+    socket.on('send_post', function(data) {
+        console.log('Received Post:', data);
+    });
 
+    // Event listener for when a 'new_post' event is received from the server
     socket.on('new_post', function(data) {
         console.log('New post:', data);
     });
-})
+});
