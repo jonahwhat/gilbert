@@ -2,3 +2,4 @@ Flask==3.0.2
 pymongo
 bcrypt
 requests
+Flask-SocketIO==5.3.6
