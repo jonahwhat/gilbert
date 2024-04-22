@@ -88,7 +88,7 @@ function sendPost(){
     }
 
 
-    updatePost();
+    // updatePost();
 }
 
 function welcome() {
