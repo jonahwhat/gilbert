@@ -88,7 +88,7 @@ def handleLogin(request, user_collection, auth_collection):
         if bcrypt.checkpw(password.encode(), userDict["salted_hash"]):
             # give user an auth cookie
             setAuthToken(response, username, auth_collection)
-            session['login_error'] = f"👍 Login Successful! Welcome {username}"
+            session['login_error'] = f"👍 You are successfully logged in as {username}"
             return response
         
     session['login_error'] = "⚠️ Invalid Login!"
