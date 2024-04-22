@@ -18,6 +18,8 @@ app.config['UPLOAD_FOLDER'] = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 app.secret_key = 'cse312secretkeymoment1612!'
 socket = SocketIO(app)
+socket.init_app(app, cors_allowed_origins="*")
+
 
 # setting up database
 mongo_client = MongoClient("mongo")
