@@ -32,6 +32,11 @@ posts_collection = db["posts"]
 # profile_image_collection stores all profile images
 profile_image_collection = db["profile_image"]
 
+app.before_request
+def enforce_https():
+    if not request.is_secure:
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
 
 @app.after_request
 def add_security_headers(response):
