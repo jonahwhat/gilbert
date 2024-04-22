@@ -10,6 +10,22 @@ body {
 	position: absolute;
 }
 
+.spamWindow {
+	width:20%;
+	max-width:500px;
+/* 	margin:10px; */
+	position: absolute;
+}
+
+.imagewindow {
+	width:auto;
+	height: 300px;
+	max-width:500px;
+/* 	margin:10px; */
+	position: absolute;
+	background-image: url("https://i.imgur.com/TaUfF5E.png");
+}
+
 .center{
     margin-left: 0;
     margin-right: 0;
@@ -34,6 +50,21 @@ cursor: move;
     #window3 {
       top: 130px;
       left: 440px;
+    }
+
+    #window4 {
+      top: 55px;
+		right: 10px;
+    }
+
+    #window5 {
+      top: 255px;
+		right: 100px;
+    }
+
+    #window6 {
+      bottom: 100px;
+		right: 30px;
     }
 
 .taskbar {
@@ -63,4 +94,45 @@ cursor: move;
     overflow: hidden; /* Hide the overflowing content */
     white-space: nowrap; /* Prevent the content from wrapping */
     animation: scroll 20s linear infinite; /* Apply the animation */
+}
+
+@keyframes fancy-shake {
+    0% { transform: translateY(0) rotate(0) scale(1); }
+    25% { transform: translateY(-3px) rotate(-2deg) scale(1.1); }
+    50% { transform: translateY(3px) rotate(2deg) scale(0.9); }
+    75% { transform: translateY(-2px) rotate(-1deg) scale(1.05); }
+    100% { transform: translateY(0) rotate(0) scale(1); }
+}
+
+.window {
+    animation: fancy-shake 0.5s;
+    display: inline-block;
+}
+
+
+@keyframes subtle-shake {
+    0% { transform: translateY(0) rotate(0); }
+    25% { transform: translateY(-1px) rotate(-1deg); }
+    50% { transform: translateY(1px) rotate(1deg); }
+    75% { transform: translateY(-1px) rotate(-1deg); }
+    100% { transform: translateY(0) rotate(0); }
+}
+
+.subtle-shake {
+    animation: subtle-shake 0.5s infinite;
+    display: inline-block;
+}
+
+@keyframes paused-shake {
+    0% { transform: translateY(0) rotate(0); }
+    1% { transform: translateY(-1px) rotate(-1deg); }
+    2% { transform: translateY(1px) rotate(1deg); }
+    3% { transform: translateY(-1px) rotate(-1deg); }
+    4% { transform: translateY(0) rotate(0); } /* Pause */
+    100% { transform: translateY(0) rotate(0); }
+}
+
+.paused-shake {
+    animation: paused-shake 5s infinite;
+    display: inline-block;
 }
