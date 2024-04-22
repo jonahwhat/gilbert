@@ -41,18 +41,18 @@ def handleRegister(request, user_collection):
 
     # check if username/pass is empty string
     if username == "" or password == "" or password2 == "":
-        session['register_error'] = "Please enter a valid username/password!"
+        session['register_error'] = "⚠️ Please enter a valid username/password!"
         return redirect(url_for("index"))
 
     # check if passwords are equal
     if password != password2:
-        session['register_error'] = "Passwords are not equal!"
+        session['register_error'] = "⚠️ Passwords are not equal!"
         return redirect(url_for("index"))
     
     # check if username is already taken
     userExists = user_collection.find_one({'username': username})
     if userExists:
-        session['register_error'] = "Username is already taken!"
+        session['register_error'] = "⚠️ Username is already taken!"
         return redirect(url_for("index"))
 
     # use bcrypt to salt+hash
@@ -66,7 +66,7 @@ def handleRegister(request, user_collection):
     # store in user_collection
     user_collection.insert_one(user_login)
 
-    session['register_error'] = f"Register Successful!, your username is {username}!"
+    session['register_error'] = f"👍 Register Successful!, your username is {username}!"
     return redirect(url_for("index"))
 
 
@@ -77,7 +77,7 @@ def handleLogin(request, user_collection, auth_collection):
 
     # check if username is empty
     if username == "":
-        session['login_error'] = "Please enter a valid username!"
+        session['login_error'] = "⚠️ Please enter a valid username!"
         return redirect(url_for("index"))
 
     userDict = user_collection.find_one({'username': username})
@@ -88,10 +88,10 @@ def handleLogin(request, user_collection, auth_collection):
         if bcrypt.checkpw(password.encode(), userDict["salted_hash"]):
             # give user an auth cookie
             setAuthToken(response, username, auth_collection)
-            session['login_error'] = f"Login Successful! Welcome {username}"
+            session['login_error'] = f"👍 Login Successful! Welcome {username}"
             return response
         
-    session['login_error'] = "Invalid Login!"
+    session['login_error'] = "⚠️ Invalid Login!"
     return redirect(url_for("index"))
 
 
