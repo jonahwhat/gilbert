@@ -7,4 +7,4 @@
 3. View the website at http://localhost:8080/
 
 ### Link to Site
-https://yapper-chat.com/application
+https://yapper-chat.com/
