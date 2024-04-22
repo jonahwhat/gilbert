@@ -88,7 +88,7 @@ function sendPost(){
     }
 
 
-    updatePost();
+    // updatePost();
 }
 
 function welcome() {
@@ -168,3 +168,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 });
+
+
+// Make the DIV elements draggable and bring to front when clicked
+function makeDraggable() {
+    document.querySelectorAll('.window').forEach(window => {
+      window.addEventListener('mousedown', bringToFront);
+      window.querySelector('.title-bar').addEventListener('mousedown', startDragging);
+    });
+  
+    function bringToFront() {
+      const windows = document.querySelectorAll('.window');
+      const maxZIndex = Math.max(...Array.from(windows).map(win => parseInt(win.style.zIndex) || 1));
+      this.style.zIndex = maxZIndex + 1;
+    }
+  
+    function startDragging(event) {
+      const window = this.closest('.window');
+      if (window) {
+        const rect = window.getBoundingClientRect();
+        const offsetX = event.clientX - rect.left;
+        const offsetY = event.clientY - rect.top;
+  
+        document.addEventListener('mousemove', dragWindow);
+        document.addEventListener('mouseup', stopDragging);
+  
+        function dragWindow(event) {
+          window.style.left = (event.clientX - offsetX) + 'px';
+          window.style.top = (event.clientY - offsetY) + 'px';
+        }
+  
+        function stopDragging() {
+          document.removeEventListener('mousemove', dragWindow);
+          document.removeEventListener('mouseup', stopDragging);
+        }
+      }
+    }
+  }
+  
+  // Call the function when the DOM is loaded
+  document.addEventListener('DOMContentLoaded', makeDraggable);
+  
