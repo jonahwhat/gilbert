@@ -6,5 +6,5 @@
 2. Open a terminal in vscode and run `docker-compose up --build --force-recreate`
 3. View the website at http://localhost:8080/
 
-### Reminders
-- escape all chat messages/usernames
+### Link to Site
+https://yapper-chat.com/
