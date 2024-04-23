@@ -7,61 +7,57 @@ function initWS() {
     // Establish a WebSocket connection with the server
     socket = io();
     console.log("socket: ", socket)
-
-    // Called whenever data is received from the server over the WebSocket connection
-    // socket.onmessage = function (ws_message) {
-    //     const message = JSON.parse(ws_message.data);
-    //     console.log(message)
-
-    //     const messageType = message.messageType;
-    //     console.log(message.messageType)
-
-    //     if (messageType === "chatMessage") {
-    //         addMessageToChat(message);
-    //     } else if (messageType === "onlineUser") {
-    //         addToOnlineList(message)
-    //     } else if (messageType === "removeOnlineUser") {
-    //         removeFromOnlineList(message)
-    //     } else {
-    //         // send message to WebRTC
-    //         processMessageAsWebRTC(message, messageType);
-    //     }
-    // };
+    playWavSound("/static/sounds/The Microsoft Sound.wav");
 }
 
-function updatePost(){
+function updatePost() {
     const request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             clearPostMain();
             const posts = JSON.parse(this.response);
-            for (const post of posts) {
-                displayPost(post);
-            }
+            posts.forEach((post, index) => {
+                // Delay the display of each post
+                setTimeout(() => {
+                    displayPost(post);
+                    console.log(post.content)
+                }, index * getRandomDelay());
+            });
         }
-    }
+    };
     request.open("GET", "/send_posts"); //change path to whatever we are using
     request.send();
 }
 
-function likePost(messageId){
-    const request = new XMLHttpRequest();
-
-    request.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            updatePost();
-        }
-    }
-    request.open("POST", "/handle_like/" + messageId);
-    request.send();
+// Function to get a random delay value
+function getRandomDelay() {
+    return Math.floor(Math.random() * 50); // Random delay between 0 and 3 seconds
 }
 
-function clearPostMain(){
+
+function likePost(messageId) {
+
+    if (ws) {
+        socket.emit('like_post', messageId);
+    } else {
+        const request = new XMLHttpRequest();
+
+        request.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                updatePost();
+            }
+        }
+        request.open("POST", "/handle_like/" + messageId);
+        request.send();
+    }
+}
+
+function clearPostMain() {
     const postMain = document.querySelector(".post-list");
     postMain.innerHTML = "";
 }
 
-function sendPost(){
+function sendPost() {
     const postTextBox = document.querySelector(".create-text");
     const message = postTextBox.value; //value of the post or message
     if (message == "") {
@@ -80,7 +76,7 @@ function sendPost(){
                 console.log(this.response);
             }
         }
-        const messageJSON = {"content": message};
+        const messageJSON = { "content": message };
         request.open("POST", "/create_post");
         request.setRequestHeader("Content-Type", "application/json");
         request.send(JSON.stringify(messageJSON));
@@ -97,6 +93,7 @@ function welcome() {
 
 function initializePostPage() {
     updatePost()
+    playWavSound("/static/sounds/The Microsoft Sound.wav");
     document.addEventListener("keypress", function (event) {
         if (event.code === "Enter") {
             event.preventDefault();
@@ -115,17 +112,106 @@ function createPostHTML(postJSON) {
     const messageId = postJSON.id;
     const likesNumber = postJSON.likes.length;
     const imagePath = postJSON.image_path;
-    // let postHTML = `<div class="post" id="${messageId}"><div class="post-header"><img id="post-avatar" class="avatar" src="/static/img/Profile-Avatar-PNG-Picture.png"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button class="like-btn" onclick="likePost('${messageId}')"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber}</h5></button></div></div></div>`
-    let postHTML = `<div class="post" id="${messageId}"><div class="post-header"><img id="post-avatar" class="avatar" src="${imagePath}"/><h3 class="username">${username}</h3></div><div class="post-body"><p class="post-p">${message}</p></div><div class="post-footer"><div class="like"><button type="button" class="like-btn" onclick="likePost('${messageId}')"><img class="like-img" src="/static/img/heart.png" /><h5>${likesNumber} likes</h5></button></div></div></div>`;
+    const top = postJSON.top
+    const left = postJSON.left
+    
+    
+    let imageTag = '';
+    if (imagePath !== "/static/img/Profile-Avatar-PNG-Picture.png") {
+        imageTag = `<img src="${imagePath}" class="postImage">`;
+    }
+
+    let windowTextList = [
+        "✉️ You've got mail!",
+        "✉️ Message Recived!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ You've got mail!",
+        "✉️ The end is near!",
+        "🚨 CRITICAL ERROR!",
+        "⚠️ Warning!",
+        "🎉 CONGRATULATIONS, YOU'VE WON!",
+        "🏛️ Message from the US Government:",
+    ]
+
+    const numericId = parseInt(messageId, 16);
+    const index = numericId % windowTextList.length;
+
+    let windowText = windowTextList[index];
+
+    
+    let postHTML = `<div class="window postwindow" id="${messageId}" style="top: ${top}%; left: ${left}%">
+            <div class="title-bar">
+                <div class="title-bar-text">
+                    ${windowText}
+                </div>
+    
+                <div class="title-bar-controls">
+                    <button aria-label="Close" onclick="deletePost('${messageId}')"></button>
+                </div>
+            </div>
+            <div class="window-body">
+                ${imageTag}
+                <p>📬 Message From <b>${username}</b></p>
+                <hr>
+                <p>${message}</p>
+                <section class="field-row" style="justify-content: flex-end">
+                    <button class="like-btn" onclick="likePost('${messageId}')" >Like (${likesNumber})</button>
+                </section>
+            </div>
+    </div>`;
+    
+    
+    
     return postHTML;
 }
 
 function displayPost(messageJSON) {
     const chatMessages = document.getElementById("post-list");
-    chatMessages.innerHTML = createPostHTML(messageJSON) + chatMessages.innerHTML;
-    // chatMessages.scrollIntoView(false);
-    // chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+    const postHTML = createPostHTML(messageJSON);
+    chatMessages.insertAdjacentHTML('afterbegin', postHTML); 
+
+    // Select the newly added post element
+    const newlyAddedPost = chatMessages.querySelector('.window');
+
+    // Set the z-index of the newly added post to a value higher than the other posts
+    const maxZIndex = getMaxZIndex('.window');
+    newlyAddedPost.style.zIndex = maxZIndex + 1;
+
+
+    newlyAddedPost.classList.add('windowShake');
+
+    // Remove the shake class after the animation ends
+    newlyAddedPost.addEventListener('animationend', function() {
+        this.classList.remove('windowShake');
+    }, {once: true});
+
+    makeDraggable();
 }
+
+// Function to get the maximum z-index among elements with a specific class
+function getMaxZIndex(selector) {
+    const elements = document.querySelectorAll(selector);
+    let maxZIndex = 0;
+    elements.forEach(element => {
+        const zIndex = parseInt(window.getComputedStyle(element).zIndex);
+        if (!isNaN(zIndex) && zIndex > maxZIndex) {
+            maxZIndex = zIndex;
+        }
+    });
+    return maxZIndex;
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -135,27 +221,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Event listener for when the WebSocket connection is established
-    socket.on('connect', function() {
+    socket.on('connect', function () {
         console.log('Connected to server');
     });
 
     // Event listener for when the WebSocket connection is disconnected
-    socket.on('disconnect', function() {
+    socket.on('disconnect', function () {
         console.log('Disconnected from server');
     });
 
     // Event listener for when a message is received from the server
-    socket.on('message', function(data) {
+    socket.on('message', function (data) {
         console.log('Received message:', data);
     });
 
     // Event listener for when a 'send_post' event is received from the server
-    socket.on('send_post', function(data) {
+    socket.on('send_post', function (data) {
         console.log('Received Post:', data);
     });
 
     // Event listener for when a 'new_post' event is received from the server
-    socket.on('new_post', function(data) {
+    socket.on('new_post', function (data) {
         console.log('New post:', data);
 
 
@@ -164,48 +250,110 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (messageType === "post") {
             displayPost(data);
+            playWavSound("/static/sounds/CHORD.WAV");
+
         }
 
     });
+
+    socket.on('statistics', function (data) {
+        console.log('stats:', data);
+
+        document.getElementById('posts-created').innerText = `Posts Created: ${data.posts_created}`;
+        document.getElementById('posts-deleted').innerText = `Posts Deleted: ${data.posts_deleted}`;
+        document.getElementById('unique-users').innerText = `Unique Users: ${data.unique_users}`;
+
+    });
+
+    socket.on('post_deleted', function(data) {
+        const postId = data.post_id;
+        const postElement = document.getElementById(postId);
+        if (postElement) {
+        // Add a CSS class to trigger the animation
+        postElement.classList.add('delete-animation');
+        playWavSound("./static/sounds/CHIMES.WAV");
+        // Wait for the animation to finish before removing the element
+        postElement.addEventListener('animationend', function() {
+            
+            postElement.remove();
+        });
+        }
+    });
+
+    socket.on('post_liked', function(data) {
+        const postId = data.message_id;
+        const likesNumber = data.likes;
+        console.log("like recieved, new likes: ", likesNumber, postId)
+        const postElement = document.getElementById(postId);
+        if (postElement) {
+
+            postElement.classList.add('like-anim');
+            playWavSound("/static/sounds/DING.WAV");
+        const likeButton = postElement.querySelector('.like-btn');
+        if (likeButton) {
+            
+            likeButton.textContent = `Like (${likesNumber})`;
+        }
+        postElement.addEventListener('animationend', function() {
+            postElement.classList.remove('like-anim');
+        });
+
+        }
+    });
+
+
+
 });
 
+function deletePost(postId) {
+    socket.emit('delete_post', postId);
+}
 
 // Make the DIV elements draggable and bring to front when clicked
 function makeDraggable() {
     document.querySelectorAll('.window').forEach(window => {
-      window.addEventListener('mousedown', bringToFront);
-      window.querySelector('.title-bar').addEventListener('mousedown', startDragging);
+        window.addEventListener('mousedown', bringToFront);
+        
+        const titleBar = window.querySelector('.title-bar');
+        if (titleBar) {
+            titleBar.addEventListener('mousedown', startDragging);
+        }
     });
-  
+
     function bringToFront() {
-      const windows = document.querySelectorAll('.window');
-      const maxZIndex = Math.max(...Array.from(windows).map(win => parseInt(win.style.zIndex) || 1));
-      this.style.zIndex = maxZIndex + 1;
+        const windows = document.querySelectorAll('.window');
+        const maxZIndex = Math.max(...Array.from(windows).map(win => parseInt(win.style.zIndex) || 1));
+        this.style.zIndex = maxZIndex + 1;
     }
-  
+
     function startDragging(event) {
-      const window = this.closest('.window');
-      if (window) {
-        const rect = window.getBoundingClientRect();
-        const offsetX = event.clientX - rect.left;
-        const offsetY = event.clientY - rect.top;
-  
-        document.addEventListener('mousemove', dragWindow);
-        document.addEventListener('mouseup', stopDragging);
-  
-        function dragWindow(event) {
-          window.style.left = (event.clientX - offsetX) + 'px';
-          window.style.top = (event.clientY - offsetY) + 'px';
+        const window = this.closest('.window');
+        if (window) {
+            const rect = window.getBoundingClientRect();
+            const offsetX = event.clientX - rect.left;
+            const offsetY = event.clientY - rect.top;
+
+            document.addEventListener('mousemove', dragWindow);
+            document.addEventListener('mouseup', stopDragging);
+
+            function dragWindow(event) {
+                window.style.left = (event.clientX - offsetX) + 'px';
+                window.style.top = (event.clientY - offsetY) + 'px';
+            }
+
+            function stopDragging() {
+                document.removeEventListener('mousemove', dragWindow);
+                document.removeEventListener('mouseup', stopDragging);
+            }
         }
-  
-        function stopDragging() {
-          document.removeEventListener('mousemove', dragWindow);
-          document.removeEventListener('mouseup', stopDragging);
-        }
-      }
     }
+}
+
+
+function playWavSound(filename) {
+    var audio = new Audio(filename);
+    audio.play();
   }
-  
-  // Call the function when the DOM is loaded
-  document.addEventListener('DOMContentLoaded', makeDraggable);
-  
+
+// Call the function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', makeDraggable);

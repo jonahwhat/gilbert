@@ -42,7 +42,9 @@ def send_all_posts(posts_collection, profile_image_collection):
             "content": post["content"],
             "likes": post["likes"],
             "id": post["id"],
-            "image_path": image_path
+            "image_path": image_path,
+            "top": post["top"],
+            "left": post["left"],
         }
         posts_list.append(post_data)
 

@@ -1,88 +1,128 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/98.css" />
-    <title>Comment Section</title>
-  </head>
 
-  <body onload="initializePostPage();">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <body>
-    <div class="main">
-      <div class="nav-bar">
-        <div class="left-nav">
-          <a href="/"><img src="" />🗣️</a>
-          <h1>Yappers</h1>
-        </div>
-        <div class="right-nav">
-          <h3 class="username">Username: {{username|safe}}</h3>
-          <h3 class="imageUploadText">
-          <form action="/image-upload" id="image-chat" method="post" enctype="multipart/form-data">
-            <br/>
-            <label for="chat-image">Change profile picture:</label>
-            <input id="chat-image" type="file" name="upload_profile_pic">
-            <input type="submit" value="Confirm">
-          </h3>
-        </form>
-          <img
-            class="avatar"
-            src="{{ profile_picture_path }}"
-          />
-          <div class="logout">
-            <form
-              action="/logout"
-              method="post"
-              enctype="application/x-www-form-urlencoded"
-            >
-              <input type="submit" value="Logout" />
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="feed">
-        <div class="post-main">
-          <div id="post-form" class="create-post">
-            <div class="create-header">
-              <img
-                id="post-avatar"
-                class="avatar"
-                src="{{ profile_picture_path|safe }}"
-              />
-              <h3 class="username">Username: {{username|safe}}</h3>
-            </div>
-            <div class="create-body">
-              <textarea
-                class="create-text"
-                placeholder="Yap here"
-                cols="50"
-                rows="1"
-                wrap="soft"
-              ></textarea>
-            </div>
-            <div class="create-footer">
-                <!-- <button class="add-media-button">
-                  <img src="/static/img/media.png" />
-                </button> -->
-              <button class="post-button" onclick="sendPost()">Post</button>
-              <!-- <button class="post-button" onclick="updatePost()">Update Posts</button> -->
-            </div>
-          </div>
-        </div>
-      </div>
+	<link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/98.css" />
+	<title>Yap Chat</title>
+</head>
 
-      <div class="feed">
-        <div class="post-list" id="post-list">
+<body onload="initializePostPage();">
 
-        </div>
-      </div>
+	<body>
 
-    </div>
-    <script src="/static/js/function.js"></script>
-  </body>
+		<div class="center ontop"  style="z-index: 999999;">
+			<div class="window controlsWindow windowShake ontop" id="controlsWindow">
+				<div class="title-bar inactive" id="controlsWindow">
+					<div class="title-bar-text">
+						📢 Yappers Controls
+					</div>
+				</div>
+				<div class="window-body">
+
+
+          {% if username == "Guest" %}
+          <p>You are a <b>{{username|safe}}</b>!</p>
+					{% else %}
+
+					<p>Your Username is: <b>{{username|safe}}</b></p>
+					<img class="profileImage" src="{{ profile_picture_path }}" />
+					<br>
+					<form action="/image-upload" id="image-chat" method="post" enctype="multipart/form-data">
+						<label for="chat-image"> 🖼️ Change profile picture:</label>
+						<br>
+						<input id="chat-image" type="file" name="upload_profile_pic">
+						<input type="submit" value="Confirm">
+					</form>
+          {% endif %}
+					<hr>
+					<p> 📝 Create a post:</p>
+					<textarea class="create-text" placeholder="Yap here" cols="60" rows="13" wrap="soft"></textarea>
+
+					<section class="field-row" style="justify-content: flex-end">
+						<button class="post-button paused-shake" onclick="sendPost()">Post</button>
+					</section>
+					<hr>
+					{% if username == "Guest" %}
+					<p> 🔒 Log in:</p>
+					<section class="field-row" style="justify-content: flex-start">
+						<form action="/logout" method="post" enctype="application/x-www-form-urlencoded">
+							<input type="submit" value="Login" />
+						</form>
+					</section>
+					{% else %}
+					<p> 🔒 Log out:</p>
+					<section class="field-row" style="justify-content: flex-start">
+						<form action="/logout" method="post" enctype="application/x-www-form-urlencoded">
+							<input type="submit" value="Logout" />
+						</form>
+					</section>
+					{% endif %}
+				</div>
+
+			</div>
+		</div>
+
+		<div class="feed">
+			<div class="post-list" id="post-list">
+
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="center ontop2" style="z-index: 999998;">
+			<div class="window postwindow windowShake" id="window11">
+				<div class="title-bar inactive" id="window11">
+					<div class="title-bar-text">
+						📋 Statistics
+					</div>
+
+					<div class="title-bar-controls">
+						<button aria-label="Help"></button>
+					</div>
+				</div>
+				<div class="window-body">
+					<p><b>🌎 Global Website Statistics</b></p>
+					<ul class="tree-view">
+						<li id="posts-created">Posts Created: 0</li>
+						<li id="posts-deleted">Posts Deleted: 0</li>
+						<li id="unique-users">Site Visits: 0</li>
+					</ul>
+					<hr>
+					<p><b>🧍 About You</b></p>
+					<ul class="tree-view">
+						<li>Username: {{username|safe}}</li>
+            <li>Status: Yapping</li>
+					</ul>
+          <hr>
+					<p><b>❤️ Credits</b></p>
+					<ul class="tree-view">
+						<li><a href="https://jdan.github.io/98.css/" target="_blank">jdan.github.io/98.css/</a></li>
+						<li><a href="https://winsounds.com/windows-95-sounds/" target="_blank">winsounds.com/windows-95-sounds/</a></li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="window taskbar">
+			<div class="window-body scroll" id="windowbody">
+				<p>🗣️🗣️🗣️🗣️🗣️ Welcome to yapper-chat.com 😁</p>
+				<p>Welcome to yapper-chat.com 😁</p>
+				<p>Welcome to yapper-chat.com 😁</p>
+				<p>Welcome to yapper-chat.com 😁</p>
+				<p>Welcome to yapper-chat.com 🗣️🗣️🗣️🗣️🗣️</p>
+			</div>
+		</div>
+		<script src="/static/js/function.js"></script>
+	</body>
+
 </html>
