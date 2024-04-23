@@ -20,6 +20,12 @@ app.secret_key = 'cse312secretkeymoment1612!'
 socket = SocketIO(app)
 socket.init_app(app, cors_allowed_origins="*")
 
+statistics = {
+    "posts_created": 0,
+    "posts_deleted": 0,
+    "unique_users": 0,
+}
+
 
 # setting up database
 mongo_client = MongoClient("mongo")
@@ -129,20 +135,41 @@ def handle_image():
 #* Websockets *#
 @socket.on('create_post_ws')
 def message(data):
+    statistics['posts_created'] += 1
 
     username = session.get("username")
     profile_picture_path = session.get("profile_picture_path")
 
     new_post = create_post_json(data, username, profile_picture_path)
-    # printMsg(new_post)
     
     socket.emit('new_post', new_post)
+    socket.emit('statistics', statistics)
 
     posts_collection.insert_one(new_post)
 
 
+@socket.on('delete_post')
+def delete_post(post_id):
+    if (session["username"] != "Guest"):    
+        posts_collection.delete_one({'id': post_id})
+        statistics['posts_deleted'] += 1
+        socket.emit('post_deleted', {'post_id': post_id})
+        socket.emit('statistics', statistics)
+        printMsg(post_id)
+
+
+@socket.on('like_post')
+def handle_like_post(message_id):
+    result = handle_post_like_ws(session["username"], posts_collection, message_id)
+    printMsg(result)
+    if result != None:
+        socket.emit('post_liked', {'message_id': message_id, 'likes': result})
+
+
 @socket.on('connect')
 def handle_connect():
+    statistics['unique_users'] += 1
+    socket.emit('statistics', statistics)
     printMsg(session.get('username'))
 
 
