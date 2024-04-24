@@ -50,7 +50,7 @@
 					</fieldset>
 					<p id="js-test">❤️</p>
 					<section class="field-row" style="justify-content: flex-end">
-						<button>Submit</button>
+						<button onclick="playJoinSound()" >Submit</button>
 					</section>
 				</div>
 			</div>
@@ -84,7 +84,7 @@
 						</div>
 						<p>{{login_error}}</p>
 						<section class="field-row" style="justify-content: flex-end">
-							<input type="submit" value="Log In" />
+							<input onclick="playJoinSound()" type="submit" value="Log In" />
 						</section>
 
 					</form>
@@ -102,7 +102,7 @@
 					<div class="title-bar-controls">
 						<button aria-label="Minimize"></button>
 						<button aria-label="Maximize"></button>
-						<button aria-label="Close"></button>
+						<button onclick="playJoinSound()" aria-label="Close"></button>
 					</div>
 				</div>
 				<div class="window-body">
@@ -125,7 +125,7 @@
 						</div>
 						<p>{{register_error|safe}}</p>
 						<section class="field-row" style="justify-content: flex-end">
-							<input type="submit" value="Register" />
+							<input onclick="playJoinSound()" type="submit" value="Register" />
 						</section>
 
 					</form>
@@ -154,8 +154,8 @@
 					<p>SEND YOUR CREDIT CARD INFORMATION TO YAP@GMAIL.COM</p>
 					<p>SEND YOUR CREDIT CARD INFORMATION TO YAP@GMAIL.COM</p>
 					<section class="field-row" style="justify-content: flex-end">
-						<button>OKAY</button>
-						<button>OKAY</button>
+						<button onclick="playJoinSound()">OKAY</button>
+						<button onclick="playJoinSound()">OKAY</button>
 					</section>
 				</div>
 
@@ -180,7 +180,7 @@
 				<div class="window-body">
 					<p class="fancy-shake">I am rapidly approaching your location.</p>
 					<section class="field-row" style="justify-content: flex-end">
-						<button class="subtle-shake">RUN</button>
+						<button onclick="playJoinSound()" class="subtle-shake">RUN</button>
 					</section>
 				</div>
 
@@ -227,14 +227,16 @@
       </div> -->
 		<div class="window taskbar">
 			<div class="window-body scroll" id="windowbody">
-				<p>🗣️🗣️🗣️🗣️🗣️ Welcome to yapper-chat.com 😁</p>
-				<p>Welcome to yapper-chat.com 😁</p>
-				<p>Welcome to yapper-chat.com 😁</p>
-				<p>Welcome to yapper-chat.com 😁</p>
-				<p>Welcome to yapper-chat.com 🗣️🗣️🗣️🗣️🗣️</p>
+				<p>🗣️🗣️🗣️🗣️🗣️ WELCOME YAPPERS!!!! 😁</p>
+				<p>WELCOME YAPPERS!!!! 😁</p>
+				<p>WELCOME YAPPERS!!!! 😁</p>
+				<p>WELCOME YAPPERS!!!! 😁</p>
+				<p>WELCOME YAPPERS!!!! 🗣️🗣️🗣️🗣️🗣️</p>
 			</div>
 		</div>
 		<script type="text/javascript" src="/static/js/function.js"></script>
+		<script src="/static/js/login.js"></script>
+
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha384-W7u1oZej89xBfSfr7dwwh5OO9S/OtSKj5Z6s+XunMPXSPATFOAenjgGiJhFjVYkz" crossorigin="anonymous"></script>
 		</div>
 		</div>

@@ -1,5 +1,6 @@
 import hashlib
 import os
+import random
 import uuid
 
 
@@ -59,7 +60,14 @@ def get_profile_image(username, profile_image_collection):
     if result:
         return result["upload_path"]
     else:
-        return "/static/img/Profile-Avatar-PNG-Picture.png"
+
+        upload_path = f"/static/img/profile_pic_{random.randint(1, 10)}.png"
+        profile_picture = {
+            "upload_path": upload_path,
+            "username": username
+        }
+        profile_image_collection.insert_one(profile_picture)
+        return upload_path
 
 
 def get_file_type(content):

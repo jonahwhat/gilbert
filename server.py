@@ -24,6 +24,7 @@ statistics = {
     "posts_created": 0,
     "posts_deleted": 0,
     "unique_users": 0,
+    "global_likes":0,
 }
 
 
@@ -81,21 +82,10 @@ def register():
     else:
         return jsonify({'error': 'Method not allowed'}), 405
 
-@app.route('/create_post', methods=['POST'])
-def create_post():
-    # socket.emit('new_post', {'message': 'A new post has been created!'})
-    return create_post_response(request, auth_collection, posts_collection)
-
 
 @app.route('/send_posts', methods=['GET'])
 def send_posts():
     return send_all_posts(posts_collection, profile_image_collection)
-
-@app.route('/handle_like/<path:messageId>', methods=['POST'])
-def handle_like(messageId):
-    printMsg(messageId)
-    return handle_post_like(request, auth_collection, posts_collection, messageId, profile_image_collection)
-
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -107,11 +97,6 @@ def logout():
     response = make_response(redirect(url_for("index")))
     removeAuthToken(request, response, auth_collection)
     return response
-
-
-@app.route('/test')
-def testRoute():
-    return send_from_directory('static', 'holycow.png')
 
 
 @app.route('/static/js/<path:filename>')
@@ -150,8 +135,35 @@ def message(data):
 
 @socket.on('delete_post')
 def delete_post(post_id):
-    if (session["username"] != "Guest"):    
-        posts_collection.delete_one({'id': post_id})
+
+    post = posts_collection.find_one({"id": post_id})
+
+    if ((post.get("author") == "Guest" and session.get("username") == "Guest") or (session.get("username") != "Guest")): 
+
+        # find one, if message type = shame, set hidden to true
+        
+        if (post["messageType"] == "shame"):
+
+
+            updatedPost = {
+                'messageType': post["messageType"],
+                "author": post["author"],
+                "content": post["content"],
+                "likes": post["likes"],
+                "id": post["id"],
+                "image_path": post["image_path"],
+                "top": post["top"],
+                "left": post["left"],
+                "hidden": True
+            }
+
+            posts_collection.update_one({"id": post_id}, {"$set": updatedPost})
+
+        else:
+            posts_collection.delete_one({'id': post_id})
+
+
+
         statistics['posts_deleted'] += 1
         socket.emit('post_deleted', {'post_id': post_id})
         socket.emit('statistics', statistics)
@@ -161,17 +173,27 @@ def delete_post(post_id):
 @socket.on('like_post')
 def handle_like_post(message_id):
     result = handle_post_like_ws(session["username"], posts_collection, message_id)
+    statistics['global_likes'] += result[1]
     printMsg(result)
     if result != None:
-        socket.emit('post_liked', {'message_id': message_id, 'likes': result})
+        socket.emit('post_liked', {'message_id': message_id, 'likes': result[0]})
+        socket.emit('statistics', statistics)
 
 
 @socket.on('connect')
 def handle_connect():
+    # printMsg(session["username"])
     statistics['unique_users'] += 1
     socket.emit('statistics', statistics)
-    printMsg(session.get('username'))
+    # socket.emit('connect', {'username': session.get('username')})
+    # printMsg(session.get('username'))
 
+
+
+@socket.on('disconnect')
+def handle_disconnect():
+    # socket.emit('disconnect', {'username': session.get('username')})
+    pass
 
 
 #* Util *#

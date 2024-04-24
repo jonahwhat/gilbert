@@ -43,6 +43,11 @@ def handleRegister(request, user_collection):
     if username == "" or password == "" or password2 == "":
         session['register_error'] = "⚠️ Please enter a valid username/password!"
         return redirect(url_for("index"))
+    
+    # check if username/pass is empty string
+    if len(username) >= 12:
+        session['register_error'] = "⚠️ Your username is too long!"
+        return redirect(url_for("index"))
 
     # check if passwords are equal
     if password != password2:
@@ -66,7 +71,7 @@ def handleRegister(request, user_collection):
     # store in user_collection
     user_collection.insert_one(user_login)
 
-    session['register_error'] = f"👍 Register Successful!, your username is {username}!"
+    session['register_error'] = f"✅ Register Successful!, your username is {username}!"
     return redirect(url_for("index"))
 
 
@@ -88,7 +93,7 @@ def handleLogin(request, user_collection, auth_collection):
         if bcrypt.checkpw(password.encode(), userDict["salted_hash"]):
             # give user an auth cookie
             setAuthToken(response, username, auth_collection)
-            session['login_error'] = f"👍 You are successfully logged in as {username}"
+            session['login_error'] = f"✅ You are successfully logged in as {username}"
             return response
         
     session['login_error'] = "⚠️ Invalid Login!"
