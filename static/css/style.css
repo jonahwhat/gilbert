@@ -1,6 +1,8 @@
 body {
-  background-color: #00807F;
+  background-color: #5f79a2;
   color: #e3e2e2;
+  background-image: url('../img/background_clouds.png');
+  background-size: cover;
 }
 
 .windowtest {

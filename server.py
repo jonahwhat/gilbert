@@ -137,7 +137,7 @@ def delete_post(post_id):
 
     post = posts_collection.find_one({"id": post_id})
 
-    if ((post["author"] == "Guest" and session["username"] == "Guest") or (session["username"] != "Guest")): 
+    if ((post.get("author") == "Guest" and session.get("username") == "Guest") or (session.get("username") != "Guest")): 
 
         # find one, if message type = shame, set hidden to true
         

@@ -146,8 +146,10 @@ function createPostHTML(postJSON) {
 
 
     let imageTag = '';
-    if (imagePath !== "/static/img/Profile-Avatar-PNG-Picture.png") {
+
+    if (username != "Guest") {
         imageTag = `<img src="${imagePath}" class="postImage">`;
+
     }
 
     let windowTextList = [
