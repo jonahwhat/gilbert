@@ -24,6 +24,7 @@ statistics = {
     "posts_created": 0,
     "posts_deleted": 0,
     "unique_users": 0,
+    "global_likes":0,
 }
 
 
@@ -172,9 +173,11 @@ def delete_post(post_id):
 @socket.on('like_post')
 def handle_like_post(message_id):
     result = handle_post_like_ws(session["username"], posts_collection, message_id)
+    statistics['global_likes'] += result[1]
     printMsg(result)
     if result != None:
-        socket.emit('post_liked', {'message_id': message_id, 'likes': result})
+        socket.emit('post_liked', {'message_id': message_id, 'likes': result[0]})
+        socket.emit('statistics', statistics)
 
 
 @socket.on('connect')

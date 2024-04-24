@@ -41,10 +41,15 @@ def handle_post_like_ws(username, posts_collection, messageId):
     
     post = posts_collection.find_one({"id": messageId})
 
+    if not post:
+        return None
+
     if username in post["likes"]:
         updatedLikes = [like for like in post["likes"] if like != username]
+        stats = -1
     else:
         updatedLikes = post["likes"] + [username]
+        stats = 1
 
     updatedPost = {
         'messageType': post["messageType"],
@@ -59,4 +64,4 @@ def handle_post_like_ws(username, posts_collection, messageId):
     }
 
     posts_collection.update_one({"id": messageId}, {"$set": updatedPost})
-    return len(updatedLikes)
+    return [len(updatedLikes), stats]

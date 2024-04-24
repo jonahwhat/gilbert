@@ -324,19 +324,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else if (messageType === "shame") {
             displayPost(data);
-            playWavSound("/static/sounds/CHORD.WAV");
+            
             const existingUser = document.getElementById("list_id_" + data.author);
             if (!existingUser) {
                 document.getElementById('user-list').innerHTML += `<li id="list_id_${data.author}">${data.author}</li>`;
-
+                playWavSound("/static/sounds/TADA.WAV");
 
                 const containerElement = document.getElementById('user-div');
                 if (containerElement) {
-                    containerElement.classList.add('like-anim');
+                    containerElement.classList.add('jello-horizontal');
                     containerElement.addEventListener('animationend', function () {
-                        containerElement.classList.remove('like-anim');
+                        containerElement.classList.remove('jello-horizontal');
                     });
                 }
+            } else {
+                playWavSound("/static/sounds/CHORD.WAV");
             }
 
         }
@@ -349,6 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('posts-created').innerText = `Posts Created: ${data.posts_created}`;
         document.getElementById('posts-deleted').innerText = `Posts Deleted: ${data.posts_deleted}`;
         document.getElementById('unique-users').innerText = `Unique Users: ${data.unique_users}`;
+        document.getElementById('global-likes').innerText = `Global Likes: ${data.global_likes}`;
 
     });
 
