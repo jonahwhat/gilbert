@@ -19,7 +19,36 @@ function updatePost() {
             posts.forEach((post, index) => {
                 // Delay the display of each post
                 setTimeout(() => {
-                    displayPost(post);
+                    if (post.hidden == false) {
+                        displayPost(post);
+                    }
+                    
+                    console.log(post)
+
+
+                    if (post.messageType == "shame") {
+                        console.log("shame post encountered")
+
+                        const existingUser = document.getElementById("list_id_" + post.author);
+                        if (!existingUser) {
+                            console.log("no existing user, we should add it to list")
+                            document.getElementById('user-list').innerHTML += `<li id="list_id_${post.author}">${post.author}</li>`;
+
+
+                            const containerElement = document.getElementById('user-div');
+                            if (containerElement) {
+                                containerElement.classList.add('like-anim');
+                                containerElement.addEventListener('animationend', function () {
+                                    containerElement.classList.remove('like-anim');
+                                });
+                            }
+                        }
+
+
+                    }
+
+
+
                     console.log(post.content)
                 }, index * getRandomDelay());
             });
@@ -31,7 +60,7 @@ function updatePost() {
 
 // Function to get a random delay value
 function getRandomDelay() {
-    return Math.floor(Math.random() * 50); // Random delay between 0 and 3 seconds
+    return Math.floor(Math.random() * 70); // Random delay between 0 and 3 seconds
 }
 
 
@@ -114,8 +143,8 @@ function createPostHTML(postJSON) {
     const imagePath = postJSON.image_path;
     const top = postJSON.top
     const left = postJSON.left
-    
-    
+
+
     let imageTag = '';
     if (imagePath !== "/static/img/Profile-Avatar-PNG-Picture.png") {
         imageTag = `<img src="${imagePath}" class="postImage">`;
@@ -123,7 +152,7 @@ function createPostHTML(postJSON) {
 
     let windowTextList = [
         "✉️ You've got mail!",
-        "✉️ Message Recived!",
+        "✉️ You've got mail!",
         "✉️ You've got mail!",
         "✉️ You've got mail!",
         "✉️ You've got mail!",
@@ -149,7 +178,7 @@ function createPostHTML(postJSON) {
 
     let windowText = windowTextList[index];
 
-    
+
     let postHTML = `<div class="window postwindow" id="${messageId}" style="top: ${top}%; left: ${left}%">
             <div class="title-bar">
                 <div class="title-bar-text">
@@ -170,36 +199,32 @@ function createPostHTML(postJSON) {
                 </section>
             </div>
     </div>`;
-    
-    
-    
+
+
+
     return postHTML;
 }
 
 function displayPost(messageJSON) {
     const chatMessages = document.getElementById("post-list");
     const postHTML = createPostHTML(messageJSON);
-    chatMessages.insertAdjacentHTML('afterbegin', postHTML); 
+    chatMessages.insertAdjacentHTML('afterbegin', postHTML);
 
-    // Select the newly added post element
     const newlyAddedPost = chatMessages.querySelector('.window');
 
-    // Set the z-index of the newly added post to a value higher than the other posts
     const maxZIndex = getMaxZIndex('.window');
     newlyAddedPost.style.zIndex = maxZIndex + 1;
 
 
     newlyAddedPost.classList.add('windowShake');
 
-    // Remove the shake class after the animation ends
-    newlyAddedPost.addEventListener('animationend', function() {
+    newlyAddedPost.addEventListener('animationend', function () {
         this.classList.remove('windowShake');
-    }, {once: true});
+    }, { once: true });
 
     makeDraggable();
 }
 
-// Function to get the maximum z-index among elements with a specific class
 function getMaxZIndex(selector) {
     const elements = document.querySelectorAll(selector);
     let maxZIndex = 0;
@@ -221,13 +246,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Event listener for when the WebSocket connection is established
-    socket.on('connect', function () {
-        console.log('Connected to server');
+    socket.on('connect', function (data) {
+
+        if (!data) {
+            return
+        }
+
+        console.log(data.username, ' connected to server');
+        // playWavSound("/static/sounds/TADA.WAV");
+
+        if (data.username == "Guest") {
+            return
+        }
+
+        const existingUser = document.getElementById("list_id_" + data.username);
+        if (!existingUser) {
+            document.getElementById('user-list').innerHTML += `<li id="list_id_${data.username}">${data.username}</li>`;
+
+
+            const containerElement = document.getElementById('user-div');
+            if (containerElement) {
+                containerElement.classList.add('like-anim');
+                containerElement.addEventListener('animationend', function () {
+                    containerElement.classList.remove('like-anim');
+                });
+            }
+        }
     });
 
-    // Event listener for when the WebSocket connection is disconnected
-    socket.on('disconnect', function () {
-        console.log('Disconnected from server');
+    // TODO Event listener for when the WebSocket connection is disconnected
+    socket.on('disconnect', function (data) {
+        if (!data) {
+            return
+        }
+        console.log(data.username, ' disconnected from server');
+        const userListItem = document.getElementById("list_id_" + data.username);
+
+        if (userListItem) {
+            const userList = document.getElementById('user-list');
+            userList.removeChild(userListItem);
+
+            const containerElement = document.getElementById('user-div');
+            if (containerElement) {
+                containerElement.classList.add('like-anim');
+                containerElement.addEventListener('animationend', function () {
+                    containerElement.classList.remove('like-anim');
+                });
+            }
+        }
+
+
     });
 
     // Event listener for when a message is received from the server
@@ -252,6 +320,23 @@ document.addEventListener('DOMContentLoaded', () => {
             displayPost(data);
             playWavSound("/static/sounds/CHORD.WAV");
 
+        } else if (messageType === "shame") {
+            displayPost(data);
+            playWavSound("/static/sounds/CHORD.WAV");
+            const existingUser = document.getElementById("list_id_" + data.author);
+            if (!existingUser) {
+                document.getElementById('user-list').innerHTML += `<li id="list_id_${data.author}">${data.author}</li>`;
+
+
+                const containerElement = document.getElementById('user-div');
+                if (containerElement) {
+                    containerElement.classList.add('like-anim');
+                    containerElement.addEventListener('animationend', function () {
+                        containerElement.classList.remove('like-anim');
+                    });
+                }
+            }
+
         }
 
     });
@@ -265,22 +350,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
-    socket.on('post_deleted', function(data) {
+    socket.on('post_deleted', function (data) {
         const postId = data.post_id;
         const postElement = document.getElementById(postId);
         if (postElement) {
-        // Add a CSS class to trigger the animation
-        postElement.classList.add('delete-animation');
-        playWavSound("./static/sounds/CHIMES.WAV");
-        // Wait for the animation to finish before removing the element
-        postElement.addEventListener('animationend', function() {
-            
-            postElement.remove();
-        });
+            postElement.classList.add('delete-animation');
+            playWavSound("./static/sounds/CHIMES.WAV");
+            postElement.addEventListener('animationend', function () {
+
+                postElement.remove();
+            });
         }
     });
 
-    socket.on('post_liked', function(data) {
+    socket.on('post_liked', function (data) {
         const postId = data.message_id;
         const likesNumber = data.likes;
         console.log("like recieved, new likes: ", likesNumber, postId)
@@ -288,15 +371,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (postElement) {
 
             postElement.classList.add('like-anim');
-            playWavSound("/static/sounds/DING.WAV");
-        const likeButton = postElement.querySelector('.like-btn');
-        if (likeButton) {
-            
-            likeButton.textContent = `Like (${likesNumber})`;
-        }
-        postElement.addEventListener('animationend', function() {
-            postElement.classList.remove('like-anim');
-        });
+            // playWavSound("/static/sounds/DING.WAV");
+            const likeButton = postElement.querySelector('.like-btn');
+            if (likeButton) {
+
+                likeButton.textContent = `Like (${likesNumber})`;
+            }
+            postElement.addEventListener('animationend', function () {
+                postElement.classList.remove('like-anim');
+            });
 
         }
     });
@@ -309,11 +392,10 @@ function deletePost(postId) {
     socket.emit('delete_post', postId);
 }
 
-// Make the DIV elements draggable and bring to front when clicked
 function makeDraggable() {
     document.querySelectorAll('.window').forEach(window => {
         window.addEventListener('mousedown', bringToFront);
-        
+
         const titleBar = window.querySelector('.title-bar');
         if (titleBar) {
             titleBar.addEventListener('mousedown', startDragging);
@@ -353,7 +435,6 @@ function makeDraggable() {
 function playWavSound(filename) {
     var audio = new Audio(filename);
     audio.play();
-  }
+}
 
-// Call the function when the DOM is loaded
 document.addEventListener('DOMContentLoaded', makeDraggable);

@@ -43,6 +43,11 @@ def handleRegister(request, user_collection):
     if username == "" or password == "" or password2 == "":
         session['register_error'] = "⚠️ Please enter a valid username/password!"
         return redirect(url_for("index"))
+    
+    # check if username/pass is empty string
+    if len(username) >= 12:
+        session['register_error'] = "⚠️ Your username is too long!"
+        return redirect(url_for("index"))
 
     # check if passwords are equal
     if password != password2:

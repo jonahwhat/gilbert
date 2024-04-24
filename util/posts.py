@@ -38,6 +38,7 @@ def send_all_posts(posts_collection, profile_image_collection):
         # printMsg(image_path)
 
         post_data = {
+            "messageType": post["messageType"],
             "author": post["author"],
             "content": post["content"],
             "likes": post["likes"],
@@ -45,6 +46,7 @@ def send_all_posts(posts_collection, profile_image_collection):
             "image_path": image_path,
             "top": post["top"],
             "left": post["left"],
+            "hidden": post["hidden"]
         }
         posts_list.append(post_data)
 
@@ -74,11 +76,15 @@ def handle_post_like(request, auth_collection, posts_collection, messageId, prof
         updatedLikes = post["likes"] + [username]
 
     updatedPost = {
+        'messageType': post["messageType"],
         "author": post["author"],
         "content": post["content"],
         "likes": updatedLikes,
         "id": post["id"],
-        "image_path": image_path
+        "image_path": post["image_path"],
+        "top": post["top"],
+        "left": post["left"],
+        "hidden": post["hidden"]
     }
 
     posts_collection.update_one({"id": messageId}, {"$set": updatedPost})

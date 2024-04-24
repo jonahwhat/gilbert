@@ -90,6 +90,11 @@ left: 5px;
     left: 400px;
       }
 
+      #user-div {
+        top: 5px;
+        left: 650px;
+          }
+
 .taskbar {
 position: fixed;
 bottom: 0;
