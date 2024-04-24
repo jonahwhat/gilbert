@@ -1,10 +1,12 @@
 import os
+import time
 from pymongo import MongoClient
 from flask import Flask, render_template, request, send_from_directory, make_response, redirect, session, url_for, jsonify
 from markupsafe import escape
 from util.auth import *
 from util.posts import *
 from util.image import *
+from util.gilbert import *
 from util.websockets import *
 from flask import session
 from werkzeug.utils import secure_filename
@@ -25,7 +27,19 @@ statistics = {
     "posts_deleted": 0,
     "unique_users": 0,
     "global_likes":0,
+    "gilbert_longest_alive": 0,
 }
+
+gilbert_stats = {
+    "health": 100,
+    "hunger": 50,
+    "happiness": 10,
+    "seconds_alive": 0,
+    "name": "Gilbert",
+    "picture_path": "test",
+    "alive": False,
+}
+
 
 
 # setting up database
@@ -182,11 +196,41 @@ def handle_like_post(message_id):
 
 @socket.on('connect')
 def handle_connect():
-    # printMsg(session["username"])
     statistics['unique_users'] += 1
+    # send statistics
     socket.emit('statistics', statistics)
-    # socket.emit('connect', {'username': session.get('username')})
-    # printMsg(session.get('username'))
+    # send gilbert status
+    socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+    printMsg(session.get('username'))
+
+# this should be a new "messageType", where types can be feed, play, etc
+@socket.on('update_gilbert')
+def handle_gilbert_update(data):
+    printMsg(data)
+
+    # data should be an action
+
+
+    # gilbert logic based on his current stats
+    gilbert_stats = handle_gilbert_action(data, gilbert_stats)
+
+    # send new gilbert back
+    socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+
+
+
+@socket.on('gilbert_start')
+def handle_gilbert_start(data):
+    # check if glibert is already alive, if he is, ignore, if he isn't start the loop
+    if gilbert_stats.get("alive") == False:
+        # reset stats
+        gilbert_stats == set_initial_gilbert(data.get("name", "Gilbert"))
+        socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+        # maybe while true loop to show timing?
+        # only sendall when the epoch time changes
 
 
 
@@ -207,7 +251,32 @@ def printMsg(message):
     app.logger.info(output)
     return "Check your console"
 
+
+
+def send_updates():
+    while True:
+
+        # if gilbert alive, send gilbert dict
+        if gilbert_stats.get("alive"):
+            gilbert_stats = update_gilbert_statistics(gilbert_stats)
+
+            # update longest alive time
+            current_alive = gilbert_stats["seconds_alive"]
+            if current_alive <= statistics.get("gilbert_longest_alive"):
+                statistics["gilbert_longest_alive"] = current_alive
+                socket.emit('statistics', statistics)
+
+
+
+            socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+
+
+        time.sleep(1)
+
+
 if __name__ == '__main__':
     # socket.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
     #app.run(debug=True, host='0.0.0.0', port=8080)
+    socket.start_background_task(send_updates)
     app.run(debug=True, host='0.0.0.0', port=8080)
