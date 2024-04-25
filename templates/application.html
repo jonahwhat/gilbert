@@ -41,22 +41,22 @@
 					</form>
           {% endif %}
 					<hr>
-					<p> 📝 Create a post:</p>
-					<textarea class="create-text" placeholder="Yap here" cols="60" rows="13" wrap="soft"></textarea>
+					<p><b> 📝 Create a post:</b></p>
+					<textarea class="create-text" placeholder="Yap here" cols="60" rows="13" wrap="soft" id="text_area_post"></textarea>
 
 					<section class="field-row" style="justify-content: flex-end">
-						<button class="post-button paused-shake" onclick="sendPost()">Post</button>
+						<button class="post-button" onclick="sendPost()" id="post_button">Post</button>
 					</section>
 					<hr>
 					{% if username == "Guest" %}
-					<p> 🔒 Log in:</p>
+					<p><b> 🔒 Log in:</b></p>
 					<section class="field-row" style="justify-content: flex-start">
 						<form action="/logout" method="post" enctype="application/x-www-form-urlencoded">
 							<input type="submit" value="Login" />
 						</form>
 					</section>
 					{% else %}
-					<p> 🔒 Log out:</p>
+					<p><b> 🔒 Log out:</b></p>
 					<section class="field-row" style="justify-content: flex-start">
 						<form action="/logout" method="post" enctype="application/x-www-form-urlencoded">
 							<input type="submit" value="Logout" />
@@ -96,6 +96,7 @@
 						<li id="posts-deleted">Posts Deleted: 0</li>
 						<li id="global-likes">Global Likes: 0</li>
 						<li id="unique-users">Site Visits: 0</li>
+						<li id="longest_life">Longest Gilbert Life: 0</li>
 					</ul>
 					<hr>
 					<p><b>🧍 About You</b></p>
@@ -112,6 +113,47 @@
 				</div>
 
 			</div>
+		</div>
+
+
+		<div class="window gilbert" style="top: 100px; left: 640px" id="gilbert_div">
+			<div class="title-bar">
+				<div class="title-bar-text" id="gilbert_title_bar">
+					❓ Gilbert?
+				</div>
+
+				<div class="title-bar-controls">
+					<button aria-label="Close" onclick="hurtGilbert()" id="hurt_button"></button>
+				</div>
+			</div>
+			<div class="window-body">
+				<div class="centerGilbert" id="gilbert_heading">
+					<!-- <img id="gilbert_image" src="https://i.imgur.com/TaUfF5E.png" class="gilbertImage"> -->
+					<p style="font-size: 65px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)" id="gilbert_emoji">❓</p>
+					<p id="gilbert_status"><b>Gilbert?</b></p>
+					<p id="gilbert_time_alive"></p>
+
+				</div>
+
+				<hr>
+				<p><b>📊 Gilbert's Stats</b></p>
+
+				<ul class="tree-view" id="gilbert_stats">
+					<li id="gilbert_health_stats">Nothing here yet...</li>
+					<li id="gilbert_hunger_stats"></li>
+					<li id="gilbert_happiness_stats"></li>
+				</ul>
+				
+				<p id="gilb_thought_container"><i><b>💭 Gilbert's Thoughts</b></i>: <i id="gilbert_thoughts">i wish someone would give me some food...</i></p>
+				
+
+				<section class="field-row" style="justify-content: center; margin-top: 7px">
+					<button onclick="feedGilbert()" id="feed_button">Give Food</button>
+					<button onclick="petGilbert()" id="pet_button" disabled>Give Treat</button>
+
+				</section>
+			</div>
+
 		</div>
 
 
