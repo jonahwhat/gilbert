@@ -354,10 +354,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gilbert_health_stats').innerHTML = `Nothing here yet...`;
             document.getElementById('gilbert_hunger_stats').innerHTML = ``;
             document.getElementById('gilbert_happiness_stats').innerHTML = ``;
-            document.getElementById('gilbert_title_bar').innerText = `❓ Gilbert?`;
+            document.getElementById('gilbert_title_bar').innerText = `❓ Gilbert`;
             document.getElementById('gilbert_time_alive').innerHTML = ``;
     
-            document.getElementById('gilbert_status').innerHTML = `<b>Gilbert?</b>`;
+            document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b>`;
     
             document.getElementById('gilbert_emoji').innerText = `❓`;
 
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('gilbert_happiness_stats').innerHTML = `🌈 Happiness: <b>${data.happiness}</b>/100`;
         document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (${data.health}/100 hp)`;
         // TODO  make look nicer with better formatting
-        document.getElementById('gilbert_time_alive').innerHTML = `Time Alive: <b>${fancyTime(data.seconds_alive)}</b>`;
+        document.getElementById('gilbert_time_alive').innerHTML = `Time Alive: <b>${data.seconds_alive} seconds</b>`;
 
         document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${status})`;
 
@@ -483,11 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('statistics', function (data) {
         // console.log('stats:', data);
 
-        document.getElementById('posts-created').innerText = `Posts Created: ${data.posts_created}`;
-        document.getElementById('posts-deleted').innerText = `Posts Deleted: ${data.posts_deleted}`;
-        document.getElementById('unique-users').innerText = `Unique Users: ${data.unique_users}`;
-        document.getElementById('global-likes').innerText = `Global Likes: ${data.global_likes}`;
-        document.getElementById('longest_life').innerText = `Longest Gilbert Life: ${data.gilbert_longest_alive} seconds`;
+        document.getElementById('posts-created').innerHTML = `Posts Created: <b>${data.posts_created}</b>`;
+        document.getElementById('posts-deleted').innerHTML = `Posts Deleted: <b>${data.posts_deleted}</b>`;
+        document.getElementById('unique-users').innerHTML = `Unique Users: <b>${data.unique_users}</b>`;
+        document.getElementById('global-likes').innerHTML = `Global Likes: <b>${data.global_likes}</b>`;
+        document.getElementById('longest_life').innerHTML = `Longest Gilbert Life: <b>${data.gilbert_longest_alive} seconds</b>`;
 
     });
 
@@ -635,30 +635,38 @@ function update_gilb_thought(message) {
 }
 
 
-function fancyTime(seconds) {
-    var minutes = Math.floor(seconds / 60);
-    var remainingSeconds = seconds % 60;
-
-    var result = "";
-    if (minutes > 0) {
-        result += minutes + (minutes === 1 ? " minute" : " minutes");
-    }
-    if (minutes > 0 && remainingSeconds > 0) {
-        result += " and ";
-    }
-    if (remainingSeconds > 0) {
-        result += remainingSeconds + (remainingSeconds === 1 ? " second" : " seconds");
-    }
-
-    return result;
-}
-
-
-
-
 function playWavSound(filename) {
     var audio = new Audio(filename);
     audio.play();
 }
+
+function loginButton() {
+
+    let button = document.getElementById('loginButton');
+    button.disabled = true;
+    button.classList.add('buttonClick');
+    playWavSound("/static/sounds/Windows 98 minimize.wav");
+
+    setTimeout(function() {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+    }, 1000);
+}
+
+function registerButton() {
+
+    let button = document.getElementById('registerButton');
+    button.disabled = true;
+    button.classList.add('buttonClick');
+    playWavSound("/static/sounds/Windows 98 minimize.wav");
+
+    setTimeout(function() {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+    }, 1000);
+}
+
+
+
 
 document.addEventListener('DOMContentLoaded', makeDraggable);

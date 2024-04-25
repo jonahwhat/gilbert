@@ -29,22 +29,25 @@
           {% if username == "Guest" %}
           <p>You are a <b>{{username|safe}}</b>!</p>
 					{% else %}
-
+					<div class="centerGilbert">
 					<p>Your Username is: <b>{{username|safe}}</b></p>
 					<img class="profileImage" src="{{ profile_picture_path }}" />
+					</div>
 					<br>
+					<label for="chat-image" style="font-weight: bold; padding-bottom: 2px"> 🖼️ Change profile picture:</label>
+					<div class="centerGilbert">
 					<form action="/image-upload" id="image-chat" method="post" enctype="multipart/form-data">
-						<label for="chat-image"> 🖼️ Change profile picture:</label>
 						<br>
 						<input id="chat-image" type="file" name="upload_profile_pic">
 						<input type="submit" value="Confirm">
 					</form>
+				</div>
           {% endif %}
 					<hr>
 					<p><b> 📝 Create a post:</b></p>
-					<textarea class="create-text" placeholder="Yap here" cols="60" rows="13" wrap="soft" id="text_area_post"></textarea>
+					<textarea class="create-text" style="padding: 3px; margin: 3px" placeholder="Yap here" cols="60" rows="13" wrap="soft" id="text_area_post"></textarea>
 
-					<section class="field-row" style="justify-content: flex-end">
+					<section class="field-row" style="justify-content: center; padding-top: 3px">
 						<button class="post-button" onclick="sendPost()" id="post_button">Post</button>
 					</section>
 					<hr>
@@ -86,23 +89,23 @@
 					</div>
 
 					<div class="title-bar-controls">
-						<button aria-label="Help"></button>
+						<button title="Statistics about the website!" aria-label="Help"></button>
 					</div>
 				</div>
 				<div class="window-body">
 					<p><b>🌎 Global Website Statistics</b></p>
 					<ul class="tree-view">
-						<li id="posts-created">Posts Created: 0</li>
-						<li id="posts-deleted">Posts Deleted: 0</li>
-						<li id="global-likes">Global Likes: 0</li>
-						<li id="unique-users">Site Visits: 0</li>
-						<li id="longest_life">Longest Gilbert Life: 0</li>
+						<li id="posts-created">Posts Created</li>
+						<li id="posts-deleted">Posts Deleted</li>
+						<li id="global-likes">Global Likes</li>
+						<li id="unique-users">Site Visits</li>
+						<li id="longest_life">Longest Gilbert Life</li>
 					</ul>
 					<hr>
 					<p><b>🧍 About You</b></p>
 					<ul class="tree-view">
-						<li>Username: {{username|safe}}</li>
-            <li>Status: Yapping</li>
+						<li>Username: <b>{{username|safe}}</b></li>
+            <li>Status: <b>yapping</b></li>
 					</ul>
           <hr>
 					<p><b>❤️ Credits</b></p>
@@ -119,18 +122,18 @@
 		<div class="window gilbert" style="top: 100px; left: 640px" id="gilbert_div">
 			<div class="title-bar">
 				<div class="title-bar-text" id="gilbert_title_bar">
-					❓ Gilbert?
+					❓ Gilbert
 				</div>
 
 				<div class="title-bar-controls">
-					<button aria-label="Close" onclick="hurtGilbert()" id="hurt_button"></button>
+					<button aria-label="Close" onclick="hurtGilbert()" id="hurt_button" title="don't."></button>
 				</div>
 			</div>
 			<div class="window-body">
 				<div class="centerGilbert" id="gilbert_heading">
 					<!-- <img id="gilbert_image" src="https://i.imgur.com/TaUfF5E.png" class="gilbertImage"> -->
 					<p style="font-size: 65px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)" id="gilbert_emoji">❓</p>
-					<p id="gilbert_status"><b>Gilbert?</b></p>
+					<p id="gilbert_status"><b>Gilbert</b></p>
 					<p id="gilbert_time_alive"></p>
 
 				</div>
@@ -165,7 +168,7 @@
 					</div>
 
 					<div class="title-bar-controls">
-						<button aria-label="Help"></button>
+						<button aria-label="Help" title="Users who've tried to break the website..."></button>
 					</div>
 				</div>
 				<div class="window-body">

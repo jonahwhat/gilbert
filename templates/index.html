@@ -50,7 +50,7 @@
 					</fieldset>
 					<p id="js-test">❤️</p>
 					<section class="field-row" style="justify-content: flex-end">
-						<button onclick="playJoinSound()" >Submit</button>
+						<button class="buttonClick" onclick="playJoinSound()" >Submit</button>
 					</section>
 				</div>
 			</div>
@@ -59,15 +59,13 @@
 		<div class="center">
 			<div class="login window windowtest windowShake" id="window2">
 
-				<div class="title-bar" id="window2">
+				<div class="title-bar inactive" id="window2">
 					<div class="title-bar-text">
 						🔐 Login
 					</div>
 
 					<div class="title-bar-controls">
-						<button aria-label="Minimize"></button>
-						<button aria-label="Maximize"></button>
-						<button aria-label="Close"></button>
+						<button title="Log in to the website!" aria-label="Help"></button>
 					</div>
 				</div>
 				<div class="window-body">
@@ -84,7 +82,7 @@
 						</div>
 						<p>{{login_error}}</p>
 						<section class="field-row" style="justify-content: flex-end">
-							<input onclick="playJoinSound()" type="submit" value="Log In" />
+							<input onclick="loginButton()" type="submit" value="Log In" id="loginButton"/>
 						</section>
 
 					</form>
@@ -94,15 +92,13 @@
 		</div>
 		<div class="center">
 			<div class="register window windowtest windowShake" id="window3">
-				<div class="title-bar" id="window3">
+				<div class="title-bar inactive" id="window3">
 					<div class="title-bar-text">
 						📜 Register
 					</div>
 
 					<div class="title-bar-controls">
-						<button aria-label="Minimize"></button>
-						<button aria-label="Maximize"></button>
-						<button onclick="playJoinSound()" aria-label="Close"></button>
+						<button title="Create an Account!" aria-label="Help"></button>
 					</div>
 				</div>
 				<div class="window-body">
@@ -125,7 +121,7 @@
 						</div>
 						<p>{{register_error|safe}}</p>
 						<section class="field-row" style="justify-content: flex-end">
-							<input onclick="playJoinSound()" type="submit" value="Register" />
+							<input onclick="registerButton()" type="submit" value="Register" id="registerButton"/>
 						</section>
 
 					</form>
@@ -161,32 +157,6 @@
 
 			</div>
 		</div>
-		
-		
-		
-		<div class="center">
-			<div class="window spamWindow windowShake" id="window5">
-				<div class="title-bar" id="window5">
-					<div class="title-bar-text">
-						🚨 IMPORTANT ALERT
-					</div>
-
-					<div class="title-bar-controls">
-						<button aria-label="Minimize"></button>
-						<button aria-label="Maximize"></button>
-						<button aria-label="Close"></button>
-					</div>
-				</div>
-				<div class="window-body">
-					<p class="fancy-shake">I am rapidly approaching your location.</p>
-					<section class="field-row" style="justify-content: flex-end">
-						<button onclick="playJoinSound()" class="subtle-shake">RUN</button>
-					</section>
-				</div>
-
-			</div>
-		</div>
-		
 		
 	
 		<div class="center">
