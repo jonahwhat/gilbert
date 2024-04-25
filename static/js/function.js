@@ -15,9 +15,15 @@ function updatePost() {
     request.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             clearPostMain();
+
+            let button = document.getElementById('pet_button');
+            button.disabled = false;
+
             const posts = JSON.parse(this.response);
             posts.forEach((post, index) => {
                 // Delay the display of each post
+
+
                 setTimeout(() => {
                     if (post.hidden == false) {
                         displayPost(post);
