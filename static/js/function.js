@@ -87,11 +87,27 @@ function clearPostMain() {
 }
 
 function sendPost() {
+    
     const postTextBox = document.querySelector(".create-text");
     const message = postTextBox.value; //value of the post or message
     if (message == "") {
         return
     }
+
+    let button = document.getElementById('post_button');
+    button.disabled = true;
+    button.classList.add('buttonClick');
+
+    let textarea = document.getElementById("text_area_post");
+    textarea.disabled = true
+
+    setTimeout(function() {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+        textarea.disabled = false;
+
+    }, 2500);
+
     console.log(message)
     postTextBox.value = "";
     // Using AJAX
@@ -302,16 +318,135 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for when a message is received from the server
     socket.on('message', function (data) {
-        console.log('Received message:', data);
+        // console.log('Received message:', data);
+    });
+
+    socket.on('recieve_gilbert_thoughts', function (data) {
+        console.log('Received thought:', data);
+        update_gilb_thought(data.message)
+    });
+
+    socket.on('start_gilbert', function (data) {
+        console.log('gilbert starting!');
+        playWavSound("/static/sounds/Windows 98 startup.wav");
+        update_gilb_thought("i'm gilbert!!!")
+
+        let button = document.getElementById('pet_button');
+        button.disabled = false;
+
+    });
+
+    socket.on('gilbert_die', function (data) {
+        console.log('gilbert died!');
+        playWavSound("/static/sounds/dead.mp3");
+        update_gilb_thought("i died...")
+
+        let pet_button = document.getElementById('pet_button');
+        pet_button.disabled = true;
+
+        let feed_button = document.getElementById('feed_button');
+        feed_button.disabled = true;
+
+        setTimeout(function() {
+            feed_button.disabled = false;
+            update_gilb_thought("i wish someone would give me some food...")
+
+            document.getElementById('gilbert_health_stats').innerHTML = `Nothing here yet...`;
+            document.getElementById('gilbert_hunger_stats').innerHTML = ``;
+            document.getElementById('gilbert_happiness_stats').innerHTML = ``;
+            document.getElementById('gilbert_title_bar').innerText = `❓ Gilbert?`;
+            document.getElementById('gilbert_time_alive').innerHTML = ``;
+    
+            document.getElementById('gilbert_status').innerHTML = `<b>Gilbert?</b>`;
+    
+            document.getElementById('gilbert_emoji').innerText = `❓`;
+
+
+        }, 10000);
+
+    });
+
+    socket.on('recieve_gilbert_stats', function (data) {
+        // console.log('Received gilbert stats:', data);   
+
+        let status = "dead"
+        if (data.alive == true) {
+            status = "alive"
+        }
+
+        let emoji = "😎"
+        let health = data.health
+
+        if (health >=90) {
+            emoji = "😎"
+        } else if (health >= 75) {
+            emoji = "🙂‍"
+        } else if (health >= 50) {
+            emoji = "😐"
+        } else if (health >= 25) {
+            emoji = "😟"
+        } else if (health >= 1) {
+            emoji = "😔"
+        } else {
+            emoji = "💀"
+        }
+
+
+        
+        document.getElementById('gilbert_health_stats').innerHTML = `❤️ Health: <b>${data.health}</b>/100`;
+        document.getElementById('gilbert_hunger_stats').innerHTML = `🍇 Hunger: <b>${data.hunger}</b>/100`;
+        document.getElementById('gilbert_happiness_stats').innerHTML = `🌈 Happiness: <b>${data.happiness}</b>/100`;
+        document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (${data.health}/100 hp)`;
+        // TODO  make look nicer with better formatting
+        document.getElementById('gilbert_time_alive').innerHTML = `Time Alive: <b>${fancyTime(data.seconds_alive)}</b>`;
+
+        document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${status})`;
+
+        document.getElementById('gilbert_emoji').innerText = `${emoji}`;
+
+        let pic = document.getElementById('gilbert_emoji')
+
+        // fix profile pic auto updating
+        // let img = document.getElementById('gilbert_image');
+        // let newPath = data.picture_path;
+
+        // // get everything after the las / to get true path
+        // let current_img = img.src.substring(img.src.lastIndexOf('/') + 1);
+        // let new_img = newPath.substring(newPath.lastIndexOf('/') + 1);
+
+        // if (current_img !== new_img) {
+        //     img.src = newPath;
+        // }
+
+        // animations
+        // let gilbertWindow = document.getElementById('gilbert_div');
+
+        if (status == "alive") {
+            if (!pic.classList.contains('gilbert-anim-alive')) {
+                // console.log(pic.classList)
+
+                pic.classList.add('gilbert-anim-alive');
+            }
+        } else {
+            pic.classList.remove('gilbert-anim-alive');
+        }
+
+
+
     });
 
     // Event listener for when a 'send_post' event is received from the server
     socket.on('send_post', function (data) {
-        console.log('Received Post:', data);
+        // console.log('Received Post:', data);
     });
 
     // Event listener for when a 'new_post' event is received from the server
     socket.on('new_post', function (data) {
+
+        if (data.hidden == true) {
+            return
+        }
+
         console.log('New post:', data);
 
 
@@ -346,12 +481,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('statistics', function (data) {
-        console.log('stats:', data);
+        // console.log('stats:', data);
 
         document.getElementById('posts-created').innerText = `Posts Created: ${data.posts_created}`;
         document.getElementById('posts-deleted').innerText = `Posts Deleted: ${data.posts_deleted}`;
         document.getElementById('unique-users').innerText = `Unique Users: ${data.unique_users}`;
         document.getElementById('global-likes').innerText = `Global Likes: ${data.global_likes}`;
+        document.getElementById('longest_life').innerText = `Longest Gilbert Life: ${data.gilbert_longest_alive} seconds`;
 
     });
 
@@ -435,6 +571,89 @@ function makeDraggable() {
         }
     }
 }
+
+
+function feedGilbert() {
+    socket.emit('gilbert_start', "test");
+    
+    socket.emit('update_gilbert', "feed");
+
+    let button = document.getElementById('feed_button');
+    button.disabled = true;
+    button.classList.add('buttonClick');
+    playWavSound("/static/sounds/Windows 98 minimize.wav");
+
+    setTimeout(function() {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+    }, 2500);
+}
+
+function petGilbert() {
+    socket.emit('update_gilbert', "pet");
+
+    let button = document.getElementById('pet_button');
+    button.disabled = true;
+    button.classList.add('buttonClick');
+
+    playWavSound("/static/sounds/Windows 98 minimize.wav");
+
+    setTimeout(function() {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+    }, 1500);
+}
+
+function hurtGilbert() {
+    socket.emit('update_gilbert', "hurt");
+
+    let button = document.getElementById('hurt_button');
+    button.disabled = true;
+    button.classList.add('buttonClick');
+
+    playWavSound("/static/sounds/Windows 98 minimize.wav");
+
+    setTimeout(function() {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+    }, 1500);
+}
+
+
+function update_gilb_thought(message) {
+    document.getElementById('gilbert_thoughts').innerText = message;
+
+    // animation
+    containerElement = document.getElementById('gilb_thought_container')
+
+    if (containerElement) {
+        containerElement.classList.add('jello-horizontal');
+        containerElement.addEventListener('animationend', function () {
+            containerElement.classList.remove('jello-horizontal');
+        });
+    }
+}
+
+
+function fancyTime(seconds) {
+    var minutes = Math.floor(seconds / 60);
+    var remainingSeconds = seconds % 60;
+
+    var result = "";
+    if (minutes > 0) {
+        result += minutes + (minutes === 1 ? " minute" : " minutes");
+    }
+    if (minutes > 0 && remainingSeconds > 0) {
+        result += " and ";
+    }
+    if (remainingSeconds > 0) {
+        result += remainingSeconds + (remainingSeconds === 1 ? " second" : " seconds");
+    }
+
+    return result;
+}
+
+
 
 
 function playWavSound(filename) {

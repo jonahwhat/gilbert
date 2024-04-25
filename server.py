@@ -1,15 +1,15 @@
-import os
+import time
 from pymongo import MongoClient
 from flask import Flask, render_template, request, send_from_directory, make_response, redirect, session, url_for, jsonify
 from markupsafe import escape
 from util.auth import *
 from util.posts import *
 from util.image import *
+from util.gilbert import *
 from util.websockets import *
 from flask import session
-from werkzeug.utils import secure_filename
 from flask_socketio import SocketIO, emit
-from pathlib import Path
+import threading
 
 
 app = Flask(__name__)
@@ -25,7 +25,21 @@ statistics = {
     "posts_deleted": 0,
     "unique_users": 0,
     "global_likes":0,
+    "gilbert_longest_alive": 0,
 }
+
+gilbert_stats = {
+    "health": 0,
+    "hunger": 0,
+    "happiness": 0,
+    "seconds_alive": 0,
+    "name": "Gilbert",
+    "picture_path": "/static/img/gilbert_gravestone.png",
+    "alive": False,
+}
+
+gilbert_respawn_timer = 0
+
 
 
 # setting up database
@@ -40,6 +54,8 @@ auth_collection = db["auth"]
 posts_collection = db["posts"]
 # profile_image_collection stores all profile images
 profile_image_collection = db["profile_image"]
+# gilbert_thoughts_collection stores all of gilbert's thoughts, these are strings that he can say at any random point
+gilbert_thoughts_collection = db["gilbert_thoughts"]
 
 
 @app.after_request
@@ -131,12 +147,18 @@ def message(data):
     socket.emit('statistics', statistics)
 
     posts_collection.insert_one(new_post)
+    gilbert_thoughts_collection.insert_one({"type": "from_user", "message": str(escape(data))[:200]},)
 
 
 @socket.on('delete_post')
 def delete_post(post_id):
 
     post = posts_collection.find_one({"id": post_id})
+
+    if (not post) or (not session.get("username")):
+        return
+    
+
 
     if ((post.get("author") == "Guest" and session.get("username") == "Guest") or (session.get("username") != "Guest")): 
 
@@ -182,11 +204,65 @@ def handle_like_post(message_id):
 
 @socket.on('connect')
 def handle_connect():
-    # printMsg(session["username"])
     statistics['unique_users'] += 1
+    # send statistics
     socket.emit('statistics', statistics)
-    # socket.emit('connect', {'username': session.get('username')})
-    # printMsg(session.get('username'))
+    # send gilbert status
+    # socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+    printMsg(session.get('username'))
+
+# this should be a new "messageType", where types can be feed, play, etc
+@socket.on('update_gilbert')
+def handle_gilbert_update(action):
+    global gilbert_stats
+
+
+    if (session.get("username") == "Guest"):
+        return
+    
+    if (gilbert_stats.get("alive") == False):
+        return
+
+
+
+    printMsg(action)
+
+
+    # gilbert logic based on his current stats
+    gilbert_stats = handle_gilbert_action(action, gilbert_stats)
+
+    # send new gilbert back
+    socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+
+
+
+@socket.on('gilbert_start')
+def handle_gilbert_start(data):
+
+    global gilbert_stats
+    global gilbert_respawn_timer
+
+
+    # make sure user is authenticated
+    if (session.get("username") == "Guest"):
+        return
+    
+    if (gilbert_respawn_timer > 0):
+        return
+
+
+    # check if glibert is already alive, if he is, ignore, if he isn't start the loop
+    if gilbert_stats.get("alive") == False:
+        # reset stats
+        gilbert_stats = set_initial_gilbert(data)
+        socket.emit('recieve_gilbert_stats', gilbert_stats)
+        socket.emit('start_gilbert')
+        
+
+        # maybe while true loop to show timing?
+        # only sendall when the epoch time changes
 
 
 
@@ -201,13 +277,61 @@ def error_handler(e):
     print('An error occurred:', e)
 
 
-@app.route('/print')
 def printMsg(message):
     output = f"\n\033[32m=== Printing to Console ===\033[0m\n\033[97m{message}\033[0m\n\033[32m=== End of Message ===\033[0m"
     app.logger.info(output)
     return "Check your console"
 
+
+def send_updates():
+
+    global gilbert_stats
+    global gilbert_respawn_timer
+
+    while True:
+
+        if gilbert_respawn_timer > 0:
+            gilbert_respawn_timer -= 1
+
+        # if gilbert alive, send gilbert dict
+        if gilbert_stats.get("alive"):
+            gilbert_stats = update_gilbert_statistics(gilbert_stats)
+
+            # update longest alive time
+            current_alive = gilbert_stats["seconds_alive"]
+            if current_alive >= statistics.get("gilbert_longest_alive"):
+                statistics["gilbert_longest_alive"] = current_alive
+                socket.emit('statistics', statistics)
+
+
+
+            socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+            if int(time.time()) % 30 == 0:
+                thought = generate_gilbert_thought(gilbert_thoughts_collection)
+                if thought:
+                    socket.emit('recieve_gilbert_thoughts', thought)
+
+            if gilbert_stats.get("alive") == False:
+                socket.emit('gilbert_die')
+                gilbert_respawn_timer = 15
+
+
+        time.sleep(1)
+
+
+# gilbert thread
+send_updates_thread = threading.Thread(target=send_updates)
+send_updates_thread.start()
+
+
+
+
+
 if __name__ == '__main__':
     # socket.run(app, debug=True, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
     #app.run(debug=True, host='0.0.0.0', port=8080)
+
     app.run(debug=True, host='0.0.0.0', port=8080)
+
+    
