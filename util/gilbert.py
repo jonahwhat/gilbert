@@ -116,9 +116,11 @@ def generate_gilbert_thought(gilbert_thoughts_collection, user_collection):
     # random message from chat
     if random.randint(0,2):
         pipeline = [{"$sample": {"size": 1}}]
-        thought = list(gilbert_thoughts_collection.aggregate(pipeline))[0]
+        thought = list(gilbert_thoughts_collection.aggregate(pipeline))
 
         if thought:
+            thought = thought[0]
+
             if thought.get("type") == "normal" or thought.get("type") == "from_user":
                 return {'message': thought.get("message")}
 
