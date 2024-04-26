@@ -111,18 +111,43 @@ def set_initial_gilbert(name):
 
     return gilbert_stats
 
-def generate_gilbert_thought(gilbert_thoughts_collection):
-    pipeline = [{"$sample": {"size": 1}}]
-    thought = list(gilbert_thoughts_collection.aggregate(pipeline))[0]
+def generate_gilbert_thought(gilbert_thoughts_collection, user_collection):
 
-    # pipeline2 = [{"$sample": {"size": 1}}]
-    # username = list(gilbert_thoughts_collection.aggregate(pipeline))
-    
-    if thought:
-        if thought.get("type") == "normal" or thought.get("type") == "from_user":
-            return {'message': thought.get("message")}
-        elif thought.get("type") == "needs_username":
-            # TODO
-            return None
-        else:
-            return None
+    # random message from chat
+    if random.randint(0,2):
+        pipeline = [{"$sample": {"size": 1}}]
+        thought = list(gilbert_thoughts_collection.aggregate(pipeline))[0]
+
+        if thought:
+            if thought.get("type") == "normal" or thought.get("type") == "from_user":
+                return {'message': thought.get("message")}
+
+    # random set message
+    elif random.randint(0,3):
+
+        pipeline = [{"$sample": {"size": 1}}]
+        user = list(user_collection.aggregate(pipeline))[0].get("username")
+
+        if user:
+            thought_list = [
+                f"<b>@{user}</b> is so cool!!", 
+                f"i wish <b>@{user}</b> would give me food...", 
+                f"no way... <b>@{user}</b> is yapping...",  
+                f"<b>@{user}</b> is a yapper fs",
+                f"hi <b>@{user}</b>",
+                f"what the heck is <b>@{user}</b> doing",
+                f"<b>@{user}</b>... i'm so hungry........",
+                f"<b>@{user}</b>... <b>@{user}</b>... <b>@{user}</b>.... hello ",
+                 f"<b>@{user}</b> <b>@{user}</b> <b>@{user}</b>",
+                f"i agree with <b>@{user}</b>",
+                f"hello <b>@{user}</b>",
+                f"i would have to agree <b>@{user}</b>",
+                f"<b>@all</b> guys give me food",
+            ]
+
+            thought = random.choice(thought_list)
+            return {'message': thought}
+        
+    else:
+        return
+        

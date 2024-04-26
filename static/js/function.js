@@ -1,5 +1,3 @@
-console.log("Hello, World!");
-
 const ws = true;
 let socket = null
 
@@ -29,15 +27,12 @@ function updatePost() {
                         displayPost(post);
                     }
                     
-                    console.log(post)
 
 
                     if (post.messageType == "shame") {
-                        console.log("shame post encountered")
 
                         const existingUser = document.getElementById("list_id_" + post.author);
                         if (!existingUser) {
-                            console.log("no existing user, we should add it to list")
                             document.getElementById('user-list').innerHTML += `<li id="list_id_${post.author}">${post.author}</li>`;
 
 
@@ -55,7 +50,7 @@ function updatePost() {
 
 
 
-                    console.log(post.content)
+                    // console.log(post.content)
                 }, index * getRandomDelay());
             });
         }
@@ -114,12 +109,12 @@ function sendPost() {
 
     }, 2500);
 
-    console.log(message)
+    // console.log(message)
     postTextBox.value = "";
     // Using AJAX
     if (ws) {
         socket.emit('create_post_ws', message);
-        console.log("hello")
+        // console.log("hello")
     } else {
         const request = new XMLHttpRequest();
         request.onreadystatechange = function () {
@@ -303,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data) {
             return
         }
-        console.log(data.username, ' disconnected from server');
+        // console.log(data.username, ' disconnected from server');
         const userListItem = document.getElementById("list_id_" + data.username);
 
         if (userListItem) {
@@ -328,12 +323,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('recieve_gilbert_thoughts', function (data) {
-        console.log('Received thought:', data);
+        console.log('Received thought:', data.message);
         update_gilb_thought(data.message)
     });
 
     socket.on('start_gilbert', function (data) {
-        console.log('gilbert starting!');
+        // console.log('gilbert starting!');
         playWavSound("/static/sounds/Windows 98 startup.wav");
         update_gilb_thought("i'm gilbert!!!")
 
@@ -343,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('gilbert_die', function (data) {
-        console.log('gilbert died!');
+        // console.log('gilbert died!');
         playWavSound("/static/sounds/dead.mp3");
         update_gilb_thought("i died...")
 
@@ -453,11 +448,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return
         }
 
-        console.log('New post:', data);
+        // console.log('New post:', data);
 
 
         const messageType = data.messageType;
-        console.log(messageType)
+        // console.log(messageType)
 
         if (messageType === "post") {
             displayPost(data);
@@ -513,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('post_liked', function (data) {
         const postId = data.message_id;
         const likesNumber = data.likes;
-        console.log("like recieved, new likes: ", likesNumber, postId)
+        // console.log("like recieved, new likes: ", likesNumber, postId)
         const postElement = document.getElementById(postId);
         if (postElement) {
 
@@ -627,7 +622,7 @@ function hurtGilbert() {
 
 
 function update_gilb_thought(message) {
-    document.getElementById('gilbert_thoughts').innerText = message;
+    document.getElementById('gilbert_thoughts').innerHTML = message;
 
     // animation
     containerElement = document.getElementById('gilb_thought_container')

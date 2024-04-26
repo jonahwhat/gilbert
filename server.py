@@ -307,8 +307,8 @@ def send_updates():
 
             socket.emit('recieve_gilbert_stats', gilbert_stats)
 
-            if int(time.time()) % 30 == 0:
-                thought = generate_gilbert_thought(gilbert_thoughts_collection)
+            if int(time.time()) % 15 == 0:
+                thought = generate_gilbert_thought(gilbert_thoughts_collection, user_collection)
                 if thought:
                     socket.emit('recieve_gilbert_thoughts', thought)
 
