@@ -1,11 +1,23 @@
 const ws = true;
 let socket = null
 
+const audioDict = {
+    "minimize": new Audio("/static/sounds/Windows 98 minimize.wav"),
+    "chimes": new Audio("/static/sounds/CHIMES.WAV"),
+    "chord": new Audio("/static/sounds/CHORD.WAV"),
+    "dead": new Audio("/static/sounds/dead.mp3"),
+    "ding": new Audio("/static/sounds/DING.WAV"),
+    "tada": new Audio("/static/sounds/TADA.WAV"),
+    "microsoft_sound": new Audio("/static/sounds/The Microsoft Sound.wav"),
+    "startup": new Audio("/static/sounds/Windows 98 startup.wav"),
+}
+
+
 function initWS() {
     // Establish a WebSocket connection with the server
     socket = io();
     console.log("socket: ", socket)
-    playWavSound("/static/sounds/The Microsoft Sound.wav");
+    audioDict.microsoft_sound.play()
 }
 
 function updatePost() {
@@ -139,7 +151,7 @@ function welcome() {
 
 function initializePostPage() {
     updatePost()
-    playWavSound("/static/sounds/The Microsoft Sound.wav");
+    audioDict.microsoft_sound.play()
     document.addEventListener("keypress", function (event) {
         if (event.code === "Enter") {
             event.preventDefault();
@@ -329,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('start_gilbert', function (data) {
         // console.log('gilbert starting!');
-        playWavSound("/static/sounds/Windows 98 startup.wav");
+        audioDict.startup.play()
         update_gilb_thought("i'm gilbert!!!")
 
         let button = document.getElementById('pet_button');
@@ -339,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('gilbert_die', function (data) {
         // console.log('gilbert died!');
-        playWavSound("/static/sounds/dead.mp3");
+        audioDict.dead.play()
         update_gilb_thought("i died...")
 
         let pet_button = document.getElementById('pet_button');
@@ -456,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (messageType === "post") {
             displayPost(data);
-            playWavSound("/static/sounds/CHORD.WAV");
+            audioDict.chord.play()
 
         } else if (messageType === "shame") {
             displayPost(data);
@@ -464,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const existingUser = document.getElementById("list_id_" + data.author);
             if (!existingUser) {
                 document.getElementById('user-list').innerHTML += `<li id="list_id_${data.author}">${data.author}</li>`;
-                playWavSound("/static/sounds/TADA.WAV");
+                audioDict.tada.play()
 
                 const containerElement = document.getElementById('user-div');
                 if (containerElement) {
@@ -474,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             } else {
-                playWavSound("/static/sounds/CHORD.WAV");
+                audioDict.chord.play()
             }
 
         }
@@ -497,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const postElement = document.getElementById(postId);
         if (postElement) {
             postElement.classList.add('delete-animation');
-            playWavSound("./static/sounds/CHIMES.WAV");
+            audioDict.chimes.play()
             postElement.addEventListener('animationend', function () {
 
                 postElement.remove();
@@ -582,7 +594,7 @@ function feedGilbert() {
     let button = document.getElementById('feed_button');
     button.disabled = true;
     button.classList.add('buttonClick');
-    playWavSound("/static/sounds/Windows 98 minimize.wav");
+    audioDict.minimize.play()
 
     setTimeout(function() {
         button.disabled = false;
@@ -597,7 +609,7 @@ function petGilbert() {
     button.disabled = true;
     button.classList.add('buttonClick');
 
-    playWavSound("/static/sounds/Windows 98 minimize.wav");
+    audioDict.minimize.play()
 
     setTimeout(function() {
         button.disabled = false;
@@ -612,7 +624,7 @@ function hurtGilbert() {
     button.disabled = true;
     button.classList.add('buttonClick');
 
-    playWavSound("/static/sounds/Windows 98 minimize.wav");
+    audioDict.minimize.play()
 
     setTimeout(function() {
         button.disabled = false;
@@ -635,18 +647,13 @@ function update_gilb_thought(message) {
     }
 }
 
-
-function playWavSound(filename) {
-    var audio = new Audio(filename);
-    audio.play();
-}
-
 function loginButton() {
 
     let button = document.getElementById('loginButton');
     button.disabled = true;
     button.classList.add('buttonClick');
-    playWavSound("/static/sounds/Windows 98 minimize.wav");
+
+    audioDict.minimize.play()
 
     setTimeout(function() {
         button.disabled = false;
@@ -659,7 +666,8 @@ function registerButton() {
     let button = document.getElementById('registerButton');
     button.disabled = true;
     button.classList.add('buttonClick');
-    playWavSound("/static/sounds/Windows 98 minimize.wav");
+
+    audioDict.minimize.play()
 
     setTimeout(function() {
         button.disabled = false;
