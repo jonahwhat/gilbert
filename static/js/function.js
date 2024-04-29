@@ -398,7 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('gilbert_hunger_stats').innerHTML = `🍇 Hunger: <b>${data.hunger}</b>/100`;
         document.getElementById('gilbert_happiness_stats').innerHTML = `🌈 Happiness: <b>${data.happiness}</b>/100`;
         document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (${data.health}/100 hp)`;
-        // TODO  make look nicer with better formatting
         document.getElementById('gilbert_time_alive').innerHTML = `Time Alive: <b>${data.seconds_alive} seconds</b>`;
 
         document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${status})`;
@@ -575,7 +574,7 @@ function makeDraggable() {
 
 
 function feedGilbert() {
-    socket.emit('gilbert_start', "test");
+    socket.emit('gilbert_start');
     
     socket.emit('update_gilbert', "feed");
 

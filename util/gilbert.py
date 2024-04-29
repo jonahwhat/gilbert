@@ -51,10 +51,6 @@ def update_gilbert_statistics(gilbert_old):
     if gilbert_old["alive"] == True:
         gilbert_new["seconds_alive"] = seconds_alive + 1
 
-
-    # change profile image based on hunger
-    gilbert_new["picture_path"] = update_gilbert_image(current_health)
-
     return gilbert_new
 
 
@@ -84,37 +80,33 @@ def handle_gilbert_action(action, gilbert_old):
 
     return gilbert_new 
 
-
-def update_gilbert_image(health):
-    if health >= 70:
-        return '/static/img/gilbert_happy.png'
-    elif health >= 50:
-        return '/static/img/gilbert_ok.png'
-    elif health >= 10:
-        return '/static/img/gilbert_sad.png'
-    elif health > 0:
-        return '/static/img/gilbert_dying.png'
-    else:
-        return '/static/img/gilbert_gravestone.png'
     
 
-def set_initial_gilbert(name):
+def set_initial_gilbert():
+
+    # TODO: gilbert stages based on level
+    # for example: level 1-5 = only hunger butt
+    # level 5-10 = hunger + happiness
+    # level 10+ = monsters can spawn + inventory drops
+
+
     gilbert_stats = {
+        "alive": True,
         "health": 100,
         "hunger": random.randint(75, 90),
-        "happiness": random.randint(45, 55),
+        "happiness": random.randint(75, 90),
+        "level": 1,
         "seconds_alive": 0,
-        "name": name,
-        "picture_path": '/static/img/gilbert_happy.png',
-        "alive": True,
+        "status": "None",
+        "inventory": {}
     }
 
     return gilbert_stats
 
-def generate_gilbert_thought(gilbert_thoughts_collection, user_collection):
+def generate_gilbert_thought(gilbert_thoughts_collection, userlist):
 
     # random message from chat
-    if random.randint(0,2):
+    if random.randint(0,1):
         pipeline = [{"$sample": {"size": 1}}]
         thought = list(gilbert_thoughts_collection.aggregate(pipeline))
 
@@ -127,8 +119,7 @@ def generate_gilbert_thought(gilbert_thoughts_collection, user_collection):
     # random set message
     else:
 
-        pipeline = [{"$sample": {"size": 1}}]
-        user = list(user_collection.aggregate(pipeline))[0].get("username")
+        user = random.choice(userlist)
 
         if user:
             thought_list = [

@@ -28,17 +28,21 @@ statistics = {
     "gilbert_longest_alive": 0,
 }
 
+gilbert_respawn_timer = 0
+
 gilbert_stats = {
+    "alive": False,
     "health": 0,
     "hunger": 0,
     "happiness": 0,
+    "level": 0,
     "seconds_alive": 0,
-    "name": "Gilbert",
-    "picture_path": "/static/img/gilbert_gravestone.png",
-    "alive": False,
+    "status": "None",
+    "inventory": {}
 }
 
-gilbert_respawn_timer = 0
+gilbert_thoughts_userlist = ["gilbert"]
+
 
 
 
@@ -216,6 +220,7 @@ def handle_connect():
 @socket.on('update_gilbert')
 def handle_gilbert_update(action):
     global gilbert_stats
+    global gilbert_thoughts_userlist
 
 
     if (session.get("username") == "Guest"):
@@ -226,8 +231,11 @@ def handle_gilbert_update(action):
 
 
 
-    printMsg(action)
-
+    # add user to gilbert's thoughts so he responds to them
+    username = session.get("username")
+    if username not in gilbert_thoughts_userlist:
+        gilbert_thoughts_userlist.append(username)
+        printMsg(gilbert_thoughts_userlist)
 
     # gilbert logic based on his current stats
     gilbert_stats = handle_gilbert_action(action, gilbert_stats)
@@ -239,10 +247,11 @@ def handle_gilbert_update(action):
 
 
 @socket.on('gilbert_start')
-def handle_gilbert_start(data):
+def handle_gilbert_start():
 
     global gilbert_stats
     global gilbert_respawn_timer
+    global gilbert_thoughts_userlist
 
 
     # make sure user is authenticated
@@ -256,10 +265,15 @@ def handle_gilbert_start(data):
     # check if glibert is already alive, if he is, ignore, if he isn't start the loop
     if gilbert_stats.get("alive") == False:
         # reset stats
-        gilbert_stats = set_initial_gilbert(data)
+        gilbert_stats = set_initial_gilbert()
         socket.emit('recieve_gilbert_stats', gilbert_stats)
         socket.emit('start_gilbert')
-        
+
+
+
+        # reset and add user to gilbert thoughts userlist
+        gilbert_thoughts_userlist = [session.get("username")]
+        printMsg(gilbert_thoughts_userlist)
 
         # maybe while true loop to show timing?
         # only sendall when the epoch time changes
@@ -287,6 +301,7 @@ def send_updates():
 
     global gilbert_stats
     global gilbert_respawn_timer
+    global gilbert_thoughts_userlist
 
     while True:
 
@@ -308,7 +323,7 @@ def send_updates():
             socket.emit('recieve_gilbert_stats', gilbert_stats)
 
             if int(time.time()) % 15 == 0:
-                thought = generate_gilbert_thought(gilbert_thoughts_collection, user_collection)
+                thought = generate_gilbert_thought(gilbert_thoughts_collection, gilbert_thoughts_userlist)
                 if thought:
                     socket.emit('recieve_gilbert_thoughts', thought)
 
