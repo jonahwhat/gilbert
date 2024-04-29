@@ -38,6 +38,7 @@ gilbert_stats = {
     "level": 0,
     "seconds_alive": 0,
     "status": "None",
+    "experience": 0,
     "inventory": {}
 }
 
@@ -215,6 +216,17 @@ def handle_connect():
     # socket.emit('recieve_gilbert_stats', gilbert_stats)
 
     printMsg(session.get('username'))
+
+
+#* Gilbert Functions *#
+
+@socket.on('attack_monster')
+def handle_monster_attack(monster_id):
+    global gilbert_stats
+    pass
+
+
+
 
 # this should be a new "messageType", where types can be feed, play, etc
 @socket.on('update_gilbert')

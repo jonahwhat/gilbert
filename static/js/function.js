@@ -397,8 +397,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('gilbert_health_stats').innerHTML = `❤️ Health: <b>${data.health}</b>/100`;
         document.getElementById('gilbert_hunger_stats').innerHTML = `🍇 Hunger: <b>${data.hunger}</b>/100`;
         document.getElementById('gilbert_happiness_stats').innerHTML = `🌈 Happiness: <b>${data.happiness}</b>/100`;
-        document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (${data.health}/100 hp)`;
-        document.getElementById('gilbert_time_alive').innerHTML = `Time Alive: <b>${data.seconds_alive} seconds</b>`;
+        document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (Level ${data.level})`;
+        document.getElementById('gilbert_seconds_alive').innerHTML = `🕑 Time Alive: <b>${data.seconds_alive} seconds</b>`;
+        document.getElementById('gilbert_level_and_experience').innerHTML = `<b>Level ${data.level}</b>  (${data.experience}/10xp)`;
 
         document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${status})`;
 

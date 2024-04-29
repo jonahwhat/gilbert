@@ -8,6 +8,8 @@ def update_gilbert_statistics(gilbert_old):
     current_happiness = gilbert_old.get("happiness")
     current_health = gilbert_old.get("health")
     seconds_alive = gilbert_old.get("seconds_alive")
+    experience = gilbert_old.get("experience")
+    level = gilbert_old.get("level")
 
     # handle health decreasing if hunger below 25
     
@@ -51,6 +53,17 @@ def update_gilbert_statistics(gilbert_old):
     if gilbert_old["alive"] == True:
         gilbert_new["seconds_alive"] = seconds_alive + 1
 
+        # increase experience every 5 seconds
+        if seconds_alive % 5 == 0:
+
+            # leveling up logic
+            levelup_result = handle_gilbert_levelup(level, experience + 1)
+
+            gilbert_new["level"] = levelup_result[0]
+            gilbert_new["experience"] = levelup_result[1]
+
+
+
     return gilbert_new
 
 
@@ -80,12 +93,22 @@ def handle_gilbert_action(action, gilbert_old):
 
     return gilbert_new 
 
+
+def handle_gilbert_levelup(current_level, current_xp):
+    new_level = current_level
+    new_xp = current_xp
+
+    if current_xp == 10:
+        new_level += 1
+        new_xp = 0
+
+    return new_level, new_xp
     
 
 def set_initial_gilbert():
 
     # TODO: gilbert stages based on level
-    # for example: level 1-5 = only hunger butt
+    # for example: level 1-5 = only hunger button
     # level 5-10 = hunger + happiness
     # level 10+ = monsters can spawn + inventory drops
 
@@ -98,6 +121,7 @@ def set_initial_gilbert():
         "level": 1,
         "seconds_alive": 0,
         "status": "None",
+        "experience": 0,
         "inventory": {}
     }
 
