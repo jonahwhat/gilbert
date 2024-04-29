@@ -44,6 +44,8 @@ gilbert_stats = {
 
 gilbert_thoughts_userlist = ["gilbert"]
 
+gilbert_enemies_list = []
+
 
 
 
@@ -322,7 +324,7 @@ def send_updates():
 
         # if gilbert alive, send gilbert dict
         if gilbert_stats.get("alive"):
-            gilbert_stats = update_gilbert_statistics(gilbert_stats)
+            gilbert_stats = update_gilbert_statistics(gilbert_stats, gilbert_enemies_list)
 
             # update longest alive time
             current_alive = gilbert_stats["seconds_alive"]

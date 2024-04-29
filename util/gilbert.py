@@ -1,7 +1,24 @@
 import random
+import uuid
+
+# example enemy
+# need to only send/update the coordinates when first sending, but not on repeat
+# could alternatively just only update the coords on javascript if no coords exist in style?
+slime = {
+    "name": "slime",
+    "level": 1,
+    "health": 3,
+    "damage": 1,
+    "time_til_attack": 3,
+    "item_drop": "health_potion",
+    "id": str(uuid.uuid4()),
+    "top": random.randint(1, 75),
+    "left": random.randint(1, 80),
+}
 
 
-def update_gilbert_statistics(gilbert_old):
+
+def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
     gilbert_new = gilbert_old.copy()
 
     current_hunger = gilbert_old.get("hunger")
@@ -10,6 +27,18 @@ def update_gilbert_statistics(gilbert_old):
     seconds_alive = gilbert_old.get("seconds_alive")
     experience = gilbert_old.get("experience")
     level = gilbert_old.get("level")
+
+    # gilbert status logic
+    if len(gilbert_enemies_list) >= 1:
+        gilbert_new["status"] = "under attack"
+    elif current_hunger >= 50:
+        gilbert_new["status"] = "happy"
+    elif current_hunger >= 25:
+        gilbert_new["status"] = "hungry"
+    elif current_hunger >= 0:
+        gilbert_new["status"] = "starving"
+    
+
 
     # handle health decreasing if hunger below 25
     
@@ -62,7 +91,8 @@ def update_gilbert_statistics(gilbert_old):
             gilbert_new["level"] = levelup_result[0]
             gilbert_new["experience"] = levelup_result[1]
 
-
+    if gilbert_new["health"] == 0:
+        gilbert_new["status"] = "dead"
 
     return gilbert_new
 
@@ -120,7 +150,7 @@ def set_initial_gilbert():
         "happiness": random.randint(75, 90),
         "level": 1,
         "seconds_alive": 0,
-        "status": "None",
+        "status": "happy",
         "experience": 0,
         "inventory": {}
     }

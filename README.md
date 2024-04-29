@@ -15,6 +15,6 @@ https://yapper-chat.com/
 3. Locate the tab that says "Gilbert"
 4. Press the "Give Food" button
 5. Try to keep Gilbert alive as long as possible by keeping his stats high
-6. Verify that the "Gilbert's Thoughts" shows messages you have sent along with messages directed towards the account that was just created (wait ~15 seconds between thoughts)
+6. Verify that the "Gilbert's Thoughts" shows random messages along with messages directed towards the account that you're logged in with (wait ~15 seconds between thoughts) (for example if your username is helloworld, gilbert will sometimes say "hi @helloworld" )
 7. Create a new account and log in in firefox and verify that Gilbert's stats are the same on both tabs
 8. Verify that gilbert information and interactions are sent via websockets and not polling
