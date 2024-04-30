@@ -100,7 +100,7 @@ def application():
 @app.route('/register',methods=["POST"])
 def register():
     if request.method == "POST":
-        return handleRegister(request, user_collection)
+        return handleRegister(request, user_collection, auth_collection)
 
     else:
         return jsonify({'error': 'Method not allowed'}), 405
