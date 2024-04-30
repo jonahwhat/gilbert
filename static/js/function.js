@@ -354,12 +354,15 @@ document.addEventListener('DOMContentLoaded', () => {
         audioDict.dead.play()
         update_gilb_thought("i died...")
 
+        document.getElementById('website-title').innerHTML = `Yap Chat`;
+
         let pet_button = document.getElementById('pet_button');
         pet_button.disabled = true;
 
         let feed_button = document.getElementById('feed_button');
         feed_button.disabled = true;
 
+        // reset all to normal
         setTimeout(function() {
             feed_button.disabled = false;
             update_gilb_thought("i wish someone would give me some food...")
@@ -373,7 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b>`;
     
             document.getElementById('gilbert_emoji').innerText = `❓`;
-
 
         }, 10000);
 
@@ -412,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (Level ${data.level})`;
         document.getElementById('gilbert_seconds_alive').innerHTML = `🕑 Time Alive: <b>${data.seconds_alive} seconds</b>`;
         document.getElementById('gilbert_level_and_experience').innerHTML = `<b>Level ${data.level}</b>  (${data.experience}/10xp)`;
+        document.getElementById('website-title').innerHTML = `Gilbert (${data.health}/100hp)`;
 
         document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${data.status})`;
 
