@@ -10,6 +10,7 @@ const audioDict = {
     "tada": new Audio("/static/sounds/TADA.WAV"),
     "microsoft_sound": new Audio("/static/sounds/The Microsoft Sound.wav"),
     "startup": new Audio("/static/sounds/Windows 98 startup.wav"),
+    "upgrade": new Audio("/static/sounds/upgrade.wav"),
 }
 
 
@@ -362,6 +363,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let feed_button = document.getElementById('feed_button');
         feed_button.disabled = true;
 
+        document.getElementById('gilbert_stage_explanation').innerText = `Gilbert has passed away...`;
+
+
+
         // reset all to normal
         setTimeout(function() {
             feed_button.disabled = false;
@@ -369,13 +374,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById('gilbert_health_stats').innerHTML = `Nothing here yet...`;
             document.getElementById('gilbert_hunger_stats').innerHTML = ``;
+            document.getElementById('gilbert_seconds_alive').innerHTML = ``;
+
             document.getElementById('gilbert_happiness_stats').innerHTML = ``;
             document.getElementById('gilbert_title_bar').innerText = `❓ Gilbert`;
-            document.getElementById('gilbert_time_alive').innerHTML = ``;
+            document.getElementById('gilbert_seconds_alive').innerHTML = ``;
     
             document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b>`;
     
             document.getElementById('gilbert_emoji').innerText = `❓`;
+
+            document.getElementById('gilbert_stage_explanation').innerText = ``;
+            document.getElementById('gilbert_gold').innerHTML = ``;
+
+            // remove stats div
+            const aboutGilbert = document.getElementById("aboutGilbertDiv");
+            aboutGilbert.style.display = "none";
 
         }, 10000);
 
@@ -406,48 +420,84 @@ document.addEventListener('DOMContentLoaded', () => {
             emoji = "💀"
         }
 
+        // show stats div
+        const aboutGilbert = document.getElementById("aboutGilbertDiv");
+        if (aboutGilbert.style.display === "none") {
+            aboutGilbert.style.display = "initial";
+        }
 
-        
-        document.getElementById('gilbert_health_stats').innerHTML = `❤️ Health: <b>${data.health}</b>/100`;
-        document.getElementById('gilbert_hunger_stats').innerHTML = `🍇 Hunger: <b>${data.hunger}</b>/100`;
-        document.getElementById('gilbert_happiness_stats').innerHTML = `🌈 Happiness: <b>${data.happiness}</b>/100`;
-        document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (Level ${data.level})`;
-        document.getElementById('gilbert_seconds_alive').innerHTML = `🕑 Time Alive: <b>${data.seconds_alive} seconds</b>`;
-        document.getElementById('gilbert_level_and_experience').innerHTML = `<b>Level ${data.level}</b>  (${data.experience}/10xp)`;
-        document.getElementById('website-title').innerHTML = `Gilbert (${data.health}/100hp)`;
+        gilbert_stage = data.stage
 
-        document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${data.status})`;
+        // only display certain things depending on the stage of gilbert
+        if (gilbert_stage >= 0) {
+            // update statistics box
+            document.getElementById('gilbert_health_stats').innerHTML = `❤️ Health: <b>${data.health}</b>/100`;
+            document.getElementById('gilbert_hunger_stats').innerHTML = `🍇 Hunger: <b>${data.hunger}</b>/100`;
+            document.getElementById('gilbert_seconds_alive').innerHTML = `🕑 Time Alive: <b>${data.seconds_alive} seconds</b>`;
+            
+            // website title
+            document.getElementById('website-title').innerHTML = `Gilbert (${data.health}/100 hp)`;
 
-        document.getElementById('gilbert_emoji').innerText = `${emoji}`;
+            // gilbert status
+            document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${data.status})`;
+            
+            // gilbert emoji picture
+            document.getElementById('gilbert_emoji').innerText = `${emoji}`;
 
+            // gilbert's title bar
+            document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (${data.health}/100 hp)`;
+
+            // update stage explanation
+            document.getElementById('gilbert_stage_explanation').innerText = `Don't let Gilbert's hunger get too low!`;
+
+        }
+
+        if (gilbert_stage >= 1) {
+            // show happiness stat
+            const happinessStat = document.getElementById('gilbert_happiness_stats');
+
+            happinessStat.innerHTML = `🌈 Happiness: <b>${data.happiness}</b>/100`;
+
+            // show feed button
+            const petButton = document.getElementById("pet_button");
+            // play an animation on join
+            if (petButton.style.display === "none") {
+                
+                audioDict.upgrade.play()
+
+                petButton.classList.add('windowShake');
+
+                setTimeout(function() {
+                    petButton.classList.remove('windowShake')
+                }, 1000);
+
+                petButton.style.display = "initial";
+            }
+
+            // update stage explanation
+            document.getElementById('gilbert_stage_explanation').innerText = `Give Gilbert treats to keep him happy!`;
+        }
+
+        if (gilbert_stage >= 2) {
+
+            if (!document.getElementById('gilbert_gold').innerHTML) {
+                audioDict.upgrade.play()
+            }
+
+            document.getElementById('gilbert_gold').innerHTML = `💰 Gold: <b>${data.gold}</b>`;
+            document.getElementById('gilbert_stage_explanation').innerText = `Watch out for enemies!`;
+        }
+
+        // handle gilbert animations
         let pic = document.getElementById('gilbert_emoji')
-
-        // fix profile pic auto updating
-        // let img = document.getElementById('gilbert_image');
-        // let newPath = data.picture_path;
-
-        // // get everything after the las / to get true path
-        // let current_img = img.src.substring(img.src.lastIndexOf('/') + 1);
-        // let new_img = newPath.substring(newPath.lastIndexOf('/') + 1);
-
-        // if (current_img !== new_img) {
-        //     img.src = newPath;
-        // }
-
-        // animations
-        // let gilbertWindow = document.getElementById('gilbert_div');
 
         if (status == "alive") {
             if (!pic.classList.contains('gilbert-anim-alive')) {
-                // console.log(pic.classList)
-
                 pic.classList.add('gilbert-anim-alive');
             }
         } else {
             pic.classList.remove('gilbert-anim-alive');
         }
-
-
 
     });
 
@@ -602,7 +652,7 @@ function feedGilbert() {
     setTimeout(function() {
         button.disabled = false;
         button.classList.remove('buttonClick')
-    }, 2500);
+    }, 1500);
 }
 
 function petGilbert() {
@@ -617,7 +667,7 @@ function petGilbert() {
     setTimeout(function() {
         button.disabled = false;
         button.classList.remove('buttonClick')
-    }, 1500);
+    }, 1000);
 }
 
 function hurtGilbert() {
@@ -632,7 +682,7 @@ function hurtGilbert() {
     setTimeout(function() {
         button.disabled = false;
         button.classList.remove('buttonClick')
-    }, 1500);
+    }, 1000);
 }
 
 

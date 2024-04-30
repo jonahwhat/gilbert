@@ -134,26 +134,47 @@
 					<!-- <img id="gilbert_image" src="https://i.imgur.com/TaUfF5E.png" class="gilbertImage"> -->
 					<p style="font-size: 65px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)" id="gilbert_emoji">❓</p>
 					<p id="gilbert_status"><b>Gilbert</b></p>
-					<p id="gilbert_level_and_experience"></p>
+					<i id="gilbert_stage_explanation"></i>
 
 				</div>
 
 				<hr>
-				<p><b>📊 Gilbert's Stats</b></p>
+
+				<div id="aboutGilbertDiv" style="display: none;">
+
+				<p><b>📊 About Gilbert</b></p>
 
 				<ul class="tree-view" id="gilbert_stats">
-					<li id="gilbert_health_stats">Nothing here yet...</li>
-					<li id="gilbert_hunger_stats"></li>
-					<li id="gilbert_happiness_stats"></li>
-					<li id="gilbert_seconds_alive"></li>
+					<li id="norm_stats">
+						<b>Gilbert's Stats</b>
+						<ul>
+							<li id="gilbert_health_stats"></li>
+							<li id="gilbert_hunger_stats"></li>
+							<li id="gilbert_happiness_stats"></li>
+							<li id="gilbert_temp_stat"></li>
+						</ul>
+					</li>
+
+					<br>
+					<li id="misc_stats">
+						<b>Other</b>
+						<ul>
+							<li id="gilbert_seconds_alive"></li>
+							<li id="gilbert_gold"></li>
+							<li id="gilbert_enemies_alive"></li>
+							<li id="gilbert_experience"></li>
+						</ul>
+					</li>
+
+					
 				</ul>
-				
+			</div>
 				<p id="gilb_thought_container"><b>💭 Gilbert's Thoughts</b>: <i id="gilbert_thoughts">i wish someone would give me some food...</i></p>
 				
 
 				<section class="field-row" style="justify-content: center; margin-top: 7px">
 					<button onclick="feedGilbert()" id="feed_button">Give Food</button>
-					<button onclick="petGilbert()" id="pet_button" disabled>Give Treat</button>
+					<button onclick="petGilbert()" id="pet_button" style="display: none;">Give Treat</button>
 
 				</section>
 			</div>

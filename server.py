@@ -39,6 +39,8 @@ gilbert_stats = {
     "seconds_alive": 0,
     "status": "None",
     "experience": 0,
+    "gold": 0,
+    "stage": 0,
     "inventory": {}
 }
 

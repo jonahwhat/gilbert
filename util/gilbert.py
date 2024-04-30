@@ -1,5 +1,6 @@
 import random
 import uuid
+from util.gilbert_util import *
 
 # example enemy
 # need to only send/update the coordinates when first sending, but not on repeat
@@ -8,12 +9,14 @@ slime = {
     "name": "slime",
     "level": 1,
     "health": 3,
-    "damage": 1,
+    "damage_to_gilbert": 1,
     "time_til_attack": 3,
     "item_drop": "health_potion",
+    "gold_drop": 10,
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 75),
     "left": random.randint(1, 80),
+    "alive": True,
 }
 
 
@@ -21,12 +24,66 @@ slime = {
 def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
     gilbert_new = gilbert_old.copy()
 
+    current_stage = gilbert_old.get("stage")
     current_hunger = gilbert_old.get("hunger")
     current_happiness = gilbert_old.get("happiness")
     current_health = gilbert_old.get("health")
     seconds_alive = gilbert_old.get("seconds_alive")
     experience = gilbert_old.get("experience")
     level = gilbert_old.get("level")
+
+    # update stage of gilberts live
+    # stage 0: only keep track of hunger
+    # stage 1: hunger + happiness (more functionality for happiness, also make it harder)
+    # stage 2: enemies start spawning, gold drops
+    # stage 3: inventory unlocks, can use and collect things from your inventory, xp?
+    if seconds_alive <= 30:
+        current_stage = 0
+    elif seconds_alive <= 60:
+        current_stage = 1
+    elif seconds_alive <= 120:
+        current_stage = 2
+    # elif seconds_alive <= 240:
+    #     current_stage = 3
+
+    # update return object
+    gilbert_new["stage"] = current_stage
+
+
+    # only keep track of hunger, slower hunger loss
+    if current_stage == 0:
+        # get new states of hunger
+        new_health, new_hunger = stage_zero(current_hunger, current_health)
+
+        # update new object
+        gilbert_new["health"] = new_health
+        gilbert_new["hunger"] = new_hunger
+
+
+    # add happiness to the mix, faster hunger loss, but treats contribute to hunger as well
+    elif current_stage == 1:
+        # get new states of stats
+        new_health, new_hunger, new_happiness = stage_one(current_hunger, current_health, current_happiness)
+
+        # update new object
+        gilbert_new["health"] = new_health
+        gilbert_new["hunger"] = new_hunger
+        gilbert_new["happiness"] = new_happiness
+
+
+
+    # monster spawning, leveling, xp from kills, simple monsters
+    elif current_stage == 2:
+        # get new states of stats
+        new_health, new_hunger, new_happiness = stage_two(current_hunger, current_health, current_happiness)
+
+        # update new object
+        gilbert_new["health"] = new_health
+        gilbert_new["hunger"] = new_hunger
+        gilbert_new["happiness"] = new_happiness
+
+
+
 
     # gilbert status logic
     if len(gilbert_enemies_list) >= 1:
@@ -37,41 +94,7 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
         gilbert_new["status"] = "hungry"
     elif current_hunger >= 0:
         gilbert_new["status"] = "starving"
-    
-
-
-    # handle health decreasing if hunger below 25
-    
-    if current_hunger <= 10:
-        gilbert_new["health"] = max(current_health - 5, 0)
-
-    elif current_hunger <= 25:
-        gilbert_new["health"] = max(current_health - 3, 0)
-
-    elif current_hunger <= 50:
-        gilbert_new["health"] = max(current_health - 1, 0)
-
-
-    # handle hunger going down
-    if current_happiness <= 10:
-        gilbert_new["hunger"] = max(current_hunger - random.randint(0, 3), 0)
-
-    elif current_happiness <= 50:
-        gilbert_new["hunger"] = max(current_hunger - random.randint(0, 2), 0)
-     
-    else:
-        gilbert_new["hunger"] = max(current_hunger - random.randint(0, 1), 0)
-
-
-    # handle happiness
-    rand = random.randint(1, 4)
-    if rand == 1:
-        gilbert_new["happiness"] = max(current_happiness - random.randint(1, 3), 0)
-    
-    elif rand == 2:
-        gilbert_new["happiness"] = max(current_happiness - random.randint(0, 2), 0)
-        
-
+            
 
     # low health triggers death
     if current_health <= 0:
@@ -81,15 +104,6 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
     # change seconds alive, only update if alive
     if gilbert_old["alive"] == True:
         gilbert_new["seconds_alive"] = seconds_alive + 1
-
-        # increase experience every 5 seconds
-        if seconds_alive % 5 == 0:
-
-            # leveling up logic
-            levelup_result = handle_gilbert_levelup(level, experience + 1)
-
-            gilbert_new["level"] = levelup_result[0]
-            gilbert_new["experience"] = levelup_result[1]
 
     if gilbert_new["health"] == 0:
         gilbert_new["status"] = "dead"
@@ -109,13 +123,16 @@ def handle_gilbert_action(action, gilbert_old):
     if action == "feed":
         if current_hunger <= 100:
             gilbert_new["hunger"] = min(current_hunger + 5, 100)
-
+        # happiness goes down if you overfeed him, also health too?
         elif current_hunger >= 100:
-            gilbert_new["happiness"] = max(current_happiness - 1, 0)
+            gilbert_new["happiness"] = max(current_happiness - 5, 0)
+            gilbert_new["health"] = max(current_health - 1, 0)
 
-    if action == "pet":
+
+    if action == "pet" and gilbert_old.get("stage") >= 1:
         if current_happiness <= 100:
-            gilbert_new["happiness"] = min(current_happiness + random.randint(1, 4), 100)
+            gilbert_new["happiness"] = min(current_happiness + 5, 100)
+
 
     if action == "hurt":
         gilbert_new["health"] = max(current_health - 1, 0)
@@ -151,7 +168,9 @@ def set_initial_gilbert():
         "level": 1,
         "seconds_alive": 0,
         "status": "happy",
+        "gold": 0,
         "experience": 0,
+        "stage": 0, # stages determine what functionalities gilbert has unlocked
         "inventory": {}
     }
 
