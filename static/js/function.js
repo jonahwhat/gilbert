@@ -898,7 +898,7 @@ function createLootHTML(enemyJSON) {
 
 
     let enemyHTML = `<div class="window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
-            <div class="title-bar yellow">
+            <div class="title-bar gold-highlight">
                 <div class="title-bar-text">
                     💰 Loot!
                 </div>

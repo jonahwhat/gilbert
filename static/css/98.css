@@ -4,7 +4,7 @@
  * https://github.com/jdan/98.css/blob/main/LICENSE
  */
 
-:root {
+ :root {
   /* Color */
   --text-color: #222222;
   --surface: #c0c0c0;
@@ -14,11 +14,15 @@
   --window-frame: #0a0a0a;
   --dialog-blue: #000080;
   --dialog-blue-light: #1084d0;
-  --dialog-red: #891306;
-  --dialog-red-light: #d54017;
-  --dialog-green: #118000;
-  --dialog-green-light: #46d010;
-  --dialog-cyan: #007580;
+  --dialog-red: #780e00;
+  --dialog-red-light: #ca2f1a;
+  --dialog-green: #008004;
+  --dialog-green-light: #20d010;
+  --dialog-gold: #c69b0e;
+  --dialog-gold-light: #e7c439;
+  --dialog-purple: #360099;
+  --dialog-purple-light: #8737d3;
+  --dialog-cyan: #006871;
   --dialog-cyan-light: #10d0c0;
   --dialog-gray: #808080;
   --dialog-gray-light: #b5b5b5;
@@ -85,6 +89,22 @@
     inset 1px 1px var(--button-face),
     inset -2px 0 var(--button-shadow),
     inset 2px 2px var(--button-highlight)
+}
+
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("fonts/converted/ms_sans_serif.woff") format("woff");
+  src: url("fonts/converted/ms_sans_serif.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("fonts/converted/ms_sans_serif_bold.woff") format("woff");
+  src: url("fonts/converted/ms_sans_serif_bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
 }
 
 body {
@@ -255,6 +275,46 @@ input[type="reset"]:disabled,
     90deg,
     var(--dialog-cyan),
     var(--dialog-cyan-light)
+  );
+}
+
+.title-bar.gold {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-gold),
+    var(--dialog-gold-light)
+  );
+}
+
+.title-bar.purple {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-purple),
+    var(--dialog-purple-light)
+  );
+}
+
+.title-bar.purple-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-purple),
+    var(--dialog-gray-light)
+  );
+}
+
+.title-bar.red-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-red),
+    var(--dialog-gray-light)
+  );
+}
+
+.title-bar.gold-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-gold),
+    var(--dialog-gray-light)
   );
 }
 
