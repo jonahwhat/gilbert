@@ -65,8 +65,8 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
         gilbert_new["happiness"] = new_happiness
 
     # gilbert xp logic
-    if xp == 10:
-        gilbert_new["xp"] = 0
+    if xp >= 10:
+        gilbert_new["xp"] -= 10
         gilbert_new["level"] += 1
 
 

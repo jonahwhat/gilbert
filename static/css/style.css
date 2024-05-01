@@ -37,8 +37,8 @@ body {
 .lootWindow {
   width: auto;
   height: auto;
-  max-width: 300px;
-  width: 200px;
+  max-width: 200px;
+  width: 180px;
   position: absolute;
   word-wrap: break-word;
 }

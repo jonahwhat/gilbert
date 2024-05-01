@@ -245,12 +245,12 @@ def handle_monster_attack(monster_id):
 
             if new_health <= 0:
                 # emit death, update stats to reflect that, only remove from dict once player takes loot    
-                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold": monster.get("gold_drop"), "xp": monster.get("xp_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70),})
+                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold": monster.get("gold_drop"), "xp": monster.get("xp_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji")})
                 gilbert_enemies_dict[monster_id]["alive"] = False
 
             else:
                 # update health of enemy
-                socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name")})
+                socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name"), "emoji": monster.get("emoji")})
 
 
         else:
@@ -412,7 +412,7 @@ def send_updates():
                         gilbert_enemies_dict[id]["seconds_til_attack"] -= 1
 
 
-                if (int(time.time()) + 5) % 29 == 0:
+                if (int(time.time()) + 5) % 15 == 0:
                     enemy = spawn_enemy(gilbert_stats.get("level"))
                     # emit enemy from socket and also add to enemy dict
                     socket.emit('new_enemy', enemy)

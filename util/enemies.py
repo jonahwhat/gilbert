@@ -79,9 +79,9 @@ def spawn_enemy(gilbert_level):
     "alive": True,
     }
 
-    if random.randint(0,2):
+    if random.randint(0,1):
         return rat
-    elif random.randint(0,2):
+    elif random.randint(0,1):
         return mouse
     elif random.randint(0,1):
         return snake

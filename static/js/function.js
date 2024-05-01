@@ -455,9 +455,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioDict.upgrade.play()
             }
 
+            document.getElementById('gilbert_level').innerHTML = `🏰 Level: <b>${data.level}</b>`;
             document.getElementById('gilbert_gold').innerHTML = `💰 Gold: <b>${data.gold}</b>`;
+            document.getElementById('gilbert_xp').innerHTML = `⭐ XP: <b>${data.xp}</b>/10`;
+            document.getElementById('gilbert_damage_stats').innerHTML = `⚔️ Damage: <b>${data.damage}</b>/10`;
             document.getElementById('gilbert_stage_explanation').innerText = `Watch out for enemies!`;
         }
+
+        if (gilbert_stage >= 3) {
+
+            if (!document.getElementById('gilbert_gold').innerHTML) {
+                audioDict.upgrade.play()
+            }
+
+            // shop stuff, spawn shop, maybe rotating items but probably just stat upgrades and auto heal/feed
+        }
+
+
+
+
 
         // handle gilbert animations
         let pic = document.getElementById('gilbert_emoji')
@@ -493,8 +509,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.interaction_type == "player_attack") {
             // todo animation for both gilbert and enemy
 
-            document.getElementById(`monster_name_${data.id}`).innerHTML = `<b>${data.name}</b> (${data.health} hp)`
-            document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.name} (${data.health} hp)`
+            document.getElementById(`monster_name_${data.id}`).innerHTML = `${data.emoji}<b>${data.name}</b> (${data.health} hp)`
+            document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.emoji} ${data.name} (${data.health} hp)`
 
         } else if (data.interaction_type == "attack_gilbert") {
             var audio = audioDict.hit
@@ -849,13 +865,16 @@ function createEnemyHTML(enemyJSON) {
     let enemyHTML = `<div class="window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%">
             <div class="title-bar red">
                 <div class="title-bar-text" id="monster_titleid_${id}">
-                    ${name} (${health} hp)
+                ${emoji} ${name} (${health} hp)
+                </div>
+                <div class="title-bar-controls">
+                    <button title="An enemy! Attack it before it attacks gilbert!" aria-label="Help"></button>
                 </div>
             </div>
             <div class="window-body">
                 <div class="centerGilbert">
                     <p class="enemy-anim" style="font-size: 45px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">${emoji}</p>
-                    <p id="monster_name_${id}"><b>${name}</b> (${health} hp)</p>
+                    <p id="monster_name_${id}">${emoji}<b>${name}</b> (${health} hp)</p>
                     <i>${description}</i>
                 </div>   
 
@@ -875,18 +894,22 @@ function createLootHTML(enemyJSON) {
     const id = enemyJSON.id;
     const gold = enemyJSON.gold;
     const xp = enemyJSON.xp;
+    const emoji = enemyJSON.emoji;
 
 
     let enemyHTML = `<div class="window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
-            <div class="title-bar inactive">
+            <div class="title-bar yellow">
                 <div class="title-bar-text">
                     💰 Loot!
+                </div>
+                <div class="title-bar-controls">
+                    <button title="Loot dropped from an enemy!" aria-label="Help"></button>
                 </div>
             </div>
             <div class="window-body">
                 <div class="centerGilbert">
                 <p class="enemy-anim" style="font-size: 45px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">💰</p>
-                    <p><b>${name_of_enemy} defeated!</b></p>
+                    <p><b>${emoji}${name_of_enemy} defeated!</b></p>
                     <i></i>
                 </div>   
 
