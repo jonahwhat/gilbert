@@ -11,6 +11,13 @@ const audioDict = {
     "microsoft_sound": new Audio("/static/sounds/The Microsoft Sound.wav"),
     "startup": new Audio("/static/sounds/Windows 98 startup.wav"),
     "upgrade": new Audio("/static/sounds/upgrade.wav"),
+    "enemy": new Audio("/static/sounds/enemy.wav"),
+    "attack_sword": new Audio("/static/sounds/attack_sword.wav"),
+    "good": new Audio("/static/sounds/good_job.wav"),
+    "hit": new Audio("/static/sounds/hit.wav"),
+    "portal": new Audio("/static/sounds/portal.wav"),
+    "spider": new Audio("/static/sounds/spider_death.wav"),
+    "pickup": new Audio("/static/sounds/pickup.wav"),
 }
 
 
@@ -39,7 +46,7 @@ function updatePost() {
                     if (post.hidden == false) {
                         displayPost(post);
                     }
-                    
+
 
 
                     if (post.messageType == "shame") {
@@ -96,12 +103,18 @@ function likePost(messageId) {
 }
 
 function clearPostMain() {
-    const postMain = document.querySelector(".post-list");
+    const postMain = document.getElementById("post-list");
     postMain.innerHTML = "";
 }
 
+function clearEnemiesMain() {
+    const postMain = document.getElementById("enemy-list");
+    postMain.innerHTML = "";
+}
+
+
 function sendPost() {
-    
+
     const postTextBox = document.querySelector(".create-text");
     const message = postTextBox.value; //value of the post or message
     if (message == "") {
@@ -115,7 +128,7 @@ function sendPost() {
     let textarea = document.getElementById("text_area_post");
     textarea.disabled = true
 
-    setTimeout(function() {
+    setTimeout(function () {
         button.disabled = false;
         button.classList.remove('buttonClick')
         textarea.disabled = false;
@@ -280,53 +293,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for when the WebSocket connection is established
     socket.on('connect', function (data) {
 
-        if (!data) {
-            return
-        }
-
-        console.log(data.username, ' connected to server');
-        // playWavSound("/static/sounds/TADA.WAV");
-
-        if (data.username == "Guest") {
-            return
-        }
-
-        const existingUser = document.getElementById("list_id_" + data.username);
-        if (!existingUser) {
-            document.getElementById('user-list').innerHTML += `<li id="list_id_${data.username}">${data.username}</li>`;
-
-
-            const containerElement = document.getElementById('user-div');
-            if (containerElement) {
-                containerElement.classList.add('like-anim');
-                containerElement.addEventListener('animationend', function () {
-                    containerElement.classList.remove('like-anim');
-                });
-            }
-        }
     });
 
     // TODO Event listener for when the WebSocket connection is disconnected
     socket.on('disconnect', function (data) {
-        if (!data) {
-            return
-        }
-        // console.log(data.username, ' disconnected from server');
-        const userListItem = document.getElementById("list_id_" + data.username);
-
-        if (userListItem) {
-            const userList = document.getElementById('user-list');
-            userList.removeChild(userListItem);
-
-            const containerElement = document.getElementById('user-div');
-            if (containerElement) {
-                containerElement.classList.add('like-anim');
-                containerElement.addEventListener('animationend', function () {
-                    containerElement.classList.remove('like-anim');
-                });
-            }
-        }
-
 
     });
 
@@ -368,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // reset all to normal
-        setTimeout(function() {
+        setTimeout(function () {
             feed_button.disabled = false;
             update_gilb_thought("i wish someone would give me some food...")
 
@@ -379,9 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gilbert_happiness_stats').innerHTML = ``;
             document.getElementById('gilbert_title_bar').innerText = `❓ Gilbert`;
             document.getElementById('gilbert_seconds_alive').innerHTML = ``;
-    
+
             document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b>`;
-    
+
             document.getElementById('gilbert_emoji').innerText = `❓`;
 
             document.getElementById('gilbert_stage_explanation').innerText = ``;
@@ -390,8 +360,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // remove stats div
             const aboutGilbert = document.getElementById("aboutGilbertDiv");
             aboutGilbert.style.display = "none";
+            clearEnemiesMain()
 
-        }, 10000);
+        }, 12000);
 
     });
 
@@ -406,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let emoji = "😎"
         let health = data.health
 
-        if (health >=90) {
+        if (health >= 90) {
             emoji = "😎"
         } else if (health >= 75) {
             emoji = "🙂‍"
@@ -434,13 +405,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gilbert_health_stats').innerHTML = `❤️ Health: <b>${data.health}</b>/100`;
             document.getElementById('gilbert_hunger_stats').innerHTML = `🍇 Hunger: <b>${data.hunger}</b>/100`;
             document.getElementById('gilbert_seconds_alive').innerHTML = `🕑 Time Alive: <b>${data.seconds_alive} seconds</b>`;
-            
+
             // website title
             document.getElementById('website-title').innerHTML = `Gilbert (${data.health}/100 hp)`;
 
             // gilbert status
             document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${data.status})`;
-            
+
             // gilbert emoji picture
             document.getElementById('gilbert_emoji').innerText = `${emoji}`;
 
@@ -462,12 +433,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const petButton = document.getElementById("pet_button");
             // play an animation on join
             if (petButton.style.display === "none") {
-                
+
                 audioDict.upgrade.play()
 
                 petButton.classList.add('windowShake');
 
-                setTimeout(function() {
+                setTimeout(function () {
                     petButton.classList.remove('windowShake')
                 }, 1000);
 
@@ -501,9 +472,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
-    // Event listener for when a 'send_post' event is received from the server
-    socket.on('send_post', function (data) {
-        // console.log('Received Post:', data);
+
+
+
+    // Event listener for when a new enemy is spawned by gilbert
+    socket.on('new_enemy', function (data) {
+
+        console.log('New enemy:', data);
+
+        createEnemy(data);
+        audioDict.enemy.play()
+
+    });
+
+    socket.on('update_enemy_frontend', function (data) {
+
+        console.log('enemy interaction:', data);
+
+        //TODO
+        if (data.interaction_type == "player_attack") {
+            // todo animation for both gilbert and enemy
+
+            document.getElementById(`monster_name_${data.id}`).innerHTML = `<b>${data.name}</b> (${data.health} hp)`
+            document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.name} (${data.health} hp)`
+
+        } else if (data.interaction_type == "attack_gilbert") {
+            var audio = audioDict.hit
+            audio.volume = 0.2
+            audio.play()
+
+            const postElement = document.getElementById(data.id);
+            if (postElement) {
+                postElement.classList.add('wobble-hor-bottom');
+                postElement.addEventListener('animationend', function () {
+                    postElement.classList.remove('wobble-hor-bottom');
+                });
+            }
+
+        } else if (data.interaction_type == "loot") {
+        
+
+            const postElement = document.getElementById(data.id);
+            if (postElement) {
+                audioDict.pickup.play()
+                postElement.classList.add('delete-animation');
+                postElement.addEventListener('animationend', function () {
+
+                    postElement.remove();
+                });
+            }
+
+        } else if (data.interaction_type == "death") {
+
+
+            // delete window + animation
+            const postElement = document.getElementById(data.id);
+            if (postElement) {
+                postElement.classList.add('delete-animation');
+                postElement.addEventListener('animationend', function () {
+
+                    postElement.remove();
+                    
+                    
+                    audioDict.good.play()
+                    createLoot(data)
+
+
+                });
+            }
+
+        }
     });
 
     // Event listener for when a 'new_post' event is received from the server
@@ -525,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else if (messageType === "shame") {
             displayPost(data);
-            
+
             const existingUser = document.getElementById("list_id_" + data.author);
             if (!existingUser) {
                 document.getElementById('user-list').innerHTML += `<li id="list_id_${data.author}">${data.author}</li>`;
@@ -641,7 +679,7 @@ function makeDraggable() {
 
 function feedGilbert() {
     socket.emit('gilbert_start');
-    
+
     socket.emit('update_gilbert', "feed");
 
     let button = document.getElementById('feed_button');
@@ -649,7 +687,7 @@ function feedGilbert() {
     button.classList.add('buttonClick');
     audioDict.minimize.play()
 
-    setTimeout(function() {
+    setTimeout(function () {
         button.disabled = false;
         button.classList.remove('buttonClick')
     }, 1500);
@@ -664,7 +702,7 @@ function petGilbert() {
 
     audioDict.minimize.play()
 
-    setTimeout(function() {
+    setTimeout(function () {
         button.disabled = false;
         button.classList.remove('buttonClick')
     }, 1000);
@@ -679,7 +717,7 @@ function hurtGilbert() {
 
     audioDict.minimize.play()
 
-    setTimeout(function() {
+    setTimeout(function () {
         button.disabled = false;
         button.classList.remove('buttonClick')
     }, 1000);
@@ -708,7 +746,7 @@ function loginButton() {
 
     audioDict.minimize.play()
 
-    setTimeout(function() {
+    setTimeout(function () {
         button.disabled = false;
         button.classList.remove('buttonClick')
     }, 1000);
@@ -722,13 +760,171 @@ function registerButton() {
 
     audioDict.minimize.play()
 
-    setTimeout(function() {
+    setTimeout(function () {
         button.disabled = false;
         button.classList.remove('buttonClick')
     }, 1000);
 }
 
+function enemyInteraction(monsterID) {
 
 
+    let button = document.getElementById(`buttonid_${monsterID}`);
+    button.disabled = true;
+    button.classList.add('buttonClick');
+
+    setTimeout(function () {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+    }, 1000);
+
+    var audio = audioDict.hit
+    audio.volume = 0.2
+    audio.play()
+
+
+    socket.emit('enemy_interaction', monsterID);
+}
+
+function enemyLoot(monsterID) {
+
+
+    let button = document.getElementById(`buttonid_${monsterID}`);
+    button.disabled = true;
+    button.classList.add('buttonClick');
+
+    setTimeout(function () {
+        button.disabled = false;
+        button.classList.remove('buttonClick')
+    }, 1000);
+
+    
+
+    const postElement = document.getElementById(monsterID);
+    if (postElement) {
+        audioDict.pickup.play()
+        postElement.classList.add('delete-animation');
+        postElement.addEventListener('animationend', function () {
+
+            postElement.remove();
+        });
+    }
+
+
+    socket.emit('enemy_interaction', monsterID);
+}
+
+
+function createEnemy(messageJSON) {
+    const chatMessages = document.getElementById("enemy-list");
+    const postHTML = createEnemyHTML(messageJSON);
+    chatMessages.insertAdjacentHTML('afterbegin', postHTML);
+
+    const newlyAddedPost = chatMessages.querySelector('.window');
+
+    const maxZIndex = getMaxZIndex('.window');
+    newlyAddedPost.style.zIndex = maxZIndex + 1;
+
+
+    newlyAddedPost.classList.add('windowShake');
+
+    newlyAddedPost.addEventListener('animationend', function () {
+        this.classList.remove('windowShake');
+    }, { once: true });
+
+    makeDraggable();
+}
+
+
+function createEnemyHTML(enemyJSON) {
+    const top = enemyJSON.top;
+    const left = enemyJSON.left;
+    const health = enemyJSON.health;
+    const emoji = enemyJSON.emoji;
+    const description = enemyJSON.description;
+    const name = enemyJSON.name;
+    const id = enemyJSON.id;
+
+
+    let enemyHTML = `<div class="window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%">
+            <div class="title-bar red">
+                <div class="title-bar-text" id="monster_titleid_${id}">
+                    ${name} (${health} hp)
+                </div>
+            </div>
+            <div class="window-body">
+                <div class="centerGilbert">
+                    <p class="enemy-anim" style="font-size: 45px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">${emoji}</p>
+                    <p id="monster_name_${id}"><b>${name}</b> (${health} hp)</p>
+                    <i>${description}</i>
+                </div>   
+
+                <section class="field-row" style="justify-content: center; margin-top: 7px">
+                    <button class="like-btn" onclick="enemyInteraction('${id}')" id="buttonid_${id}">⚔️ Attack</button>
+                </section>
+            </div>
+    </div>`;
+
+    return enemyHTML;
+}
+
+function createLootHTML(enemyJSON) {
+    const top = enemyJSON.top;
+    const left = enemyJSON.left;
+    const name_of_enemy = enemyJSON.name;
+    const id = enemyJSON.id;
+    const gold = enemyJSON.gold;
+    const xp = enemyJSON.xp;
+
+
+    let enemyHTML = `<div class="window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
+            <div class="title-bar inactive">
+                <div class="title-bar-text">
+                    💰 Loot!
+                </div>
+            </div>
+            <div class="window-body">
+                <div class="centerGilbert">
+                <p class="enemy-anim" style="font-size: 45px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">💰</p>
+                    <p><b>${name_of_enemy} defeated!</b></p>
+                    <i></i>
+                </div>   
+
+                <hr>
+
+                <p><b>📜 Items Dropped</b></p>
+                    <ul class="tree-view">
+                        <li>💰 Gold: <b>${gold}</b></li>
+                        <li>⭐️ XP: <b>${xp}</b></li>
+                    </ul>
+
+                <section class="field-row" style="justify-content: center; margin-top: 7px">
+                    <button class="like-btn" onclick="enemyLoot('${id}')" id="buttonid_${id}">Grab Loot</button>
+                </section>
+            </div>
+    </div>`;
+
+    return enemyHTML;
+}
+
+function createLoot(messageJSON) {
+    const chatMessages = document.getElementById("enemy-list");
+    const postHTML = createLootHTML(messageJSON);
+    chatMessages.insertAdjacentHTML('afterbegin', postHTML);
+
+    const newlyAddedPost = chatMessages.querySelector('.window');
+
+    const maxZIndex = getMaxZIndex('.window');
+    newlyAddedPost.style.zIndex = maxZIndex + 1;
+
+
+    newlyAddedPost.classList.add('windowShake');
+
+    newlyAddedPost.addEventListener('animationend', function () {
+        this.classList.remove('windowShake');
+    }, { once: true });
+
+    makeDraggable();
+}
 
 document.addEventListener('DOMContentLoaded', makeDraggable);

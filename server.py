@@ -7,6 +7,7 @@ from util.posts import *
 from util.image import *
 from util.gilbert import *
 from util.websockets import *
+from util.enemies import *
 from flask import session
 from flask_socketio import SocketIO, emit
 import threading
@@ -38,15 +39,16 @@ gilbert_stats = {
     "level": 0,
     "seconds_alive": 0,
     "status": "None",
-    "experience": 0,
+    "xp": 0,
     "gold": 0,
     "stage": 0,
+    "damage": 1,
     "inventory": {}
 }
 
 gilbert_thoughts_userlist = ["gilbert"]
 
-gilbert_enemies_list = []
+gilbert_enemies_dict = {}
 
 
 
@@ -224,11 +226,45 @@ def handle_connect():
 
 #* Gilbert Functions *#
 
-@socket.on('attack_monster')
+@socket.on('enemy_interaction')
 def handle_monster_attack(monster_id):
-    global gilbert_stats
-    pass
 
+    # action can be attack or loot
+    # attack damage is verified by server
+
+    global gilbert_stats
+    global gilbert_enemies_dict
+    
+    monster = gilbert_enemies_dict.get(monster_id)
+
+    if monster:
+        if monster.get("alive"):
+            new_health = max(monster.get("health") - gilbert_stats.get("damage"), 0)
+            gilbert_enemies_dict[monster_id]["health"] = new_health
+            # if health is zero emit death, else emit new stats
+
+            if new_health <= 0:
+                # emit death, update stats to reflect that, only remove from dict once player takes loot    
+                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold": monster.get("gold_drop"), "xp": monster.get("xp_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70),})
+                gilbert_enemies_dict[monster_id]["alive"] = False
+
+            else:
+                # update health of enemy
+                socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name")})
+
+
+        else:
+            # player is attempting to loot, remove from dict
+            # maybe add cooldown? idk
+            # emit loot
+            socket.emit('update_enemy_frontend', {"interaction_type": "loot", "id": monster_id})
+            # add gold/xp to gilbert
+            gilbert_stats["gold"] += monster.get("gold_drop")
+            gilbert_stats["xp"] += monster.get("xp_drop")
+            # todo add items to gilbert as well
+
+            # remove enemy from dict
+            del gilbert_enemies_dict[monster_id]
 
 
 
@@ -238,9 +274,6 @@ def handle_gilbert_update(action):
     global gilbert_stats
     global gilbert_thoughts_userlist
 
-
-    if (session.get("username") == "Guest"):
-        return
     
     if (gilbert_stats.get("alive") == False):
         return
@@ -248,7 +281,7 @@ def handle_gilbert_update(action):
 
 
     # add user to gilbert's thoughts so he responds to them
-    username = session.get("username")
+    username = session.get("username", "guest")
     if username not in gilbert_thoughts_userlist:
         gilbert_thoughts_userlist.append(username)
         printMsg(gilbert_thoughts_userlist)
@@ -268,6 +301,7 @@ def handle_gilbert_start():
     global gilbert_stats
     global gilbert_respawn_timer
     global gilbert_thoughts_userlist
+    global gilbert_enemies_dict
 
 
     # make sure user is authenticated
@@ -318,6 +352,8 @@ def send_updates():
     global gilbert_stats
     global gilbert_respawn_timer
     global gilbert_thoughts_userlist
+    global gilbert_enemies_dict
+
 
     while True:
 
@@ -326,7 +362,7 @@ def send_updates():
 
         # if gilbert alive, send gilbert dict
         if gilbert_stats.get("alive"):
-            gilbert_stats = update_gilbert_statistics(gilbert_stats, gilbert_enemies_list)
+            gilbert_stats = update_gilbert_statistics(gilbert_stats, gilbert_enemies_dict)
 
             # update longest alive time
             current_alive = gilbert_stats["seconds_alive"]
@@ -334,9 +370,6 @@ def send_updates():
                 statistics["gilbert_longest_alive"] = current_alive
                 socket.emit('statistics', statistics)
 
-
-
-            socket.emit('recieve_gilbert_stats', gilbert_stats)
 
             if int(time.time()) % 15 == 0:
                 thought = generate_gilbert_thought(gilbert_thoughts_collection, gilbert_thoughts_userlist)
@@ -346,7 +379,47 @@ def send_updates():
             if gilbert_stats.get("alive") == False:
                 socket.emit('gilbert_die')
                 gilbert_respawn_timer = 15
+                gilbert_enemies_dict = {}
 
+
+            #* handle enemy logic *#
+            if gilbert_stats.get("stage") >= 2: 
+
+                # backend handling of enemy attack cooldown system
+                for id, enemy in gilbert_enemies_dict.items():
+
+                    if enemy.get("alive") == False:
+                        continue
+
+                    seconds_til_attack = enemy.get("seconds_til_attack")
+                    attack_seconds = enemy.get("attack_seconds")
+                    damage = enemy.get("damage_to_gilbert")
+                    name = enemy.get("name")
+
+                    if seconds_til_attack <= 0:
+                        # emit the attack anim
+                        # todo gilbert window should also shake upon taking damage
+                        socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name})
+
+                        # reset seconds back to default
+                        gilbert_enemies_dict[id]["seconds_til_attack"] = attack_seconds
+
+                        # update gilbert's health
+                        gilbert_stats["health"] = max(0, gilbert_stats.get("health") - damage)
+
+
+                    else:
+                        gilbert_enemies_dict[id]["seconds_til_attack"] -= 1
+
+
+                if (int(time.time()) + 5) % 29 == 0:
+                    enemy = spawn_enemy(gilbert_stats.get("level"))
+                    # emit enemy from socket and also add to enemy dict
+                    socket.emit('new_enemy', enemy)
+                    gilbert_enemies_dict[enemy.get("id")] = enemy
+
+            # at the end of all this logic, emit the stats       
+            socket.emit('recieve_gilbert_stats', gilbert_stats)
 
         time.sleep(1)
 

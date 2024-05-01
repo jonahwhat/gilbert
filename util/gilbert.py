@@ -2,26 +2,8 @@ import random
 import uuid
 from util.gilbert_util import *
 
-# example enemy
-# need to only send/update the coordinates when first sending, but not on repeat
-# could alternatively just only update the coords on javascript if no coords exist in style?
-slime = {
-    "name": "slime",
-    "level": 1,
-    "health": 3,
-    "damage_to_gilbert": 1,
-    "time_til_attack": 3,
-    "item_drop": "health_potion",
-    "gold_drop": 10,
-    "id": str(uuid.uuid4()),
-    "top": random.randint(1, 75),
-    "left": random.randint(1, 80),
-    "alive": True,
-}
 
-
-
-def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
+def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
     gilbert_new = gilbert_old.copy()
 
     current_stage = gilbert_old.get("stage")
@@ -29,7 +11,7 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
     current_happiness = gilbert_old.get("happiness")
     current_health = gilbert_old.get("health")
     seconds_alive = gilbert_old.get("seconds_alive")
-    experience = gilbert_old.get("experience")
+    xp = gilbert_old.get("xp")
     level = gilbert_old.get("level")
 
     # update stage of gilberts live
@@ -37,11 +19,11 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
     # stage 1: hunger + happiness (more functionality for happiness, also make it harder)
     # stage 2: enemies start spawning, gold drops
     # stage 3: inventory unlocks, can use and collect things from your inventory, xp?
-    if seconds_alive <= 30:
+    if seconds_alive <= 15:
         current_stage = 0
-    elif seconds_alive <= 60:
+    elif seconds_alive <= 30:
         current_stage = 1
-    elif seconds_alive <= 120:
+    elif seconds_alive <= 60:
         current_stage = 2
     # elif seconds_alive <= 240:
     #     current_stage = 3
@@ -82,11 +64,14 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_list):
         gilbert_new["hunger"] = new_hunger
         gilbert_new["happiness"] = new_happiness
 
-
+    # gilbert xp logic
+    if xp == 10:
+        gilbert_new["xp"] = 0
+        gilbert_new["level"] += 1
 
 
     # gilbert status logic
-    if len(gilbert_enemies_list) >= 1:
+    if gilbert_enemies_dict:
         gilbert_new["status"] = "under attack"
     elif current_hunger >= 50:
         gilbert_new["status"] = "happy"
@@ -163,14 +148,15 @@ def set_initial_gilbert():
     gilbert_stats = {
         "alive": True,
         "health": 100,
-        "hunger": random.randint(75, 90),
-        "happiness": random.randint(75, 90),
+        "hunger": 70,
+        "happiness": 70,
         "level": 1,
         "seconds_alive": 0,
         "status": "happy",
         "gold": 0,
-        "experience": 0,
+        "xp": 0,
         "stage": 0, # stages determine what functionalities gilbert has unlocked
+        "damage": 1,
         "inventory": {}
     }
 

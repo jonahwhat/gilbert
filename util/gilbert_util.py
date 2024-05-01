@@ -19,7 +19,7 @@ def stage_zero(hunger, health):
 
     # handle hunger going down
     if random.randint(1, 2) == 1:
-        new_hunger = max(hunger - random.randint(0, 3), 0)   
+        new_hunger = max(hunger - random.randint(0, 2), 0)   
 
 
     return new_health, new_hunger
@@ -43,14 +43,14 @@ def stage_one(hunger, health, happiness):
 
 
     # handle hunger going down, faster now!
-    new_hunger = max(hunger - random.randint(0, 4), 0)   
+    new_hunger = max(hunger - random.randint(0, 2), 0)   
 
 
     
     # handle happiness, only goes down occassionally
     rand = random.randint(1, 4)
     if rand == 1:
-        new_happiness = max(happiness - random.randint(1, 3), 0)
+        new_happiness = max(happiness - random.randint(1, 2), 0)
     
     elif rand == 2:
         new_happiness = max(happiness - random.randint(0, 2), 0)
@@ -80,10 +80,10 @@ def stage_two(hunger, health, happiness):
 
 
     # handle hunger going down, faster now!
-    new_hunger = max(hunger - random.randint(0, 5), 0)   
+    new_hunger = max(hunger - random.randint(0, 2), 0)   
 
     # TODO: happiness goes down the more enemies are on screen
-    new_happiness = max(happiness - random.randint(0, 3), 0)
+    new_happiness = max(happiness - random.randint(0, 2), 0)
     
 
 
