@@ -12,7 +12,8 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
     current_health = gilbert_old.get("health")
     seconds_alive = gilbert_old.get("seconds_alive")
     xp = gilbert_old.get("xp")
-    level = gilbert_old.get("level")
+    xp_levelup = gilbert_old.get("xp_to_levelup")
+    current_level = gilbert_old.get("level")
 
     # update stage of gilberts live
     # stage 0: only keep track of hunger
@@ -65,9 +66,27 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
         gilbert_new["happiness"] = new_happiness
 
     # gilbert xp logic
-    if xp >= 10:
-        gilbert_new["xp"] -= 10
+    if xp >= xp_levelup:
+        gilbert_new["xp"] -= xp_levelup
         gilbert_new["level"] += 1
+
+        level = gilbert_new["level"]
+
+        if 0 <= level <= 4:
+            gilbert_new["xp_to_levelup"] = 5
+
+        elif 5 <= level <= 9:
+            gilbert_new["xp_to_levelup"] = 10
+
+        elif 10 <= level <= 14:
+            gilbert_new["xp_to_levelup"] = 25
+
+        elif 15 <= level <= 25:
+            gilbert_new["xp_to_levelup"] = 50
+
+        else:
+            gilbert_new["xp_to_levelup"] = 100
+
 
 
     # gilbert status logic
@@ -148,6 +167,7 @@ def set_initial_gilbert():
     gilbert_stats = {
         "alive": True,
         "health": 100,
+        "max-health": 100,
         "hunger": 70,
         "happiness": 70,
         "level": 1,
@@ -155,6 +175,7 @@ def set_initial_gilbert():
         "status": "happy",
         "gold": 0,
         "xp": 0,
+        "xp_to_levelup": 5,
         "stage": 0, # stages determine what functionalities gilbert has unlocked
         "damage": 1,
         "inventory": {}

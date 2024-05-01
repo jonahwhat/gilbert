@@ -32,18 +32,7 @@ statistics = {
 gilbert_respawn_timer = 0
 
 gilbert_stats = {
-    "alive": False,
-    "health": 0,
-    "hunger": 0,
-    "happiness": 0,
-    "level": 0,
-    "seconds_alive": 0,
-    "status": "None",
-    "xp": 0,
-    "gold": 0,
-    "stage": 0,
-    "damage": 1,
-    "inventory": {}
+    "alive": False
 }
 
 gilbert_thoughts_userlist = ["gilbert"]
@@ -398,7 +387,6 @@ def send_updates():
 
                     if seconds_til_attack <= 0:
                         # emit the attack anim
-                        # todo gilbert window should also shake upon taking damage
                         socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name})
 
                         # reset seconds back to default
@@ -413,10 +401,15 @@ def send_updates():
 
 
                 if (int(time.time()) + 5) % 15 == 0:
-                    enemy = spawn_enemy(gilbert_stats.get("level"))
-                    # emit enemy from socket and also add to enemy dict
-                    socket.emit('new_enemy', enemy)
-                    gilbert_enemies_dict[enemy.get("id")] = enemy
+                    # generate a group of enemies based on gilbert's level
+                    enemy_group = spawn_enemy(gilbert_stats.get("level"))
+
+                    # emit enemy group
+                    socket.emit('new_enemy_group', enemy_group)
+
+                    # add all enemies to the dictionary
+                    for enemy in enemy_group.values():
+                        gilbert_enemies_dict[enemy.get("id")] = enemy
 
             # at the end of all this logic, emit the stats       
             socket.emit('recieve_gilbert_stats', gilbert_stats)

@@ -69,21 +69,20 @@ def stage_two(hunger, health, happiness):
     new_happiness = happiness
 
     # update health, happiness also determines health loss
-    if hunger <= 10 or happiness <= 10:
+    if hunger <= 10 or happiness <= 5:
         new_health = max(health - 3, 0)
 
-    elif hunger <= 25 or happiness <= 25:
+    elif hunger <= 25 or happiness <= 10:
         new_health = max(health - 2, 0)
 
-    elif hunger <= 50 or happiness <= 50:
+    elif hunger <= 50 or happiness <= 25:
         new_health = max(health - 1, 0)
 
+    # slower hunger and happiness loss
+    if random.randint(1,5) == 1:
+        new_hunger = max(hunger - random.randint(0, 2), 0)   
 
-    # handle hunger going down, faster now!
-    new_hunger = max(hunger - random.randint(0, 2), 0)   
-
-    # TODO: happiness goes down the more enemies are on screen
-    new_happiness = max(happiness - random.randint(0, 2), 0)
+        new_happiness = max(happiness - random.randint(0, 2), 0)
     
 
 
