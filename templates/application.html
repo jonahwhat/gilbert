@@ -4,20 +4,20 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
 	<link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+	<link rel="stylesheet" type="text/css" href="/static/css/98.css" />
 	<link rel="stylesheet" href="https://unpkg.com/98.css" />
-	<title>Yap Chat</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+	<title id="website-title">Yap Chat</title>
 </head>
 
 <body onload="initializePostPage();">
 
 	<body>
 
-		<div class="center ontop"  style="z-index: 999999;">
-			<div class="window controlsWindow windowShake ontop" id="controlsWindow">
+		<div class="center ontop" style="z-index: 999999;">
+			<div class="draggable window controlsWindow windowShake ontop" id="controlsWindow">
 				<div class="title-bar inactive" id="controlsWindow">
 					<div class="title-bar-text">
 						📢 Yappers Controls
@@ -26,26 +26,28 @@
 				<div class="window-body">
 
 
-          {% if username == "Guest" %}
-          <p>You are a <b>{{username|safe}}</b>!</p>
+					{% if username == "Guest" %}
+					<p>You are a <b>{{username|safe}}</b>!</p>
 					{% else %}
 					<div class="centerGilbert">
-					<p>Your Username is: <b>{{username|safe}}</b></p>
-					<img class="profileImage" src="{{ profile_picture_path }}" />
+						<p>Your Username is: <b>{{username|safe}}</b></p>
+						<img class="profileImage" src="{{ profile_picture_path }}" />
 					</div>
 					<br>
-					<label for="chat-image" style="font-weight: bold; padding-bottom: 2px"> 🖼️ Change profile picture:</label>
+					<label for="chat-image" style="font-weight: bold; padding-bottom: 2px"> 🖼️ Change profile
+						picture:</label>
 					<div class="centerGilbert">
-					<form action="/image-upload" id="image-chat" method="post" enctype="multipart/form-data">
-						<br>
-						<input id="chat-image" type="file" name="upload_profile_pic">
-						<input type="submit" value="Confirm">
-					</form>
-				</div>
-          {% endif %}
+						<form action="/image-upload" id="image-chat" method="post" enctype="multipart/form-data">
+							<br>
+							<input id="chat-image" type="file" name="upload_profile_pic">
+							<input type="submit" value="Confirm">
+						</form>
+					</div>
+					{% endif %}
 					<hr>
 					<p><b> 📝 Create a post:</b></p>
-					<textarea class="create-text" style="padding: 3px; margin: 3px" placeholder="Yap here" cols="60" rows="13" wrap="soft" id="text_area_post"></textarea>
+					<textarea class="create-text" style="padding: 3px; margin: 3px" placeholder="Yap here" cols="60"
+						rows="13" wrap="soft" id="text_area_post"></textarea>
 
 					<section class="field-row" style="justify-content: center; padding-top: 3px">
 						<button class="post-button" onclick="sendPost()" id="post_button">Post</button>
@@ -75,14 +77,18 @@
 			<div class="post-list" id="post-list">
 
 
-					</div>
-				</div>
+			</div>
+			<div class="post-list" id="enemy-list">
+
 
 			</div>
 		</div>
 
+		</div>
+		</div>
+
 		<div class="center ontop2" style="z-index: 999998;">
-			<div class="window postwindow windowShake" id="window11">
+			<div class="draggable window postwindow windowShake" id="window11">
 				<div class="title-bar inactive" id="window11">
 					<div class="title-bar-text">
 						📊 Statistics
@@ -105,13 +111,14 @@
 					<p><b>🧍 About You</b></p>
 					<ul class="tree-view">
 						<li>Username: <b>{{username|safe}}</b></li>
-            <li>Status: <b>yapping</b></li>
+						<li>Status: <b>yapping</b></li>
 					</ul>
-          <hr>
+					<hr>
 					<p><b>❤️ Credits</b></p>
 					<ul class="tree-view">
 						<li><a href="https://jdan.github.io/98.css/" target="_blank">jdan.github.io/98.css/</a></li>
-						<li><a href="https://winsounds.com/windows-95-sounds/" target="_blank">winsounds.com/windows-95-sounds/</a></li>
+						<li><a href="https://winsounds.com/windows-95-sounds/"
+								target="_blank">winsounds.com/windows-95-sounds/</a></li>
 					</ul>
 				</div>
 
@@ -119,7 +126,7 @@
 		</div>
 
 
-		<div class="window gilbert" style="top: 100px; left: 640px" id="gilbert_div">
+		<div class="draggable window gilbert" style="top: 100px; left: 640px" id="gilbert_div">
 			<div class="title-bar">
 				<div class="title-bar-text" id="gilbert_title_bar">
 					❓ Gilbert
@@ -131,28 +138,51 @@
 			</div>
 			<div class="window-body">
 				<div class="centerGilbert" id="gilbert_heading">
-					<!-- <img id="gilbert_image" src="https://i.imgur.com/TaUfF5E.png" class="gilbertImage"> -->
-					<p style="font-size: 65px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)" id="gilbert_emoji">❓</p>
+					<p style="font-size: 65px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)"
+						id="gilbert_emoji">❓</p>
 					<p id="gilbert_status"><b>Gilbert</b></p>
-					<p id="gilbert_time_alive"></p>
-
+					<i id="gilbert_stage_explanation"></i>
 				</div>
 
 				<hr>
-				<p><b>📊 Gilbert's Stats</b></p>
 
-				<ul class="tree-view" id="gilbert_stats">
-					<li id="gilbert_health_stats">Nothing here yet...</li>
-					<li id="gilbert_hunger_stats"></li>
-					<li id="gilbert_happiness_stats"></li>
-				</ul>
-				
-				<p id="gilb_thought_container"><b>💭 Gilbert's Thoughts</b>: <i id="gilbert_thoughts">i wish someone would give me some food...</i></p>
-				
+				<div id="aboutGilbertDiv" style="display: none;">
+
+					<p><b>📊 About Gilbert</b></p>
+
+					<ul class="tree-view" id="gilbert_stats">
+						<li id="norm_stats">
+							<b>Gilbert's Stats</b>
+							<ul>
+								<li id="gilbert_health_stats"></li>
+								<li id="gilbert_hunger_stats"></li>
+								<li id="gilbert_happiness_stats"></li>
+								<!-- <li id="gilbert_damage_stats"></li> -->
+							</ul>
+						</li>
+
+						<br>
+						<li id="misc_stats">
+							<b>Other</b>
+							<ul>
+								<li id="gilbert_level"></li>
+								<li id="gilbert_xp"></li>
+								<li id="gilbert_gold"></li>
+								<li id="gilbert_enemies_alive"></li>
+								<li id="gilbert_seconds_alive"></li>
+							</ul>
+						</li>
+
+
+					</ul>
+				</div>
+				<p id="gilb_thought_container"><b>💭 Gilbert's Thoughts</b>: <i id="gilbert_thoughts">i wish someone
+						would give me some food...</i></p>
+
 
 				<section class="field-row" style="justify-content: center; margin-top: 7px">
 					<button onclick="feedGilbert()" id="feed_button">Give Food</button>
-					<button onclick="petGilbert()" id="pet_button" disabled>Give Treat</button>
+					<button onclick="petGilbert()" id="pet_button" style="display: none;">Give Treat</button>
 
 				</section>
 			</div>
@@ -161,7 +191,7 @@
 
 
 		<div class="center ontop2" style="z-index: 999998;">
-			<div class="window postwindow windowShake user-div" id="user-div">
+			<div class="draggable window postwindow windowShake user-div" id="user-div">
 				<div class="title-bar inactive" id="user-div">
 					<div class="title-bar-text">
 						📋 Wall of Shame
@@ -172,7 +202,7 @@
 					</div>
 				</div>
 				<div class="window-body">
-					
+
 					<ul class="tree-view" id="user-list">
 					</ul>
 				</div>

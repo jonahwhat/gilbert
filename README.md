@@ -9,12 +9,11 @@
 ### Link to Site
 https://yapper-chat.com/
 
-### Project Part 3 Objective 3
-1. Go to https://yapper-chat.com/ on chrome, make an account and log in
+### Project Part 3 Objective 1 and 3
+1. Go to https://yapper-chat.com/, create an account
 2. Send 5-10 chat messages in chat
-3. Locate the tab that says "Gilbert"
+3. Locate the window that says "Gilbert"
 4. Press the "Give Food" button
-5. Try to keep Gilbert alive as long as possible by keeping his stats high
-6. Verify that the "Gilbert's Thoughts" shows messages you have sent along with messages directed towards the account that was just created (wait ~15 seconds between thoughts)
-7. Create a new account and log in in firefox and verify that Gilbert's stats are the same on both tabs
-8. Verify that gilbert information and interactions are sent via websockets and not polling
+5. Try to keep Gilbert alive as long as possible by keeping his health/hunger high (cool things happen at 30+ seconds)
+6. Verify that the "Gilbert's Thoughts" shows random messages along with messages directed towards the account that you're logged in with (for example if your username is helloworld, gilbert will sometimes say "hi @helloworld" )
+7. Verify that gilbert information and interactions are sent via websockets and not polling

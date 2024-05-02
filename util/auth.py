@@ -8,7 +8,7 @@ from markupsafe import escape
 def setAuthToken(response, username, auth_collection):
     # HttpOnly directive set, give user auth token, store hash of token in db
     token = str(uuid.uuid4())
-    response.headers['Set-Cookie'] = f'auth={token}; Max-Age=136000; HttpOnly'
+    response.headers['Set-Cookie'] = f'auth={token}; Max-Age=136000; HttpOnly; Secure'
     
     # You must store a hash (no salt) of each token in your database
     hashed_token = hashlib.sha256(token.encode()).digest()
@@ -30,14 +30,23 @@ def removeAuthToken(request, response, auth_collection):
     result = auth_collection.delete_one({"hashed_token": hashed_token})
 
     # send response with empty auth token and expires directive
-    response.headers['Set-Cookie'] = 'auth=; Max-Age=136000; HttpOnly'
+    response.headers['Set-Cookie'] = 'auth=; Max-Age=136000; HttpOnly; Secure'
+
+    # remove session variables
+    session['login_error'] = "You are now logged out"
+    session['username'] = ""
+    session['register_error'] = ""
+
     return
 
 
-def handleRegister(request, user_collection):
+def handleRegister(request, user_collection, auth_collection):
     username = str(escape(request.form.get("username")))
     password = request.form.get("password")
     password2 = request.form.get("password2")
+    
+    session['login_error'] = ""
+
 
     # check if username/pass is empty string
     if username == "" or password == "" or password2 == "":
@@ -71,8 +80,14 @@ def handleRegister(request, user_collection):
     # store in user_collection
     user_collection.insert_one(user_login)
 
-    session['register_error'] = f"✅ Register Successful!, your username is {username}!"
-    return redirect(url_for("index"))
+    session['register_error'] = ""
+
+    # log user in and redirect to main page
+    response = make_response(redirect(url_for("application")))
+    setAuthToken(response, username, auth_collection)
+    session['login_error'] = f"✅ You are successfully logged in as {username}"
+
+    return response
 
 
 def handleLogin(request, user_collection, auth_collection):
