@@ -146,7 +146,7 @@ def create_spider(level):
     "description": "a giant spider, fast and strong!",
     "emoji": "🕷️",
     "level": 1 + level,
-    "health": min(10,math.floor(2 * level_multiplier)),
+    "health": min(10,math.floor(2.5 * level_multiplier)),
     "damage_to_gilbert": 2,
     "seconds_til_attack": random.randint(2, 5), 
     "attack_seconds": 3,

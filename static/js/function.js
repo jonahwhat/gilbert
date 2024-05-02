@@ -28,6 +28,39 @@ function initWS() {
     audioDict.microsoft_sound.play()
 }
 
+function updateGilbertEnemiesDict() {
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            clearEnemiesMain();
+
+
+            const enemies = JSON.parse(this.response);
+            console.log("entire enemy list: ", enemies)
+
+            if (enemies) {
+                
+                for (const [id, monster] of Object.entries(enemies)) {
+                    console.log(monster)
+                    setTimeout(() => {
+                        
+                        if (monster.alive) {
+                            createEnemy(monster);
+                        } else {
+                            createLoot(monster)
+                        }
+                
+                        }, Math.floor(Math.random() * 3) * getRandomDelay());
+                }
+            }
+
+        }
+    };
+    request.open("GET", "/send_gilbert_enemies");
+    request.send();
+}
+
+
 function updatePost() {
     const request = new XMLHttpRequest();
     request.onreadystatechange = function () {
@@ -165,6 +198,7 @@ function welcome() {
 
 function initializePostPage() {
     updatePost()
+    updateGilbertEnemiesDict()
     audioDict.microsoft_sound.play()
     document.addEventListener("keypress", function (event) {
         if (event.code === "Enter") {
@@ -358,6 +392,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gilbert_gold').innerHTML = ``;
             document.getElementById('gilbert_level').innerHTML = ``;
             document.getElementById('gilbert_xp').innerHTML = ``;
+
+            document.getElementById("pet_button").style.display = "none"
 
             // remove stats div
             const aboutGilbert = document.getElementById("aboutGilbertDiv");
@@ -920,8 +956,8 @@ function createLootHTML(enemyJSON) {
     const left = enemyJSON.left;
     const name_of_enemy = enemyJSON.name;
     const id = enemyJSON.id;
-    const gold = enemyJSON.gold;
-    const xp = enemyJSON.xp;
+    const gold = enemyJSON.gold_drop;
+    const xp = enemyJSON.xp_drop;
     const emoji = enemyJSON.emoji;
 
 

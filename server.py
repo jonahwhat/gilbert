@@ -103,6 +103,16 @@ def register():
 def send_posts():
     return send_all_posts(posts_collection, profile_image_collection)
 
+
+@app.route('/send_gilbert_enemies', methods=['GET'])
+def send_gilbert_enemies():
+    response = jsonify(gilbert_enemies_dict)
+    response.status_code = 200
+    response.mimetype = 'application/json; charset=utf-8'
+
+    return response
+
+
 @app.route('/login', methods=['POST'])
 def login():
     return handleLogin(request, user_collection, auth_collection)
@@ -234,7 +244,7 @@ def handle_monster_attack(monster_id):
 
             if new_health <= 0:
                 # emit death, update stats to reflect that, only remove from dict once player takes loot    
-                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold": monster.get("gold_drop"), "xp": monster.get("xp_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji")})
+                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji")})
                 gilbert_enemies_dict[monster_id]["alive"] = False
 
             else:
@@ -292,10 +302,6 @@ def handle_gilbert_start():
     global gilbert_thoughts_userlist
     global gilbert_enemies_dict
 
-
-    # make sure user is authenticated
-    if (session.get("username") == "Guest"):
-        return
     
     if (gilbert_respawn_timer > 0):
         return
@@ -311,7 +317,7 @@ def handle_gilbert_start():
 
 
         # reset and add user to gilbert thoughts userlist
-        gilbert_thoughts_userlist = [session.get("username")]
+        gilbert_thoughts_userlist = [session.get("username", "guest")]
         printMsg(gilbert_thoughts_userlist)
 
         # maybe while true loop to show timing?
