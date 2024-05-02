@@ -16,6 +16,11 @@ def spawn_enemy(gilbert_level):
         enemy = create_bonus(gilbert_level)
         enemy_dict[enemy["id"]] = enemy
         return enemy_dict
+    
+    # if random.randint(1,1) == 1:
+    #     enemy = create_shrimp(gilbert_level)
+    #     enemy_dict[enemy["id"]] = enemy
+    #     return enemy_dict
 
     
     # from level 1 to 5
@@ -79,7 +84,7 @@ def create_rat(level):
     "attack_seconds": 5,
     "item_drops": {"health_potion" : 1},
     "gold_drop": math.floor(5 * level_multiplier),
-    "xp_drop": math.floor(random.randint(2, 6) * level_multiplier),
+    "xp_drop": min(math.floor(random.randint(2, 6) * level_multiplier), 10),
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 75),
     "left": random.randint(1, 80),
@@ -103,7 +108,7 @@ def create_mouse(level):
     "attack_seconds": 2,
     "item_drops": {"health_potion" : 1},
     "gold_drop": math.floor(2 * level_multiplier),
-    "xp_drop":  math.floor(random.randint(1, 3) * level_multiplier),
+    "xp_drop":  min(math.floor(random.randint(1, 3) * level_multiplier), 5),
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 75),
     "left": random.randint(1, 80),
@@ -116,7 +121,7 @@ def create_mouse(level):
 def create_bonus(level):
     level_multiplier = get_level_multiplier(level)
 
-    mouse = {
+    enemy = {
     "name": "Treasure Bag",
     "description": "seems harmless!",
     "emoji": "💰",
@@ -134,7 +139,7 @@ def create_bonus(level):
     "alive": True,
     }
 
-    return mouse
+    return enemy
 
 
 # mid game enemy, fast attack speed but stronger
@@ -208,6 +213,32 @@ def create_bat(level):
     }
 
     return enemy
+
+
+def create_shrimp(level):
+    level_multiplier = get_level_multiplier(level)
+
+    enemy = {
+    "name": "Shrimp",
+    "description": "a shrimp, extremely fast!",
+    "emoji": "🦐",
+    "level": 1 + level,
+    "health": 1,
+    "damage_to_gilbert": 1,
+    "seconds_til_attack": 0, 
+    "attack_seconds": 0,
+    "item_drops": {"health_potion" : 1},
+    "gold_drop": math.floor(1 * level_multiplier),
+    "xp_drop":  math.floor(1 * level_multiplier),
+    "id": str(uuid.uuid4()),
+    "top": random.randint(1, 75),
+    "left": random.randint(1, 80),
+    "alive": True,
+    "animation": "fade-in-out-fully",
+    }
+
+    return enemy
+
 
 # given an int representing gilbert's level, return a float for scaling enemy health/dmg/whatnot
 def get_level_multiplier(level):

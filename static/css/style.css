@@ -528,3 +528,19 @@ a:active {
             transform: translateX(-6px) rotate(-1.2deg);
   }
 }
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0; 
+  }
+  50% {
+    opacity: 1; 
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fade-in-out-fully {
+  animation: fadeInOut 3s ease-in-out infinite; 
+}

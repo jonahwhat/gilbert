@@ -258,7 +258,7 @@ function createPostHTML(postJSON) {
     let windowText = windowTextList[index];
 
 
-    let postHTML = `<div class="window postwindow" id="${messageId}" style="top: ${top}%; left: ${left}%">
+    let postHTML = `<div class="window postwindow draggable" id="${messageId}" style="top: ${top}%; left: ${left}%">
             <div class="title-bar">
                 <div class="title-bar-text">
                     ${windowText}
@@ -717,7 +717,7 @@ function deletePost(postId) {
 }
 
 function makeDraggable() {
-    document.querySelectorAll('.window').forEach(window => {
+    document.querySelectorAll('.draggable').forEach(window => {
         window.addEventListener('mousedown', bringToFront);
 
         const titleBar = window.querySelector('.title-bar');
@@ -727,13 +727,13 @@ function makeDraggable() {
     });
 
     function bringToFront() {
-        const windows = document.querySelectorAll('.window');
+        const windows = document.querySelectorAll('.draggable');
         const maxZIndex = Math.max(...Array.from(windows).map(win => parseInt(win.style.zIndex) || 1));
         this.style.zIndex = maxZIndex + 1;
     }
 
     function startDragging(event) {
-        const window = this.closest('.window');
+        const window = this.closest('.draggable');
         if (window) {
             const rect = window.getBoundingClientRect();
             const offsetX = event.clientX - rect.left;
@@ -924,9 +924,11 @@ function createEnemyHTML(enemyJSON) {
     const name = enemyJSON.name;
     const id = enemyJSON.id;
     const level = enemyJSON.level;
+    const animation = enemyJSON.animation
 
 
-    let enemyHTML = `<div class="window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%">
+    let enemyHTML = `
+    <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%">
             <div class="title-bar red">
                 <div class="title-bar-text" id="monster_titleid_${id}">
                 ${emoji} ${name} (${health} hp)
@@ -946,7 +948,8 @@ function createEnemyHTML(enemyJSON) {
                     <button class="like-btn" onclick="enemyInteraction('${id}')" id="buttonid_${id}">⚔️ Attack</button>
                 </section>
             </div>
-    </div>`;
+        </div>
+    `;
 
     return enemyHTML;
 }
@@ -961,7 +964,7 @@ function createLootHTML(enemyJSON) {
     const emoji = enemyJSON.emoji;
 
 
-    let enemyHTML = `<div class="window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
+    let enemyHTML = `<div class="draggable window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
             <div class="title-bar gold-highlight">
                 <div class="title-bar-text">
                     💰 Loot!
