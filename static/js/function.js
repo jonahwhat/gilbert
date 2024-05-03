@@ -18,6 +18,7 @@ const audioDict = {
     "portal": new Audio("/static/sounds/portal.wav"),
     "spider": new Audio("/static/sounds/spider_death.wav"),
     "pickup": new Audio("/static/sounds/pickup.wav"),
+    "click": new Audio("/static/sounds/click.wav"),
 }
 
 
@@ -36,12 +37,12 @@ function updateGilbertEnemiesDict() {
 
 
             const enemies = JSON.parse(this.response);
-            console.log("entire enemy list: ", enemies)
+            // console.log("entire enemy list: ", enemies)
 
             if (enemies) {
                 
                 for (const [id, monster] of Object.entries(enemies)) {
-                    console.log(monster)
+                    // console.log(monster)
                     setTimeout(() => {
                         
                         if (monster.alive) {
@@ -329,7 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
-    // TODO Event listener for when the WebSocket connection is disconnected
     socket.on('disconnect', function (data) {
 
     });
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('recieve_gilbert_thoughts', function (data) {
-        console.log('Received thought:', data.message);
+        // console.log('Received thought:', data.message);
         update_gilb_thought(data.message)
     });
 
@@ -394,6 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gilbert_xp').innerHTML = ``;
 
             document.getElementById("pet_button").style.display = "none"
+            document.getElementById("gilbert_upgrades").hidden = true
 
             // remove stats div
             const aboutGilbert = document.getElementById("aboutGilbertDiv");
@@ -440,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // only display certain things depending on the stage of gilbert
         if (gilbert_stage >= 0) {
             // update statistics box
-            document.getElementById('gilbert_health_stats').innerHTML = `❤️ Health: <b>${data.health}</b>/100`;
+            document.getElementById('gilbert_health_stats').innerHTML = `❤️ Health: <b>${data.health}</b>/${data.max_health}`;
             document.getElementById('gilbert_hunger_stats').innerHTML = `🍇 Hunger: <b>${data.hunger}</b>/100`;
             document.getElementById('gilbert_seconds_alive').innerHTML = `🕑 Time Alive: <b>${data.seconds_alive} seconds</b>`;
 
@@ -448,13 +449,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('website-title').innerHTML = `Gilbert (${data.health}/100 hp)`;
 
             // gilbert status
-            document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (${data.status})`;
+            document.getElementById('gilbert_status').innerHTML = `<b>Gilbert</b> (Level ${data.level})`;
 
             // gilbert emoji picture
             document.getElementById('gilbert_emoji').innerText = `${emoji}`;
 
             // gilbert's title bar
-            document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (${data.health}/100 hp)`;
+            document.getElementById('gilbert_title_bar').innerText = `${emoji} Gilbert (${data.health}/${data.max_health} hp)`;
 
             // update stage explanation
             document.getElementById('gilbert_stage_explanation').innerText = `Don't let Gilbert's hunger get too low!`;
@@ -494,22 +495,81 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             document.getElementById('gilbert_level').innerHTML = `🏰 Level: <b>${data.level}</b>`;
-            document.getElementById('gilbert_gold').innerHTML = `💰 Gold: <b>${data.gold}</b>`;
-            document.getElementById('gilbert_xp').innerHTML = `⭐ XP: <b>${data.xp}</b>/${data.xp_to_levelup}`;
-            // move dmg to stage 3
-            document.getElementById('gilbert_stage_explanation').innerText = `Watch out for enemies!`;
+            document.getElementById('gilbert_gold').innerHTML = `🪙 Gold: <b>${data.gold}</b>`;
+            document.getElementById('gilbert_xp').innerHTML = `✨ XP: <b>${data.xp}</b>/${data.xp_to_levelup}`;
+            document.getElementById('gilbert_stage_explanation').innerText = `gilbert is ${data.status}`;
         }
 
         if (gilbert_stage >= 3) {
 
-            if (!document.getElementById('gilbert_gold').innerHTML) {
+            const gilbertUpgrades = document.getElementById("gilbert_upgrades");
+            if (gilbertUpgrades.hasAttribute("hidden")) {
+
                 audioDict.upgrade.play()
+
+                gilbertUpgrades.classList.add('windowShake');
+
+                setTimeout(function () {
+                    gilbertUpgrades.classList.remove('windowShake')
+                }, 1000);
+
+                gilbertUpgrades.removeAttribute("hidden");
+                makeDraggable()
             }
 
-            document.getElementById('gilbert_damage_stats').innerHTML = `⚔️ Damage: <b>${data.damage}</b>/10`;
+            document.getElementById('shop-gold-display').innerHTML = `🪙 Your Gold: <b>${data.gold}</b>`;
+
+            // damage updates
+            document.getElementById('damage-upgrade-stat').innerHTML = `Damage: <b> ${data.damage}</b> / 10`;
+
+            if (data.upgrades.damage_cost == "max") {
+                document.getElementById('damage-upgrade-button').innerHTML = `<b>Max Upgrade!</b>`;
+                document.getElementById('damage-upgrade-button').disabled = true
+            } else {
+                document.getElementById('damage-upgrade-button').innerHTML = `<b>Upgrade</b> (${data.upgrades.damage_cost} gold)`;
+            }
+
+            // defense
+            document.getElementById('defense-upgrade-stat').innerHTML = `Defense: <b> ${data.defense} %</b>`;
+
+            if (data.upgrades.defense_cost == "max") {
+                document.getElementById('defense-upgrade-button').innerHTML = `<b>Max Upgrade!</b>`;
+                document.getElementById('defense-upgrade-button').disabled = true
+            } else {
+                document.getElementById('defense-upgrade-button').innerHTML = `<b>Upgrade</b> (${data.upgrades.defense_cost} gold)`;
+            }
 
 
-            // shop stuff, spawn shop, maybe rotating items but probably just stat upgrades and auto heal/feed
+            // max health
+            document.getElementById('health-upgrade-stat').innerHTML = `Max Health: <b> ${data.max_health}</b> / 200`;
+
+            if (data.upgrades.health_cost == "max") {
+                document.getElementById('health-upgrade-button').innerHTML = `<b>Max Upgrade!</b>`;
+                document.getElementById('health-upgrade-button').disabled = true
+            } else {
+                document.getElementById('health-upgrade-button').innerHTML = `<b>Upgrade</b> (${data.upgrades.health_cost} gold)`;
+            }
+
+            // regen
+            document.getElementById('regen-upgrade-stat').innerHTML = `Regeneration: <b> ${data.regen} </b> hp`;
+            
+            if (data.upgrades.regen_cost == "max") {
+                document.getElementById('regen-upgrade-button').innerHTML = `<b>Max Upgrade!</b>`;
+                document.getElementById('regen-upgrade-button').disabled = true
+            } else {
+                document.getElementById('regen-upgrade-button').innerHTML = `<b>Upgrade</b> (${data.upgrades.regen_cost} gold)`;
+            }
+
+            // luck
+            document.getElementById('luck-upgrade-stat').innerHTML = `Loot Luck: <b> ${data.luck} %</b>`;
+
+            if (data.upgrades.luck_cost == "max") {
+                document.getElementById('luck-upgrade-button').innerHTML = `<b>Max Upgrade!</b>`;
+                document.getElementById('luck-upgrade-button').disabled = true
+            } else {
+                document.getElementById('luck-upgrade-button').innerHTML = `<b>Upgrade</b> (${data.upgrades.luck_cost} gold)`;
+            }
+            
         }
 
 
@@ -530,28 +590,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-
-
-    // Event listener for when a new enemy is spawned by gilbert
-    socket.on('new_enemy', function (data) {
-
-        console.log('New enemy:', data);
-
-        createEnemy(data);
-        audioDict.enemy.play()
-
-    });
-
     socket.on('new_enemy_group', function (data) {
 
-        console.log('New enemy group:', data);
+        // console.log('New enemy group:', data);
 
         for (const [id, monster] of Object.entries(data)) {
-            console.log(monster)
+            // console.log(monster)
             setTimeout(() => {
            
                 createEnemy(monster);
-                audioDict.enemy.play()
+
+                if (monster.type == "bonus") {
+                    audioDict.portal.play()
+                } else {
+                    audioDict.enemy.play()
+                }
         
                 }, Math.floor(Math.random() * 3) * getRandomDelay());
 
@@ -563,10 +616,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('update_enemy_frontend', function (data) {
 
-        console.log('enemy interaction:', data);
+        // console.log('enemy interaction:', data);
 
         if (data.interaction_type == "player_attack") {
-            document.getElementById(`monster_name_${data.id}`).innerHTML = `${data.emoji}<b>${data.name}</b> (${data.health} hp)`
+            document.getElementById(`monster_health_${data.id}`).innerHTML = `❤️ Health: <b>${data.health}</b>`
             document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.emoji} ${data.name} (${data.health} hp)`
         } else if (data.interaction_type == "attack_gilbert") {
             var audio = audioDict.hit
@@ -708,7 +761,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    socket.on('upgrade_purchase', function (data) {
+        console.log("upgrade: ", data)
 
+        // should really be in it's own function but whatever
+        if (audioDict.upgrade.paused) { 
+            audioDict.upgrade.play();
+        } else {
+            audioDict.upgrade.currentTime = 0;
+            audioDict.upgrade.play();
+        }
+
+        const shopGold = document.getElementById("gilbert_upgrades");
+
+        shopGold.classList.add('windowShake');
+
+        setTimeout(function () {
+            shopGold.classList.remove('windowShake')
+        }, 500);
+
+
+    });
 
 });
 
@@ -923,13 +996,28 @@ function createEnemyHTML(enemyJSON) {
     const description = enemyJSON.description;
     const name = enemyJSON.name;
     const id = enemyJSON.id;
+    const damage = enemyJSON.damage_to_gilbert;
     const level = enemyJSON.level;
     const animation = enemyJSON.animation
+    const attackSpeed = enemyJSON.attack_speed
+    let type = enemyJSON.type
+    let enemyStats = ``
+
+    if (type == "bonus") {
+        type = "purple-highlight"
+    } else {
+        type = "red"
+        enemyStats = `
+        <ul class="tree-view" style="margin-top: 5px">
+            <li id="monster_health_${id}">❤️ Health: <b>${health}</b></li>
+            <li id="enemy_damage">🔪 Damage: <b>${damage}</b></li>
+        </ul>`
+    }
 
 
     let enemyHTML = `
     <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%">
-            <div class="title-bar red">
+            <div class="title-bar ${type}">
                 <div class="title-bar-text" id="monster_titleid_${id}">
                 ${emoji} ${name} (${health} hp)
                 </div>
@@ -940,11 +1028,11 @@ function createEnemyHTML(enemyJSON) {
             <div class="window-body">
                 <div class="centerGilbert">
                     <p class="enemy-anim" style="font-size: 45px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">${emoji}</p>
-                    <p id="monster_name_${id}">${emoji}<b>${name}</b> (${health} hp)</p>
+                    <p>${emoji}<b>${name}</b> (Level ${level})</p>
                     <i>${description}</i>
                 </div>   
-
-                <section class="field-row" style="justify-content: center; margin-top: 7px">
+                ${enemyStats}
+                <section class="field-row ${animation}" style="justify-content: center; margin-top: 7px">
                     <button class="like-btn" onclick="enemyInteraction('${id}')" id="buttonid_${id}">⚔️ Attack</button>
                 </section>
             </div>
@@ -961,7 +1049,22 @@ function createLootHTML(enemyJSON) {
     const id = enemyJSON.id;
     const gold = enemyJSON.gold_drop;
     const xp = enemyJSON.xp_drop;
+    const health = enemyJSON.health_drop;
     const emoji = enemyJSON.emoji;
+    let healthHTML = ``
+    let goldHTML = ``
+    let xpHTML = ``
+
+
+    if (health) {
+        healthHTML = `<li>🩷 Health: <b>${health}</b></li>`
+    }
+    if (gold) {
+        goldHTML = `<li>🪙 Gold: <b>${gold}</b></li>`
+    }
+    if (xp) {
+        xpHTML = `<li>✨ XP: <b>${xp}</b></li>`
+    }
 
 
     let enemyHTML = `<div class="draggable window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
@@ -982,10 +1085,11 @@ function createLootHTML(enemyJSON) {
 
                 <hr>
 
-                <p><b>📜 Items Dropped</b></p>
+                <p>📜 Items Dropped</p>
                     <ul class="tree-view">
-                        <li>💰 Gold: <b>${gold}</b></li>
-                        <li>⭐️ XP: <b>${xp}</b></li>
+                        ${goldHTML}
+                        ${xpHTML}
+                        ${healthHTML}
                     </ul>
 
                 <section class="field-row" style="justify-content: center; margin-top: 7px">
@@ -1016,5 +1120,55 @@ function createLoot(messageJSON) {
 
     makeDraggable();
 }
+
+
+function setActiveWindow(windowId) {
+	const windowLabel = `shop-tab-${windowId}`;
+	const tabLabel = `shop-tab-label-${windowId}`;
+	
+	// hide all windows
+	var windows = document.querySelectorAll('.window[role="tabpanel"]');
+	windows.forEach(function (window) {
+		window.setAttribute("hidden", true);
+	});
+	var tabWindows = document.querySelectorAll('[role="tab"]');
+	tabWindows.forEach(function (window) {
+		window.setAttribute("aria-selected", false);
+	});
+
+	// show selected windows/tabs
+	var activeWindow = document.getElementById(windowLabel);
+	if (activeWindow) {
+		activeWindow.removeAttribute("hidden");
+	}
+	var activeWindow = document.getElementById(tabLabel);
+	if (activeWindow) {
+		activeWindow.setAttribute("aria-selected", true);
+
+        if (audioDict.click.paused) { 
+            audioDict.click.play();
+        } else {
+            audioDict.click.currentTime = 0;
+            audioDict.click.play();
+        }
+
+	}
+}
+
+function shopInteraction(upgrade_type) {
+    socket.emit('shop_interaction', upgrade_type);
+    
+    let button = document.getElementById(`${upgrade_type}-upgrade-button`);
+    button.classList.add('buttonClick');
+
+    setTimeout(function () {
+        button.classList.remove('buttonClick')
+    }, 1000);
+}
+
+
+
+
+
 
 document.addEventListener('DOMContentLoaded', makeDraggable);

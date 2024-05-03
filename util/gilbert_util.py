@@ -82,6 +82,7 @@ def stage_two(hunger, health, happiness):
     if random.randint(1,3) == 1:
         new_hunger = max(hunger - random.randint(0, 2), 0)   
 
+    if random.randint(1,2) == 1:
         new_happiness = max(happiness - random.randint(0, 2), 0)
     
 

@@ -82,6 +82,10 @@
 
 
 			</div>
+			<div class="post-list" id="shop-list">
+
+
+			</div>
 		</div>
 
 		</div>
@@ -185,6 +189,97 @@
 					<button onclick="petGilbert()" id="pet_button" style="display: none;">Give Treat</button>
 
 				</section>
+			</div>
+
+		</div>
+
+
+		<div class="window upgrades draggable" style="top: 140px; left: 740px" id="gilbert_upgrades" hidden>
+			<div class="title-bar cyan">
+				<div class="title-bar-text">
+					🛠️ Gilbert Upgrades
+				</div>
+
+				<div class="title-bar-controls">
+					<button aria-label="Help"></button>
+				</div>
+			</div>
+			<div class="window-body">
+				<div class="centerGilbert">
+					<p id="shop-gold-display">🪙 Your Gold: <b>133</b></p>
+				</div>
+				<menu role="tablist">
+					<li role="tab" id="shop-tab-label-3" onclick="setActiveWindow('3')" aria-selected="true"><a class="text-shadow">🌼 Health</a></li>
+					<li role="tab" id="shop-tab-label-2" onclick="setActiveWindow('2')"><a class="text-shadow">🛡️ Defense</a></li>
+					<li role="tab" id="shop-tab-label-1" onclick="setActiveWindow('1')"><a class="text-shadow" >🗡️ Damage</a></li>
+					<li role="tab" id="shop-tab-label-5" onclick="setActiveWindow('5')"><a class="text-shadow">🔮 Luck</a></li>
+					<li role="tab" id="shop-tab-label-4" onclick="setActiveWindow('4')"><a class="text-shadow">💗 Regen</a></li>
+				</menu>
+
+				<div class="window" role="tabpanel" id="shop-tab-1">
+					<div class="window-body">
+						<div class="centerGilbert">
+							<p class="shop-anim rotate-vert-center" style="font-size: 55px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.549)">🗡️</p>
+							<p class="text-shadow" style="font-size: 13px" id="damage-upgrade-stat">Damage: <b> 1</b> / 10</p>
+							<i>Upgrade the amount of damage gilbert does to enemies!</i>
+							<section class="field-row" style="justify-content: center; margin-top: 7px">
+								<button class="like-btn" onclick="shopInteraction('damage')" id="damage-upgrade-button"><b>Upgrade</b> (30 gold)</button>
+							</section>
+						</div>
+					</div>
+				</div>
+
+				<div class="window" role="tabpanel" id="shop-tab-2" hidden>
+					<div class="window-body">
+						<div class="centerGilbert">
+							<p class="shop-anim rotate-vert-center" style="font-size: 55px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.549)">🛡️</p>
+							<p class="text-shadow" style="font-size: 13px" id="defense-upgrade-stat">Defense: <b> 0 %</b></p>
+							<i>Upgrade how much damage gilbert blocks!</i>
+							<section class="field-row" style="justify-content: center; margin-top: 7px">
+								<button class="like-btn" onclick="shopInteraction('defense')" id="defense-upgrade-button"><b>Upgrade</b> (10 gold)</button>
+							</section>
+						</div>
+					</div>
+				</div>
+
+				<div class="window" role="tabpanel" id="shop-tab-3" hidden>
+					<div class="window-body">
+						<div class="centerGilbert">
+							<p class="shop-anim rotate-vert-center" style="font-size: 55px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.549)">🌼</p>
+							<p class="text-shadow" style="font-size: 13px" id="health-upgrade-stat">Max Health: <b> 100</b> / 200</p>
+							<i>Upgrade gilbert's maximum health!</i>
+							<section class="field-row" style="justify-content: center; margin-top: 7px">
+								<button class="like-btn" onclick="shopInteraction('health')" id="health-upgrade-button"><b>Upgrade</b> (30 gold)</button>
+							</section>
+						</div>
+					</div>
+				</div>
+
+				<div class="window" role="tabpanel" id="shop-tab-4" hidden>
+					<div class="window-body">
+						<div class="centerGilbert">
+							<p class="shop-anim rotate-vert-center" style="font-size: 55px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.549)">💗</p>
+							<p class="text-shadow" style="font-size: 13px" id="regen-upgrade-stat">Regeneration: <b> 0 </b> hp</p>
+							<i>Upgrade the amount of health gilbert heals every 5 seconds!</i>
+							<section class="field-row" style="justify-content: center; margin-top: 7px">
+								<button class="like-btn" onclick="shopInteraction('regen')" id="regen-upgrade-button"><b>Upgrade</b> (30 gold)</button>
+							</section>
+						</div>
+					</div>
+				</div>
+
+				<div class="window" role="tabpanel" id="shop-tab-5" hidden>
+					<div class="window-body">
+						<div class="centerGilbert">
+							<p class="shop-anim rotate-vert-center" style="font-size: 55px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.549)">🔮</p>
+							<p class="text-shadow" style="font-size: 13px" id="luck-upgrade-stat">Loot Luck: <b> 5 %</b></p>
+							<i>Upgrade the chance to spawn loot instead of enemies!</i>
+							<section class="field-row" style="justify-content: center; margin-top: 7px">
+								<button class="like-btn" onclick="shopInteraction('luck')" id="luck-upgrade-button"><b>Upgrade</b> (30 gold)</button>
+							</section>
+						</div>
+					</div>
+				</div>
 			</div>
 
 		</div>
