@@ -244,7 +244,7 @@ def handle_monster_attack(monster_id):
 
             if new_health <= 0:
                 # emit death, update stats to reflect that, only remove from dict once player takes loot    
-                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji")})
+                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji")})
                 gilbert_enemies_dict[monster_id]["alive"] = False
 
             else:
@@ -258,8 +258,9 @@ def handle_monster_attack(monster_id):
             # emit loot
             socket.emit('update_enemy_frontend', {"interaction_type": "loot", "id": monster_id})
             # add gold/xp to gilbert
-            gilbert_stats["gold"] += monster.get("gold_drop")
-            gilbert_stats["xp"] += monster.get("xp_drop")
+            gilbert_stats["gold"] += monster.get("gold_drop", 0)
+            gilbert_stats["xp"] += monster.get("xp_drop", 0)
+            gilbert_stats["health"] += monster.get("health_drop", 0)
             # todo add items to gilbert as well
 
             # remove enemy from dict

@@ -36,7 +36,7 @@ function updateGilbertEnemiesDict() {
 
 
             const enemies = JSON.parse(this.response);
-            console.log("entire enemy list: ", enemies)
+            // console.log("entire enemy list: ", enemies)
 
             if (enemies) {
                 
@@ -494,8 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             document.getElementById('gilbert_level').innerHTML = `🏰 Level: <b>${data.level}</b>`;
-            document.getElementById('gilbert_gold').innerHTML = `💰 Gold: <b>${data.gold}</b>`;
-            document.getElementById('gilbert_xp').innerHTML = `⭐ XP: <b>${data.xp}</b>/${data.xp_to_levelup}`;
+            document.getElementById('gilbert_gold').innerHTML = `🪙 Gold: <b>${data.gold}</b>`;
+            document.getElementById('gilbert_xp').innerHTML = `✨ XP: <b>${data.xp}</b>/${data.xp_to_levelup}`;
             // move dmg to stage 3
             document.getElementById('gilbert_stage_explanation').innerText = `Watch out for enemies!`;
         }
@@ -530,18 +530,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-
-
-    // Event listener for when a new enemy is spawned by gilbert
-    socket.on('new_enemy', function (data) {
-
-        console.log('New enemy:', data);
-
-        createEnemy(data);
-        audioDict.enemy.play()
-
-    });
-
     socket.on('new_enemy_group', function (data) {
 
         console.log('New enemy group:', data);
@@ -551,7 +539,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
            
                 createEnemy(monster);
-                audioDict.enemy.play()
+
+                if (monster.type == "bonus") {
+                    audioDict.portal.play()
+                } else {
+                    audioDict.enemy.play()
+                }
         
                 }, Math.floor(Math.random() * 3) * getRandomDelay());
 
@@ -566,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('enemy interaction:', data);
 
         if (data.interaction_type == "player_attack") {
-            document.getElementById(`monster_name_${data.id}`).innerHTML = `${data.emoji}<b>${data.name}</b> (${data.health} hp)`
+            document.getElementById(`monster_health_${data.id}`).innerHTML = `❤️ Health: <b>${data.health}</b>`
             document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.emoji} ${data.name} (${data.health} hp)`
         } else if (data.interaction_type == "attack_gilbert") {
             var audio = audioDict.hit
@@ -923,13 +916,28 @@ function createEnemyHTML(enemyJSON) {
     const description = enemyJSON.description;
     const name = enemyJSON.name;
     const id = enemyJSON.id;
+    const damage = enemyJSON.damage_to_gilbert;
     const level = enemyJSON.level;
     const animation = enemyJSON.animation
+    const attackSpeed = enemyJSON.attack_speed
+    let type = enemyJSON.type
+    let enemyStats = ``
+
+    if (type == "bonus") {
+        type = "purple-highlight"
+    } else {
+        type = "red"
+        enemyStats = `
+        <ul class="tree-view" style="margin-top: 5px">
+            <li id="monster_health_${id}">❤️ Health: <b>${health}</b></li>
+            <li id="enemy_damage">🔪 Damage: <b>${damage}</b></li>
+        </ul>`
+    }
 
 
     let enemyHTML = `
     <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%">
-            <div class="title-bar red">
+            <div class="title-bar ${type}">
                 <div class="title-bar-text" id="monster_titleid_${id}">
                 ${emoji} ${name} (${health} hp)
                 </div>
@@ -940,11 +948,11 @@ function createEnemyHTML(enemyJSON) {
             <div class="window-body">
                 <div class="centerGilbert">
                     <p class="enemy-anim" style="font-size: 45px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">${emoji}</p>
-                    <p id="monster_name_${id}">${emoji}<b>${name}</b> (${health} hp)</p>
+                    <p>${emoji}<b>${name}</b> (Level ${level})</p>
                     <i>${description}</i>
                 </div>   
-
-                <section class="field-row" style="justify-content: center; margin-top: 7px">
+                ${enemyStats}
+                <section class="field-row ${animation}" style="justify-content: center; margin-top: 7px">
                     <button class="like-btn" onclick="enemyInteraction('${id}')" id="buttonid_${id}">⚔️ Attack</button>
                 </section>
             </div>
@@ -961,7 +969,23 @@ function createLootHTML(enemyJSON) {
     const id = enemyJSON.id;
     const gold = enemyJSON.gold_drop;
     const xp = enemyJSON.xp_drop;
+    const health = enemyJSON.health_drop;
     const emoji = enemyJSON.emoji;
+    let healthHTML = ``
+    let goldHTML = ``
+    let xpHTML = ``
+
+    console.log(health)
+
+    if (health) {
+        healthHTML = `<li>🩷 Health: <b>${health}</b></li>`
+    }
+    if (gold) {
+        goldHTML = `<li>🪙 Gold: <b>${gold}</b></li>`
+    }
+    if (xp) {
+        xpHTML = `<li>✨ XP: <b>${xp}</b></li>`
+    }
 
 
     let enemyHTML = `<div class="draggable window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
@@ -984,8 +1008,9 @@ function createLootHTML(enemyJSON) {
 
                 <p><b>📜 Items Dropped</b></p>
                     <ul class="tree-view">
-                        <li>💰 Gold: <b>${gold}</b></li>
-                        <li>⭐️ XP: <b>${xp}</b></li>
+                        ${goldHTML}
+                        ${xpHTML}
+                        ${healthHTML}
                     </ul>
 
                 <section class="field-row" style="justify-content: center; margin-top: 7px">

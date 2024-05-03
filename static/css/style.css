@@ -30,6 +30,15 @@ body {
   width: auto;
   height: auto;
   max-width: 400px;
+  width: 210px;
+  position: absolute;
+  word-wrap: break-word;
+}
+
+.animationContainer {
+  width: auto;
+  height: auto;
+  max-width: 400px;
   position: absolute;
   word-wrap: break-word;
 }
@@ -529,18 +538,95 @@ a:active {
   }
 }
 
-@keyframes fadeInOut {
+
+@keyframes moveBackAndForth {
   0% {
-    opacity: 0; 
+    transform: translateX(-50px);
   }
   50% {
-    opacity: 1; 
+    transform: translateX(50px);
   }
   100% {
-    opacity: 0;
+    transform: translateX(-50px);
   }
 }
 
-.fade-in-out-fully {
-  animation: fadeInOut 3s ease-in-out infinite; 
+@keyframes dodgeWait {
+  0% {
+    transform: translateX(-50px);
+  }
+	20% {
+    transform: translateX(-50px);
+  }
+  50% {
+    transform: translateX(50px);
+  }
+	70% {
+    transform: translateX(50px);
+  }
+  100% {
+    transform: translateX(-50px);
+  }
+}
+
+
+.button-fast {
+  animation: moveBackAndForth 1s ease-in-out infinite; 
+}
+
+.button-slow {
+  animation: moveBackAndForth 4s ease-in-out infinite; 
+}
+
+.button-medium {
+  animation: moveBackAndForth 2s ease-in-out infinite; 
+}
+
+.button-dodge {
+  animation: moveBackAndForth 2s ease infinite
+}
+
+.button-dodge-wait {
+  animation: dodgeWait 2s ease infinite
+}
+
+.button-dodge-slow {
+  animation: dodgeWait 3s ease infinite
+}
+
+.button-dodge-wait-fast {
+  animation: dodgeWait 1s ease infinite
+}
+
+.button-dodge-fast {
+  animation: moveBackAndForth 1s ease infinite
+}
+
+.button-fade-slow {
+  animation: fadeOut 2.5s ease-in-out infinite;
+}
+
+.button-fade-fast {
+  animation: fadeOut 1.5s ease-in-out infinite;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+	transform: translateX(-50px);
+  }
+	  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+	transform: translateX(50px);
+  }
+	  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+	transform: translateX(-50px);
+  }
 }
