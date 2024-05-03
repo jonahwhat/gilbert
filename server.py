@@ -32,12 +32,44 @@ statistics = {
 gilbert_respawn_timer = 0
 
 gilbert_stats = {
+    "upgrades": {},
     "alive": False
 }
 
 gilbert_thoughts_userlist = ["gilbert"]
 
 gilbert_enemies_dict = {}
+
+gilbert_upgrade_prices = {
+    "damage": {
+        "upgrade_value": [2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "upgrade_cost": [100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000, 'max'],
+        "maximum_upgrade": 8
+    },
+    "defense": {
+        "upgrade_value": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+        "upgrade_cost": [25, 50, 100, 200, 350, 500, 750, 1000, 5000, 10000, 'max'],
+        "maximum_upgrade": 9
+    },
+    "health": {
+        "upgrade_value": [110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
+        "upgrade_cost": [15, 25, 50, 75, 100, 150, 250, 350, 500, 1000, 'max'],
+        "maximum_upgrade": 9
+    },
+    "regen": {
+        "upgrade_value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "upgrade_cost": [150, 250, 500, 1000, 2000, 4000, 7500, 10000, 25000, 50000, 'max'],
+        "maximum_upgrade": 9
+    },
+    "luck": {
+        "upgrade_value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        "upgrade_cost": [100, 200, 500, 1000, 1500, 2500, 3500, 5000, 7600, 10000, 20000, 30000, 40000, 50000, 100000, 'max'],
+        "maximum_upgrade": 14
+    }
+}
+
+#.remove except
+online_users = set()
 
 
 
@@ -199,14 +231,14 @@ def delete_post(post_id):
         statistics['posts_deleted'] += 1
         socket.emit('post_deleted', {'post_id': post_id})
         socket.emit('statistics', statistics)
-        printMsg(post_id)
+        # printMsg(post_id)
 
 
 @socket.on('like_post')
 def handle_like_post(message_id):
     result = handle_post_like_ws(session["username"], posts_collection, message_id)
     statistics['global_likes'] += result[1]
-    printMsg(result)
+    # printMsg(result)
     if result != None:
         socket.emit('post_liked', {'message_id': message_id, 'likes': result[0]})
         socket.emit('statistics', statistics)
@@ -224,6 +256,45 @@ def handle_connect():
 
 
 #* Gilbert Functions *#
+
+@socket.on('shop_interaction')
+def handle_shop_interaction(upgrade_type):
+    global gilbert_stats
+
+    # given an upgrade, attempt to purchase it with gilbert's gold
+    current_gold = gilbert_stats.get("gold")
+    current_upgrade_level = gilbert_stats.get("upgrades").get(upgrade_type)
+    cost_of_upgrade = gilbert_upgrade_prices.get(upgrade_type).get("upgrade_cost")[current_upgrade_level]
+
+    if current_upgrade_level > gilbert_upgrade_prices.get(upgrade_type).get("maximum_upgrade"):
+        return
+
+    elif current_gold < cost_of_upgrade:
+        # if fail, send a failure type frame "unable to purchase this upgrade", button animation for disabling maybe
+        return
+
+    elif current_gold >= cost_of_upgrade:
+        # update gilbert_upgrades dict
+        gilbert_stats["upgrades"][upgrade_type] += 1
+        gilbert_stats["upgrades"][upgrade_type + "_cost"] = gilbert_upgrade_prices.get(upgrade_type).get("upgrade_cost")[current_upgrade_level + 1]
+        gilbert_stats["gold"] -= cost_of_upgrade
+
+        # update gilbert_stats with new stat
+        if upgrade_type == "health": 
+            gilbert_stats["max_health"] = gilbert_upgrade_prices.get(upgrade_type).get("upgrade_value")[current_upgrade_level]
+            gilbert_stats["health"] += 10
+        else:
+            gilbert_stats[upgrade_type] = gilbert_upgrade_prices.get(upgrade_type).get("upgrade_value")[current_upgrade_level]
+
+        socket.emit('upgrade_purchase', {"upgrade_type": upgrade_type, "username": session.get("username"), "level": current_upgrade_level + 1, "successful": True})
+
+        # send gilbert stats
+        socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+
+
+
+
 
 @socket.on('enemy_interaction')
 def handle_monster_attack(monster_id):
@@ -246,6 +317,7 @@ def handle_monster_attack(monster_id):
                 # emit death, update stats to reflect that, only remove from dict once player takes loot    
                 socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji")})
                 gilbert_enemies_dict[monster_id]["alive"] = False
+                gilbert_stats["enemies_defeated"] += 1
 
             else:
                 # update health of enemy
@@ -260,8 +332,7 @@ def handle_monster_attack(monster_id):
             # add gold/xp to gilbert
             gilbert_stats["gold"] += monster.get("gold_drop", 0)
             gilbert_stats["xp"] += monster.get("xp_drop", 0)
-            gilbert_stats["health"] += monster.get("health_drop", 0)
-            # todo add items to gilbert as well
+            gilbert_stats["health"] = min(monster.get("health_drop", 0) + gilbert_stats.get("health"), gilbert_stats.get("max_health"))
 
             # remove enemy from dict
             del gilbert_enemies_dict[monster_id]
@@ -284,7 +355,7 @@ def handle_gilbert_update(action):
     username = session.get("username", "guest")
     if username not in gilbert_thoughts_userlist:
         gilbert_thoughts_userlist.append(username)
-        printMsg(gilbert_thoughts_userlist)
+        # printMsg(gilbert_thoughts_userlist)
 
     # gilbert logic based on his current stats
     gilbert_stats = handle_gilbert_action(action, gilbert_stats)
@@ -319,7 +390,7 @@ def handle_gilbert_start():
 
         # reset and add user to gilbert thoughts userlist
         gilbert_thoughts_userlist = [session.get("username", "guest")]
-        printMsg(gilbert_thoughts_userlist)
+        # printMsg(gilbert_thoughts_userlist)
 
         # maybe while true loop to show timing?
         # only sendall when the epoch time changes
@@ -389,7 +460,7 @@ def send_updates():
 
                     seconds_til_attack = enemy.get("seconds_til_attack")
                     attack_seconds = enemy.get("attack_seconds")
-                    damage = enemy.get("damage_to_gilbert")
+                    damage = int(enemy.get("damage_to_gilbert") - ((enemy.get("damage_to_gilbert") * gilbert_stats.get("defense")/100)))
                     name = enemy.get("name")
 
                     if seconds_til_attack <= 0:
@@ -400,16 +471,18 @@ def send_updates():
                         gilbert_enemies_dict[id]["seconds_til_attack"] = attack_seconds
 
                         # update gilbert's health
-                        gilbert_stats["health"] = max(0, gilbert_stats.get("health") - damage)
+                        gilbert_stats["health"] = max(0, max(gilbert_stats.get("health") - damage, 1))
 
 
                     else:
                         gilbert_enemies_dict[id]["seconds_til_attack"] -= 1
 
+                
+
 
                 if (int(time.time()) + 5) % 15 == 0:
                     # generate a group of enemies based on gilbert's level
-                    enemy_group = spawn_enemy(gilbert_stats.get("level"))
+                    enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
 
                     # emit enemy group
                     socket.emit('new_enemy_group', enemy_group)
@@ -417,6 +490,15 @@ def send_updates():
                     # add all enemies to the dictionary
                     for enemy in enemy_group.values():
                         gilbert_enemies_dict[enemy.get("id")] = enemy
+            
+
+            if gilbert_stats.get("stage") >= 3:
+                # regen implementation
+                if (int(time.time())) % 5 == 0:
+                    gilbert_stats["health"] = min(gilbert_stats.get("max_health"), gilbert_stats.get("health") + gilbert_stats.get("regen"))
+
+
+
 
             # at the end of all this logic, emit the stats       
             socket.emit('recieve_gilbert_stats', gilbert_stats)

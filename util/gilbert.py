@@ -19,15 +19,15 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
     # stage 0: only keep track of hunger
     # stage 1: hunger + happiness (more functionality for happiness, also make it harder)
     # stage 2: enemies start spawning, gold drops
-    # stage 3: inventory unlocks, can use and collect things from your inventory, xp?
+    # stage 3: shop opens (has passive upgrades and also items to purchase (new friendly windows like plant or house))
     if seconds_alive <= 15:
         current_stage = 0
     elif seconds_alive <= 30:
         current_stage = 1
     elif seconds_alive <= 60:
         current_stage = 2
-    # elif seconds_alive <= 240:
-    #     current_stage = 3
+    elif current_level >= 5:
+        current_stage = 3
 
     # update return object
     gilbert_new["stage"] = current_stage
@@ -56,7 +56,7 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
 
 
     # monster spawning, leveling, xp from kills, simple monsters
-    elif current_stage == 2:
+    elif current_stage == 2 or current_stage == 3:
         # get new states of stats
         new_health, new_hunger, new_happiness = stage_two(current_hunger, current_health, current_happiness)
 
@@ -81,11 +81,20 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
         elif 10 <= level <= 14:
             gilbert_new["xp_to_levelup"] = 25
 
-        elif 15 <= level <= 25:
+        elif 15 <= level <= 19:
             gilbert_new["xp_to_levelup"] = 50
 
-        else:
+        elif 20 <= level <= 29:
             gilbert_new["xp_to_levelup"] = 100
+
+        elif 30 <= level <= 49:
+            gilbert_new["xp_to_levelup"] = 250
+
+        elif 50 <= level <= 74:
+            gilbert_new["xp_to_levelup"] = 500
+
+        else:
+            gilbert_new["xp_to_levelup"] = 1000
 
 
 
@@ -158,16 +167,29 @@ def handle_gilbert_levelup(current_level, current_xp):
 
 def set_initial_gilbert():
 
-    # TODO: gilbert stages based on level
-    # for example: level 1-5 = only hunger button
-    # level 5-10 = hunger + happiness
-    # level 10+ = monsters can spawn + inventory drops
-
+    # todo: make dictionary that stores cost, and upgrades, and max upgrades
+    # todo only store one value on gilbert
+    gilbert_upgrades = {
+        # gilbert damage
+        "damage": 0,
+        "damage_cost": 100,
+        # defense, take away a percent of damage from some attacks 
+        "defense": 0,
+        "defense_cost": 25,
+        # gilbert max health
+        "health": 0,
+        "health_cost": 15,
+        # passive regen
+        "regen": 0,
+        "regen_cost": 150,
+        # higher chance to spawn loot bags
+        "luck": 0,
+        "luck_cost": 100,
+    }
 
     gilbert_stats = {
         "alive": True,
         "health": 100,
-        "max-health": 100,
         "hunger": 70,
         "happiness": 70,
         "level": 1,
@@ -176,9 +198,17 @@ def set_initial_gilbert():
         "gold": 0,
         "xp": 0,
         "xp_to_levelup": 5,
-        "stage": 0, # stages determine what functionalities gilbert has unlocked
+        "stage": 0,
+
         "damage": 1,
-        "inventory": {}
+        "defense": 0,
+        "max_health": 100,
+        "regen": 0,
+        "luck": 0,
+        "enemies_defeated": 0,
+
+        "inventory": {},
+        "upgrades": gilbert_upgrades
     }
 
     return gilbert_stats
