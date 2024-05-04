@@ -43,7 +43,7 @@ gilbert_enemies_dict = {}
 gilbert_upgrade_prices = {
     "damage": {
         "upgrade_value": [2, 3, 4, 5, 6, 7, 8, 9, 10],
-        "upgrade_cost": [100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000, 'max'],
+        "upgrade_cost": [75, 150, 350, 500, 1000, 1500, 2500, 5000, 10000, 'max'],
         "maximum_upgrade": 8
     },
     "defense": {
@@ -67,6 +67,8 @@ gilbert_upgrade_prices = {
         "maximum_upgrade": 14
     }
 }
+
+debug = False
 
 #.remove except
 online_users = set()
@@ -382,7 +384,7 @@ def handle_gilbert_start():
     # check if glibert is already alive, if he is, ignore, if he isn't start the loop
     if gilbert_stats.get("alive") == False:
         # reset stats
-        gilbert_stats = set_initial_gilbert()
+        gilbert_stats = set_initial_gilbert(debug)
         socket.emit('recieve_gilbert_stats', gilbert_stats)
         socket.emit('start_gilbert')
 
@@ -460,7 +462,7 @@ def send_updates():
 
                     seconds_til_attack = enemy.get("seconds_til_attack")
                     attack_seconds = enemy.get("attack_seconds")
-                    damage = int(enemy.get("damage_to_gilbert") - ((enemy.get("damage_to_gilbert") * gilbert_stats.get("defense")/100)))
+                    damage = max(1,int(enemy.get("damage_to_gilbert") - ((enemy.get("damage_to_gilbert") * gilbert_stats.get("defense")/100))))
                     name = enemy.get("name")
 
                     if seconds_til_attack <= 0:
@@ -471,7 +473,7 @@ def send_updates():
                         gilbert_enemies_dict[id]["seconds_til_attack"] = attack_seconds
 
                         # update gilbert's health
-                        gilbert_stats["health"] = max(0, max(gilbert_stats.get("health") - damage, 1))
+                        gilbert_stats["health"] = max(0, gilbert_stats.get("health") - damage)
 
 
                     else:
@@ -480,16 +482,18 @@ def send_updates():
                 
 
 
-                if (int(time.time()) + 5) % 15 == 0:
-                    # generate a group of enemies based on gilbert's level
-                    enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
+                if ((int(time.time()) + 5) % 15 == 0) or (gilbert_stats.get("level") >= 12 and int(time.time()) % 53 == 0) or (gilbert_stats.get("level") >= 25 and int(time.time() + 3) % 169 == 0):
+                    if len(gilbert_enemies_dict) <= 15:
+                        # BOSS: don't spawn enemies if alive boss exists
+                        # generate a group of enemies based on gilbert's level
+                        enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
 
-                    # emit enemy group
-                    socket.emit('new_enemy_group', enemy_group)
+                        # emit enemy group
+                        socket.emit('new_enemy_group', enemy_group)
 
-                    # add all enemies to the dictionary
-                    for enemy in enemy_group.values():
-                        gilbert_enemies_dict[enemy.get("id")] = enemy
+                        # add all enemies to the dictionary
+                        for enemy in enemy_group.values():
+                            gilbert_enemies_dict[enemy.get("id")] = enemy
             
 
             if gilbert_stats.get("stage") >= 3:
