@@ -28,7 +28,7 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
 
 
         else:
-            amount_of_enemies = max(min(amount_of_enemies - 3, 5),1)
+            amount_of_enemies = max(min(amount_of_enemies - 2, 5),1)
             for i in range(amount_of_enemies):
                 rat = create_rat(gilbert_level)
                 enemy_dict[rat["id"]] = rat
@@ -43,7 +43,7 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
 
         # new enemy generation
         if random.randint(0,2):
-            amount_of_enemies = max(1,min(amount_of_enemies - 2, 7))
+            amount_of_enemies = max(1,min(amount_of_enemies - 1, 7))
             for i in range(amount_of_enemies):
                 enemy = create_spider(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
@@ -55,7 +55,7 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
                 enemy_dict[enemy["id"]] = enemy
 
         else:
-            amount_of_enemies = max(1,min(amount_of_enemies - 5, 5))
+            amount_of_enemies = max(1,min(amount_of_enemies - 2, 5))
             for i in range(amount_of_enemies):
                 enemy = create_snake(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
@@ -71,25 +71,25 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
 
         # new enemy generation
         if random.randint(1,4) == 1:
-            amount_of_enemies = max(1,min(amount_of_enemies - 2, 7))
+            amount_of_enemies = max(1,min(amount_of_enemies, 7))
             for i in range(amount_of_enemies):
                 enemy = create_shrimp(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
 
         elif random.randint(1,4) == 1:
-            amount_of_enemies = max(1,min(amount_of_enemies - 3, 5))
+            amount_of_enemies = max(1,min(amount_of_enemies - 2, 5))
             for i in range(amount_of_enemies):
                 enemy = create_jellyfish(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
 
         elif random.randint(1,3) == 1:
-            amount_of_enemies = max(1,min(amount_of_enemies - 5, 12))
+            amount_of_enemies = max(1,min(amount_of_enemies - 4, 12))
             for i in range(amount_of_enemies):
                 enemy = create_puffer(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
 
         else:
-            amount_of_enemies = max(1,min(amount_of_enemies - 10, 3))
+            amount_of_enemies = max(1,min(amount_of_enemies - 5, 3))
             for i in range(amount_of_enemies):
                 enemy = create_shark(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
@@ -110,7 +110,7 @@ def create_rat(level):
     "level": 3,
     "health": min(5,math.floor(4 * level_multiplier)),
     "damage_to_gilbert": 2,
-    "seconds_til_attack": random.randint(5, 7), 
+    "seconds_til_attack": random.randint(1, 4), 
     "attack_seconds": 5,
     "item_drops": {"health_potion" : 1},
     "gold_drop": math.floor(5 * level_multiplier),
@@ -325,12 +325,12 @@ def create_shark(level):
     "description": "a shark, extremely strong bite!",
     "emoji": "🦈",
     "level": 20,
-    "health": min(math.floor(3 * level_multiplier), 12),
+    "health": min(math.floor(3 * level_multiplier), 15),
     "damage_to_gilbert": 10,
     "seconds_til_attack": 2, 
     "attack_seconds": 6,
     "item_drops": {"health_potion" : 1},
-    "gold_drop": math.floor(5 * level_multiplier),
+    "gold_drop": math.floor(10 * level_multiplier),
     "xp_drop":  math.floor(3 * level_multiplier),
     "health_drop": math.floor(level_multiplier) + 3,
     "id": str(uuid.uuid4()),
@@ -349,10 +349,10 @@ def create_jellyfish(level):
 
     enemy = {
     "name": "Jellyfish",
-    "description": "a majestic jellyfish!",
+    "description": "a majestic jellyfish! moderate speed!",
     "emoji": "🪼",
     "level": 11,
-    "health": 3,
+    "health": math.floor(4 * level_multiplier),
     "damage_to_gilbert": 6,
     "seconds_til_attack": 10, 
     "attack_seconds": 3,
@@ -425,8 +425,13 @@ if __name__ == '__main__':
     print("level 8: ", get_enemy_count(8))
     print("level 9: ", get_enemy_count(9))
     print("level 10: ", get_enemy_count(10))
+    print("level 13: ", get_enemy_count(13))
     print("level 15: ", get_enemy_count(15))
+    print("level 17: ", get_enemy_count(17))
+    print("level 20: ", get_enemy_count(20))
+    print("level 23: ", get_enemy_count(23))
     print("level 25: ", get_enemy_count(25))
+    print("level 27: ", get_enemy_count(27))
     print("level 50: ", get_enemy_count(50))
     print("level 100: ", get_enemy_count(100))
 

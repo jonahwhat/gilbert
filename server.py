@@ -480,7 +480,7 @@ def send_updates():
                 
 
 
-                if (int(time.time()) + 5) % 15 == 0:
+                if ((int(time.time()) + 5) % 15 == 0) or (gilbert_stats.get("level") >= 10 and int(time.time()) % 28 == 0) or (gilbert_stats.get("level") >= 20 and int(time.time() + 3) % 52 == 0):
                     # generate a group of enemies based on gilbert's level
                     enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
 
