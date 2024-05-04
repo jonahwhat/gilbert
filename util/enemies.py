@@ -5,13 +5,17 @@ import uuid
 
 # send enemy update socket from server, this would trigger an attack animation and also damage gilbert at the same time
 # function that takes gilbert's level and creates an enemy
+
+# todo: can definitely refactor this into a "create_enemy" function and pass in needed values instead of having a function for each enemy
+# would have defaults and would override them whenever passed in a value
+# BOSS: if level is exactly x, send boss and pause enemies
 def spawn_enemy(gilbert_level, luck, enemies_defeated):
 
     amount_of_enemies = get_enemy_count(gilbert_level)
     enemy_dict = {}
 
     # random bonus enemy
-    if random.randint(1,50) <= (luck + 3) or (enemies_defeated <= 10 and random.randint(1,4) == 1):
+    if random.randint(1,50) <= (luck + 3) or (enemies_defeated <= 6 and random.randint(1,4) == 1):
         enemy = create_bonus(gilbert_level)
         enemy_dict[enemy["id"]] = enemy
         return enemy_dict
@@ -48,7 +52,7 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
                 enemy = create_spider(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
 
-        elif random.randint(0,1):
+        elif random.randint(1,3) == 1:
             amount_of_enemies = max(1,min(amount_of_enemies + 2, 10))
             for i in range(amount_of_enemies):
                 enemy = create_bat(gilbert_level)
@@ -108,7 +112,7 @@ def create_rat(level):
     "description": "a giant rat! slow attack speed but strong!",
     "emoji": "🐀",
     "level": 3,
-    "health": min(5,math.floor(4 * level_multiplier)),
+    "health": min(7,math.floor(4 * level_multiplier)),
     "damage_to_gilbert": 2,
     "seconds_til_attack": random.randint(1, 4), 
     "attack_seconds": 5,
@@ -134,7 +138,7 @@ def create_mouse(level):
     "description": "a baby mouse, fast attack speed!",
     "emoji": "🐁",
     "level": 1,
-    "health": min(3,math.floor(1 * level_multiplier)),
+    "health": min(4,math.floor(1 * level_multiplier)),
     "damage_to_gilbert": 1,
     "seconds_til_attack": random.randint(2, 5), 
     "attack_seconds": 2,
@@ -165,7 +169,7 @@ def create_bonus(level):
     "seconds_til_attack": 1000, 
     "attack_seconds": 20,
     "item_drops": {"health_potion" : 1},
-    "gold_drop": math.floor(12 * level_multiplier) + 5,
+    "gold_drop": math.floor(13 * level_multiplier) + 5,
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 75),
     "left": random.randint(1, 80),
@@ -201,7 +205,7 @@ def create_bonus(level):
     "seconds_til_attack": 1000, 
     "attack_seconds": 20,
     "item_drops": {"health_potion" : 1},
-    "xp_drop": math.floor(level_multiplier * 3) + 3,
+    "xp_drop": math.floor(level_multiplier * 8) + 3,
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 65),
     "left": random.randint(1, 80),
@@ -299,12 +303,12 @@ def create_shrimp(level):
     "description": "a shrimp, extremely fast!",
     "emoji": "🦐",
     "level": 7,
-    "health": min(5 , math.floor(1 * level_multiplier)),
+    "health": min(5, math.floor(1 * level_multiplier)),
     "damage_to_gilbert": 1,
     "seconds_til_attack": 0, 
     "attack_seconds": 0,
     "item_drops": {"health_potion" : 1},
-    "gold_drop": math.floor(1 * level_multiplier),
+    "gold_drop": math.floor(4 * level_multiplier),
     "xp_drop":  math.floor(1 * level_multiplier),
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 65),
@@ -325,12 +329,12 @@ def create_shark(level):
     "description": "a shark, extremely strong bite!",
     "emoji": "🦈",
     "level": 20,
-    "health": min(math.floor(3 * level_multiplier), 15),
+    "health": min(math.floor(3 * level_multiplier), 18),
     "damage_to_gilbert": 10,
     "seconds_til_attack": 2, 
     "attack_seconds": 6,
     "item_drops": {"health_potion" : 1},
-    "gold_drop": math.floor(10 * level_multiplier),
+    "gold_drop": math.floor(10 * level_multiplier) + 10,
     "xp_drop":  math.floor(3 * level_multiplier),
     "health_drop": math.floor(level_multiplier) + 3,
     "id": str(uuid.uuid4()),
@@ -357,7 +361,7 @@ def create_jellyfish(level):
     "seconds_til_attack": 10, 
     "attack_seconds": 3,
     "item_drops": {"health_potion" : 1},
-    "gold_drop": math.floor(2 * level_multiplier),
+    "gold_drop": math.floor(8 * level_multiplier) + 3,
     "xp_drop":  math.floor(3 * level_multiplier),
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 65),
@@ -378,18 +382,44 @@ def create_puffer(level):
     "description": "a spiky pufferfish! fast attack!",
     "emoji": "🐡",
     "level": 14,
-    "health": 5,
+    "health": math.floor(5 * level_multiplier),
     "damage_to_gilbert": 3,
     "seconds_til_attack": 5, 
     "attack_seconds": 1,
     "item_drops": {"health_potion" : 1},
-    "gold_drop": math.floor(2 * level_multiplier),
+    "gold_drop": math.floor(6 * level_multiplier) + 10,
     "xp_drop":  math.floor(3 * level_multiplier),
     "id": str(uuid.uuid4()),
     "top": random.randint(1, 65),
     "left": random.randint(1, 80),
     "alive": True,
     "attack_speed": 7,
+    }
+
+    return enemy
+
+def create_moai(level):
+    level_multiplier = get_level_multiplier(level)
+
+    enemy = {
+    "name": "Moai head",
+    "description": "will kill you in 30 seconds.",
+    "emoji": "🗿",
+    "level": 50,
+    "health": 50,
+    "damage_to_gilbert": 50,
+    "seconds_til_attack": 30, 
+    "attack_seconds": 30,
+    "item_drops": {"health_potion" : 1},
+    "gold_drop": math.floor(250 * level_multiplier) + 10,
+    "xp_drop":  math.floor(25 * level_multiplier),
+    "health_drop":  math.floor(25 * level_multiplier) + 3,
+    "id": str(uuid.uuid4()),
+    "top": random.randint(30, 50),
+    "left": random.randint(30, 70),
+    "alive": True,
+    "attack_speed": 1,
+    "type": "boss"
     }
 
     return enemy
@@ -405,7 +435,8 @@ def get_level_multiplier(level):
 # given an int representing gilbert's level, return an integer representing the amount of enemies to spawn
 def get_enemy_count(level):
     mult = (((level) / 10) ** 1.001 * 1.1 + 1).real + .5
-    amount_of_enemies = max(math.floor(max(mult, 1.0)) + random.randint(-1,math.floor(mult)), 1)
+    amount_of_enemies = max(math.floor(max(mult, 1.0)) + random.randint(-2,math.ceil(mult)), 1)
+    amount_of_enemies = min(8, amount_of_enemies) #don't want over 8 enemies spawning at once probably
 
     if amount_of_enemies <= 1:
         return 1
@@ -417,7 +448,7 @@ if __name__ == '__main__':
 
     print("level 1: ", get_enemy_count(1))
     print("level 2: ", get_enemy_count(2))
-    print("level 3: ", get_enemy_count(3))
+    print("level 3: ", get_enemy_count(3))    
     print("level 4: ", get_enemy_count(4))
     print("level 5: ", get_enemy_count(5))
     print("level 6: ", get_enemy_count(6))
