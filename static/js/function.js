@@ -1016,7 +1016,7 @@ function createEnemyHTML(enemyJSON) {
 
 
     let enemyHTML = `
-    <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%">
+    <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%; overflow: hidden">
             <div class="title-bar ${type}">
                 <div class="title-bar-text" id="monster_titleid_${id}">
                 ${emoji} ${name} (${health} hp)

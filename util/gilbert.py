@@ -26,8 +26,11 @@ def update_gilbert_statistics(gilbert_old, gilbert_enemies_dict):
         current_stage = 1
     elif seconds_alive <= 60:
         current_stage = 2
-    elif current_level >= 5:
+
+    if current_level >= 5:
         current_stage = 3
+
+    
 
     # update return object
     gilbert_new["stage"] = current_stage
@@ -165,14 +168,12 @@ def handle_gilbert_levelup(current_level, current_xp):
     return new_level, new_xp
     
 
-def set_initial_gilbert():
+def set_initial_gilbert(debug = False):
 
-    # todo: make dictionary that stores cost, and upgrades, and max upgrades
-    # todo only store one value on gilbert
     gilbert_upgrades = {
         # gilbert damage
         "damage": 0,
-        "damage_cost": 100,
+        "damage_cost": 75,
         # defense, take away a percent of damage from some attacks 
         "defense": 0,
         "defense_cost": 25,
@@ -192,10 +193,10 @@ def set_initial_gilbert():
         "health": 100,
         "hunger": 70,
         "happiness": 70,
-        "level": 1,
+        "level": 20 if debug else 1,
         "seconds_alive": 0,
         "status": "happy",
-        "gold": 0,
+        "gold": 10000000 if debug else 0,
         "xp": 0,
         "xp_to_levelup": 5,
         "stage": 0,
