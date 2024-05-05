@@ -1000,11 +1000,26 @@ function createEnemyHTML(enemyJSON) {
     const level = enemyJSON.level;
     const animation = enemyJSON.animation
     const attackSpeed = enemyJSON.attack_speed
+
     let type = enemyJSON.type
     let enemyStats = ``
+    let extraAnimation = ``
 
     if (type == "bonus") {
         type = "purple-highlight"
+        extraAnimation = `float`
+
+    } else if (type == "boss") {
+        // todo make boss window larger than enemy windows 
+        type = "dark-red"
+        extraAnimation = `float-slow`
+        enemyStats = `
+        <ul class="tree-view" style="margin-top: 5px">
+            <li id="monster_health_${id}">❤️ Health: <b>${health}</b></li>
+            <li id="enemy_damage">🔪 Damage: <b>${damage}</b></li>
+            <li id="boss_bonus">⚖️ Special Effect: <b>TODO</b></li>
+        </ul>`
+
     } else {
         type = "red"
         enemyStats = `
@@ -1016,7 +1031,7 @@ function createEnemyHTML(enemyJSON) {
 
 
     let enemyHTML = `
-    <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%; overflow: hidden">
+    <div class="draggable window enemyWindow ${extraAnimation}" id="${id}" style="top: ${top}%; left: ${left}%; overflow: hidden">
             <div class="title-bar ${type}">
                 <div class="title-bar-text" id="monster_titleid_${id}">
                 ${emoji} ${name} (${health} hp)
