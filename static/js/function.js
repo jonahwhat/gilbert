@@ -77,32 +77,7 @@ function updatePost() {
 
 
                 setTimeout(() => {
-                    if (post.hidden == false) {
-                        displayPost(post);
-                    }
-
-
-
-                    if (post.messageType == "shame") {
-
-                        const existingUser = document.getElementById("list_id_" + post.author);
-                        if (!existingUser) {
-                            document.getElementById('user-list').innerHTML += `<li id="list_id_${post.author}">${post.author}</li>`;
-
-
-                            const containerElement = document.getElementById('user-div');
-                            if (containerElement) {
-                                containerElement.classList.add('like-anim');
-                                containerElement.addEventListener('animationend', function () {
-                                    containerElement.classList.remove('like-anim');
-                                });
-                            }
-                        }
-
-
-                    }
-
-
+                    displayPost(post);
 
                     // console.log(post.content)
                 }, index * getRandomDelay());
@@ -647,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
 
-                postElement.classList.add('delete-animation');
+                postElement.classList.add('delete-animation-fast');
                 postElement.addEventListener('animationend', function () {
 
                     postElement.remove();
@@ -660,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // delete window + animation
             const postElement = document.getElementById(data.id);
             if (postElement) {
-                postElement.classList.add('delete-animation');
+                postElement.classList.add('delete-animation-fast');
                 postElement.addEventListener('animationend', function () {
 
                     postElement.remove();
@@ -688,31 +663,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const messageType = data.messageType;
         // console.log(messageType)
-
-        if (messageType === "post") {
-            displayPost(data);
-            audioDict.chord.play()
-
-        } else if (messageType === "shame") {
-            displayPost(data);
-
-            const existingUser = document.getElementById("list_id_" + data.author);
-            if (!existingUser) {
-                document.getElementById('user-list').innerHTML += `<li id="list_id_${data.author}">${data.author}</li>`;
-                audioDict.tada.play()
-
-                const containerElement = document.getElementById('user-div');
-                if (containerElement) {
-                    containerElement.classList.add('jello-horizontal');
-                    containerElement.addEventListener('animationend', function () {
-                        containerElement.classList.remove('jello-horizontal');
-                    });
-                }
-            } else {
-                audioDict.chord.play()
-            }
-
-        }
+        displayPost(data);
+        audioDict.chord.play()
 
     });
 
@@ -765,6 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("upgrade: ", data)
 
         // should really be in it's own function but whatever
+        // timeout to remove after 5 seconds
         if (audioDict.upgrade.paused) { 
             audioDict.upgrade.play();
         } else {
@@ -774,12 +727,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const shopGold = document.getElementById("gilbert_upgrades");
 
+
         shopGold.classList.add('windowShake');
 
         setTimeout(function () {
             shopGold.classList.remove('windowShake')
         }, 500);
 
+        document.getElementById("shop-interaction-status").innerHTML = `${data.username} purchased <i style="text-transform: capitalize">${data.upgrade_type}</i> level ${data.level}.`
 
     });
 
@@ -955,7 +910,7 @@ function enemyLoot(monsterID) {
     const postElement = document.getElementById(monsterID);
     if (postElement) {
         audioDict.pickup.play()
-        postElement.classList.add('delete-animation');
+        postElement.classList.add('delete-animation-fast');
         postElement.addEventListener('animationend', function () {
 
             postElement.remove();
@@ -982,6 +937,9 @@ function createEnemy(messageJSON) {
 
     newlyAddedPost.addEventListener('animationend', function () {
         this.classList.remove('windowShake');
+        if (messageJSON.type == "bonus") { 
+            newlyAddedPost.classList.add('float');
+        }
     }, { once: true });
 
     makeDraggable();
@@ -1003,16 +961,13 @@ function createEnemyHTML(enemyJSON) {
 
     let type = enemyJSON.type
     let enemyStats = ``
-    let extraAnimation = ``
 
     if (type == "bonus") {
         type = "purple-highlight"
-        extraAnimation = `float`
 
     } else if (type == "boss") {
         // todo make boss window larger than enemy windows 
         type = "dark-red"
-        extraAnimation = `float-slow`
         enemyStats = `
         <ul class="tree-view" style="margin-top: 5px">
             <li id="monster_health_${id}">❤️ Health: <b>${health}</b></li>
@@ -1031,7 +986,7 @@ function createEnemyHTML(enemyJSON) {
 
 
     let enemyHTML = `
-    <div class="draggable window enemyWindow ${extraAnimation}" id="${id}" style="top: ${top}%; left: ${left}%; overflow: hidden">
+    <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%; overflow: hidden">
             <div class="title-bar ${type}">
                 <div class="title-bar-text" id="monster_titleid_${id}">
                 ${emoji} ${name} (${health} hp)

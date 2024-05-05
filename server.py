@@ -68,7 +68,7 @@ gilbert_upgrade_prices = {
     }
 }
 
-debug = False
+debug = True
 
 #.remove except
 online_users = set()
@@ -206,41 +206,16 @@ def delete_post(post_id):
 
     if ((post.get("author") == "Guest" and session.get("username") == "Guest") or (session.get("username") != "Guest")): 
 
-        # find one, if message type = shame, set hidden to true
-        
-        if (post["messageType"] == "shame"):
-
-
-            updatedPost = {
-                'messageType': post["messageType"],
-                "author": post["author"],
-                "content": post["content"],
-                "likes": post["likes"],
-                "id": post["id"],
-                "image_path": post["image_path"],
-                "top": post["top"],
-                "left": post["left"],
-                "hidden": True
-            }
-
-            posts_collection.update_one({"id": post_id}, {"$set": updatedPost})
-
-        else:
-            posts_collection.delete_one({'id': post_id})
-
-
-
+        posts_collection.delete_one({'id': post_id})
         statistics['posts_deleted'] += 1
         socket.emit('post_deleted', {'post_id': post_id})
         socket.emit('statistics', statistics)
-        # printMsg(post_id)
 
 
 @socket.on('like_post')
 def handle_like_post(message_id):
     result = handle_post_like_ws(session["username"], posts_collection, message_id)
     statistics['global_likes'] += result[1]
-    # printMsg(result)
     if result != None:
         socket.emit('post_liked', {'message_id': message_id, 'likes': result[0]})
         socket.emit('statistics', statistics)
@@ -254,7 +229,7 @@ def handle_connect():
     # send gilbert status
     # socket.emit('recieve_gilbert_stats', gilbert_stats)
 
-    printMsg(session.get('username'))
+    printMsg(session.get('username') + " connected.")
 
 
 #* Gilbert Functions *#
@@ -357,7 +332,6 @@ def handle_gilbert_update(action):
     username = session.get("username", "guest")
     if username not in gilbert_thoughts_userlist:
         gilbert_thoughts_userlist.append(username)
-        # printMsg(gilbert_thoughts_userlist)
 
     # gilbert logic based on his current stats
     gilbert_stats = handle_gilbert_action(action, gilbert_stats)
@@ -392,7 +366,6 @@ def handle_gilbert_start():
 
         # reset and add user to gilbert thoughts userlist
         gilbert_thoughts_userlist = [session.get("username", "guest")]
-        # printMsg(gilbert_thoughts_userlist)
 
         # maybe while true loop to show timing?
         # only sendall when the epoch time changes
