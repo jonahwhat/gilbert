@@ -14,8 +14,10 @@
   --window-frame: #0a0a0a;
   --dialog-blue: #000080;
   --dialog-blue-light: #1084d0;
-  --dialog-red: #780e00;
-  --dialog-red-light: #ca2f1a;
+  --dialog-red: #941c0c;
+  --dialog-red-light: #cc3521;
+  --dialog-darkred: #4d0017;
+  --dialog-darkred-light: #a7121e;
   --dialog-green: #008004;
   --dialog-green-light: #20d010;
   --dialog-gold: #c69b0e;
@@ -262,6 +264,14 @@ input[type="reset"]:disabled,
   );
 }
 
+.title-bar.red-dark {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-darkred),
+    var(--dialog-darkred-light)
+  );
+}
+
 .title-bar.green {
   background: linear-gradient(
     90deg,
@@ -314,6 +324,22 @@ input[type="reset"]:disabled,
   background: linear-gradient(
     90deg,
     var(--dialog-gold),
+    var(--dialog-gray-light)
+  );
+}
+
+.title-bar.cyan-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-cyan),
+    var(--dialog-gray-light)
+  );
+}
+
+.title-bar.green-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-green),
     var(--dialog-gray-light)
   );
 }
