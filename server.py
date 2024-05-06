@@ -69,7 +69,7 @@ gilbert_upgrade_prices = {
     }
 }
 
-debug = True
+debug = False
 
 online_users = {}
 # {"capybara" : {"username": "capybara", "disconnect_countdown": 10}}

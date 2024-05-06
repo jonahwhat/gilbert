@@ -15,7 +15,7 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
     enemy_dict = {}
 
     # random bonus enemy
-    if random.randint(1,50) <= (luck + 3) or (enemies_defeated <= 6 and random.randint(1,4) == 1):
+    if random.randint(1,50) <= (luck + 3):
         enemy = create_bonus(gilbert_level)
         enemy_dict[enemy["id"]] = enemy
         return enemy_dict
