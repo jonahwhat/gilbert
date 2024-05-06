@@ -474,8 +474,9 @@ def send_updates():
                 
 
 
-                if ((int(time.time()) + 5) % 15 == 0) or (gilbert_stats.get("level") >= 12 and int(time.time()) % 53 == 0) or (gilbert_stats.get("level") >= 25 and int(time.time() + 3) % 169 == 0):
+                if ((int(time.time()) + 5) % 16 == 0) or (gilbert_stats.get("level") >= 13 and int(time.time()) % 48 == 0) or (gilbert_stats.get("level") >= 23 and int(time.time() + 3) % 120 == 0):
                     if len(gilbert_enemies_dict) <= 15:
+                        # todo only take into account alive enemies
                         # BOSS: don't spawn enemies if alive boss exists
                         # generate a group of enemies based on gilbert's level
                         enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
