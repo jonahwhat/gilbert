@@ -25,7 +25,6 @@ const audioDict = {
 function initWS() {
     // Establish a WebSocket connection with the server
     socket = io();
-    console.log("socket: ", socket)
     audioDict.microsoft_sound.play()
 }
 
@@ -299,14 +298,40 @@ document.addEventListener('DOMContentLoaded', () => {
         initWS()
     }
 
+    // slightly horrible code, too bad!
+    socket.on('update-online-users', function(incoming_data) {
+        console.log("update-online-users: ", incoming_data)
 
-    // Event listener for when the WebSocket connection is established
-    socket.on('connect', function (data) {
+        const type = incoming_data.type
+        const userList = document.getElementById(`user-list`)
 
-    });
+        if (type == 'all_users') {
 
-    socket.on('disconnect', function (data) {
+            userList.innerHTML = ``
 
+            for (const [index, username] of Object.entries(incoming_data.data)) {
+                console.log(username)
+                const id = `${username}-online-user-list`
+                if (!document.getElementById(id)) {
+                    const userHTML = `<li id='${id}'>${username}</li>`
+                    userList.insertAdjacentHTML('afterbegin', userHTML);
+                }
+            }
+
+        } else if (type == 'single_user_connect') {
+            const id = `${incoming_data.data}-online-user-list`
+            if (!document.getElementById(id)) {
+                const userHTML = `<li id='${id}'>${incoming_data.data}</li>`
+                userList.insertAdjacentHTML('afterbegin', userHTML);
+            }
+
+        } else if (type == 'single_user_disconnect') {
+            const listElement = document.getElementById(`${incoming_data.data}-online-user-list`)
+            if (listElement) {
+                listElement.remove()
+            }
+
+        }
     });
 
     // Event listener for when a message is received from the server

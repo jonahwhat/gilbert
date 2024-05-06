@@ -40,6 +40,7 @@ gilbert_thoughts_userlist = ["gilbert"]
 
 gilbert_enemies_dict = {}
 
+# should probably be in a different file but its ok
 gilbert_upgrade_prices = {
     "damage": {
         "upgrade_value": [2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -70,9 +71,8 @@ gilbert_upgrade_prices = {
 
 debug = True
 
-#.remove except
-online_users = set()
-
+online_users = {}
+# {"capybara" : {"username": "capybara", "disconnect_countdown": 10}}
 
 
 
@@ -222,14 +222,39 @@ def handle_like_post(message_id):
 
 
 @socket.on('connect')
-def handle_connect():
+def handle_connect(data):
+    global online_users
+
+    # statistics
     statistics['unique_users'] += 1
-    # send statistics
     socket.emit('statistics', statistics)
-    # send gilbert status
-    # socket.emit('recieve_gilbert_stats', gilbert_stats)
+
+    # handle online userlist
+    username = session.get("username")
+    emit('update-online-users', {'type': 'all_users', 'data': list(online_users.keys())}, room=request.sid)
+
+    if username == "Guest":
+        return
+
+    online_users[username] = {"username": username, "disconnect_cooldown": 10, "connected": True}
+    socket.emit('update-online-users', {'type': 'single_user_connect', 'data': username})
 
     printMsg(session.get('username') + " connected.")
+
+@socket.on('disconnect')
+def handle_disconnect():
+    global online_users
+
+    # socket.emit('disconnect', {'username': session.get('username')})
+    username = session.get("username")
+
+    if username == "Guest":
+        return
+
+    printMsg(username + " disconnected.")
+    online_users[username] = {"username": username, "disconnect_cooldown": 10, "connected": False}
+
+    pass
 
 
 #* Gilbert Functions *#
@@ -372,12 +397,6 @@ def handle_gilbert_start():
 
 
 
-@socket.on('disconnect')
-def handle_disconnect():
-    # socket.emit('disconnect', {'username': session.get('username')})
-    pass
-
-
 #* Util *#
 def error_handler(e):
     print('An error occurred:', e)
@@ -482,12 +501,35 @@ def send_updates():
 
         time.sleep(1)
 
+def handle_online_user_cooldown():
+    
+    global online_users
+
+    while True:
+
+        # count down users who have disconnected
+        for username in list(online_users):
+            data = online_users[username]
+
+            if data.get("connected") == False:
+                online_users[username]["disconnect_cooldown"] -= 1
+                
+                # if user cooldown = 0, delete from dict, send updated dict
+                if data.get("disconnect_cooldown") <= 0:
+                    del online_users[username]
+                    socket.emit('update-online-users', {'type': 'single_user_disconnect', 'data': username})
+
+
+        time.sleep(1)
+
 
 # gilbert thread
 send_updates_thread = threading.Thread(target=send_updates)
 send_updates_thread.start()
 
-
+# online users thread
+online_users_thread = threading.Thread(target=handle_online_user_cooldown)
+online_users_thread.start()
 
 
 
