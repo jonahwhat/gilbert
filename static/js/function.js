@@ -1,3 +1,9 @@
+// this code is awful please ignore
+// this code is awful please ignore
+// this code is awful please ignore
+// this code is awful please ignore
+// this code is awful please ignore
+
 const ws = true;
 let socket = null
 
@@ -25,7 +31,6 @@ const audioDict = {
 function initWS() {
     // Establish a WebSocket connection with the server
     socket = io();
-    console.log("socket: ", socket)
     audioDict.microsoft_sound.play()
 }
 
@@ -77,32 +82,7 @@ function updatePost() {
 
 
                 setTimeout(() => {
-                    if (post.hidden == false) {
-                        displayPost(post);
-                    }
-
-
-
-                    if (post.messageType == "shame") {
-
-                        const existingUser = document.getElementById("list_id_" + post.author);
-                        if (!existingUser) {
-                            document.getElementById('user-list').innerHTML += `<li id="list_id_${post.author}">${post.author}</li>`;
-
-
-                            const containerElement = document.getElementById('user-div');
-                            if (containerElement) {
-                                containerElement.classList.add('like-anim');
-                                containerElement.addEventListener('animationend', function () {
-                                    containerElement.classList.remove('like-anim');
-                                });
-                            }
-                        }
-
-
-                    }
-
-
+                    displayPost(post);
 
                     // console.log(post.content)
                 }, index * getRandomDelay());
@@ -324,14 +304,40 @@ document.addEventListener('DOMContentLoaded', () => {
         initWS()
     }
 
+    // slightly horrible code, too bad!
+    socket.on('update-online-users', function(incoming_data) {
+        console.log("update-online-users: ", incoming_data)
 
-    // Event listener for when the WebSocket connection is established
-    socket.on('connect', function (data) {
+        const type = incoming_data.type
+        const userList = document.getElementById(`user-list`)
 
-    });
+        if (type == 'all_users') {
 
-    socket.on('disconnect', function (data) {
+            userList.innerHTML = ``
 
+            for (const [index, username] of Object.entries(incoming_data.data)) {
+                console.log(username)
+                const id = `${username}-online-user-list`
+                if (!document.getElementById(id)) {
+                    const userHTML = `<li id='${id}'>${username}</li>`
+                    userList.insertAdjacentHTML('afterbegin', userHTML);
+                }
+            }
+
+        } else if (type == 'single_user_connect') {
+            const id = `${incoming_data.data}-online-user-list`
+            if (!document.getElementById(id)) {
+                const userHTML = `<li id='${id}'>${incoming_data.data}</li>`
+                userList.insertAdjacentHTML('afterbegin', userHTML);
+            }
+
+        } else if (type == 'single_user_disconnect') {
+            const listElement = document.getElementById(`${incoming_data.data}-online-user-list`)
+            if (listElement) {
+                listElement.remove()
+            }
+
+        }
     });
 
     // Event listener for when a message is received from the server
@@ -372,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // reset all to normal
+        // todo change this to socket type=reset instead of timeout, let this be handled by server
         setTimeout(function () {
             feed_button.disabled = false;
             update_gilb_thought("i wish someone would give me some food...")
@@ -395,6 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById("pet_button").style.display = "none"
             document.getElementById("gilbert_upgrades").hidden = true
+
+            document.getElementById('health-upgrade-button').disabled = false
+            document.getElementById('defense-upgrade-button').disabled = false
+            document.getElementById('damage-upgrade-button').disabled = false
+            document.getElementById('luck-upgrade-button').disabled = false
+            document.getElementById('regen-upgrade-button').disabled = false
+
 
             // remove stats div
             const aboutGilbert = document.getElementById("aboutGilbertDiv");
@@ -427,6 +441,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (health >= 1) {
             emoji = "😔"
         } else {
+            emoji = "💀"
+        }
+
+        if (status == "dead") {
             emoji = "💀"
         }
 
@@ -636,7 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (data.interaction_type == "loot") {
         
 
-            const postElement = document.getElementById(data.id);
+            const postElement = document.getElementById(data.id + "_loot");
             if (postElement) {
                 
                 if (audioDict.pickup.paused) { 
@@ -647,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
 
-                postElement.classList.add('delete-animation');
+                postElement.classList.add('delete-animation-fast');
                 postElement.addEventListener('animationend', function () {
 
                     postElement.remove();
@@ -660,16 +678,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // delete window + animation
             const postElement = document.getElementById(data.id);
             if (postElement) {
-                postElement.classList.add('delete-animation');
+                // if bonus remove existing animation class
+                if (data.type == "bonus") {
+                    postElement.classList.remove('float')
+                }
+
+                postElement.classList.add('delete-animation-fast');
+                createLoot(data)
+                audioDict.good.play()
+
                 postElement.addEventListener('animationend', function () {
-
-                    postElement.remove();
-                    
-                    
-                    audioDict.good.play()
-                    createLoot(data)
-
-
+                    postElement.remove();   
                 });
             }
 
@@ -688,31 +707,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const messageType = data.messageType;
         // console.log(messageType)
-
-        if (messageType === "post") {
-            displayPost(data);
-            audioDict.chord.play()
-
-        } else if (messageType === "shame") {
-            displayPost(data);
-
-            const existingUser = document.getElementById("list_id_" + data.author);
-            if (!existingUser) {
-                document.getElementById('user-list').innerHTML += `<li id="list_id_${data.author}">${data.author}</li>`;
-                audioDict.tada.play()
-
-                const containerElement = document.getElementById('user-div');
-                if (containerElement) {
-                    containerElement.classList.add('jello-horizontal');
-                    containerElement.addEventListener('animationend', function () {
-                        containerElement.classList.remove('jello-horizontal');
-                    });
-                }
-            } else {
-                audioDict.chord.play()
-            }
-
-        }
+        displayPost(data);
+        audioDict.chord.play()
 
     });
 
@@ -765,6 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("upgrade: ", data)
 
         // should really be in it's own function but whatever
+        // timeout to remove after 5 seconds
         if (audioDict.upgrade.paused) { 
             audioDict.upgrade.play();
         } else {
@@ -774,12 +771,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const shopGold = document.getElementById("gilbert_upgrades");
 
+
         shopGold.classList.add('windowShake');
 
         setTimeout(function () {
             shopGold.classList.remove('windowShake')
         }, 500);
 
+        document.getElementById("shop-interaction-status").innerHTML = `${data.username} purchased <i style="text-transform: capitalize">${data.upgrade_type}</i> level ${data.level}.`
 
     });
 
@@ -940,6 +939,7 @@ function enemyInteraction(monsterID) {
 
 function enemyLoot(monsterID) {
 
+    let id = monsterID.slice(0, monsterID.lastIndexOf("_"));
 
     let button = document.getElementById(`buttonid_${monsterID}`);
     button.disabled = true;
@@ -955,7 +955,7 @@ function enemyLoot(monsterID) {
     const postElement = document.getElementById(monsterID);
     if (postElement) {
         audioDict.pickup.play()
-        postElement.classList.add('delete-animation');
+        postElement.classList.add('delete-animation-fast');
         postElement.addEventListener('animationend', function () {
 
             postElement.remove();
@@ -963,7 +963,7 @@ function enemyLoot(monsterID) {
     }
 
 
-    socket.emit('enemy_interaction', monsterID);
+    socket.emit('enemy_interaction', id);
 }
 
 
@@ -982,6 +982,10 @@ function createEnemy(messageJSON) {
 
     newlyAddedPost.addEventListener('animationend', function () {
         this.classList.remove('windowShake');
+        if (messageJSON.type == "bonus") { 
+            newlyAddedPost.classList.add('float');
+        }
+
     }, { once: true });
 
     makeDraggable();
@@ -1000,11 +1004,23 @@ function createEnemyHTML(enemyJSON) {
     const level = enemyJSON.level;
     const animation = enemyJSON.animation
     const attackSpeed = enemyJSON.attack_speed
+
     let type = enemyJSON.type
     let enemyStats = ``
 
     if (type == "bonus") {
         type = "purple-highlight"
+
+    } else if (type == "boss") {
+        // todo make boss window larger than enemy windows 
+        type = "dark-red"
+        enemyStats = `
+        <ul class="tree-view" style="margin-top: 5px">
+            <li id="monster_health_${id}">❤️ Health: <b>${health}</b></li>
+            <li id="enemy_damage">🔪 Damage: <b>${damage}</b></li>
+            <li id="boss_bonus">⚖️ Special Effect: <b>TODO</b></li>
+        </ul>`
+
     } else {
         type = "red"
         enemyStats = `
@@ -1046,7 +1062,7 @@ function createLootHTML(enemyJSON) {
     const top = enemyJSON.top;
     const left = enemyJSON.left;
     const name_of_enemy = enemyJSON.name;
-    const id = enemyJSON.id;
+    const id = enemyJSON.id + "_loot";
     const gold = enemyJSON.gold_drop;
     const xp = enemyJSON.xp_drop;
     const health = enemyJSON.health_drop;

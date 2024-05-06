@@ -13,11 +13,12 @@ def create_post_json(content, username, image_path):
     content = str(escape(content))
     messageType = "post"
 
-    if len(content) >= 500:
-        content = "This goober just tried to crash our site by entering a super long string 😠"
+    if len(content) >= 1000:
+        content = "This goober just tried to crash our site by entering a 1000 character string 😠"
         messageType = "shame"
+    elif len(content) >= 500:
+        content = content[:500]
 
-    # TODO new message type if len >500, send to wall of shame lmao
 
     new_post = {
         'messageType': messageType,

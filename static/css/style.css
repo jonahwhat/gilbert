@@ -26,6 +26,11 @@ body {
   word-wrap: break-word;
 }
 
+.statsWindow {
+  max-width: 300px;
+  position: absolute;
+}
+
 .enemyWindow {
   width: auto;
   height: auto;
@@ -115,12 +120,12 @@ body {
 }
 
 #controlsWindow {
-  top: 5px;
-  left: 5px;
+  top: 15px;
+  left: 15px;
 }
 #window11 {
-  top: 5px;
-  left: 400px;
+  top: 15px;
+  left: 365px;
 }
 
 #user-div {
@@ -228,9 +233,36 @@ body {
   }
 }
 
+@keyframes deletePostAnimationFast {
+  0% {
+    transform: translateX(0) rotate(0);
+    opacity: 1;
+  }
+  25% {
+    transform: translateX(-2px) rotate(-1deg);
+    opacity: 0.66;
+  }
+  50% {
+    transform: translateX(2px) rotate(1deg);
+    opacity: 0.33;
+  }
+  750% {
+    transform: translateX(-2px) rotate(-1deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) rotate(0);
+    opacity: 0;
+  }
+}
+
 /* Apply the animation to the post element */
 .delete-animation {
   animation: deletePostAnimation 1s ease forwards;
+}
+
+.delete-animation-fast {
+  animation: deletePostAnimationFast .4s ease forwards;
 }
 
 .windowShake {
@@ -761,3 +793,29 @@ li[role="tab"] {
   }
 }
 
+
+@keyframes floatAnimation {
+  0% {
+    transform: rotate(-2deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  50% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+  100% {
+    transform: rotate(-2deg);
+  }
+}
+
+.float {
+animation: floatAnimation 3.5s ease-in-out infinite;
+}
+
+.float-slow {
+animation: floatAnimation 6s ease-in-out infinite;
+}

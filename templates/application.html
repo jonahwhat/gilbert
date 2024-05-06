@@ -46,8 +46,8 @@
 					{% endif %}
 					<hr>
 					<p><b> 📝 Create a post:</b></p>
-					<textarea class="create-text" style="padding: 3px; margin: 3px" placeholder="Yap here" cols="60"
-						rows="13" wrap="soft" id="text_area_post"></textarea>
+					<textarea class="create-text" style="padding: 3px; margin: 3px" placeholder="Yap here" cols="50"
+						rows="6" wrap="soft" id="text_area_post"></textarea>
 
 					<section class="field-row" style="justify-content: center; padding-top: 3px">
 						<button class="post-button" onclick="sendPost()" id="post_button">Post</button>
@@ -91,8 +91,7 @@
 		</div>
 		</div>
 
-		<div class="center ontop2" style="z-index: 999998;">
-			<div class="draggable window postwindow windowShake" id="window11">
+			<div class="draggable window statsWindow windowShake" id="window11" display="none" hidden>
 				<div class="title-bar inactive" id="window11">
 					<div class="title-bar-text">
 						📊 Statistics
@@ -127,10 +126,27 @@
 				</div>
 
 			</div>
-		</div>
 
 
-		<div class="draggable window gilbert" style="top: 100px; left: 640px" id="gilbert_div">
+
+			<div class="draggable window postwindow windowShake" style="top: 15px; left: 600px">
+				<div class="title-bar inactive">
+					<div class="title-bar-text">
+						📋 Online Users
+					</div>
+
+					<div class="title-bar-controls">
+						<button aria-label="Help" title="Yo"></button>
+					</div>
+				</div>
+				<div class="window-body">
+					<ul class="tree-view" id="user-list">
+					</ul>
+				</div>
+			</div>
+
+
+		<div class="draggable window gilbert" style="top: 170px; left: 650px" id="gilbert_div">
 			<div class="title-bar">
 				<div class="title-bar-text" id="gilbert_title_bar">
 					❓ Gilbert
@@ -194,7 +210,7 @@
 		</div>
 
 
-		<div class="window upgrades draggable" style="top: 140px; left: 740px" id="gilbert_upgrades" hidden>
+		<div class="window upgrades draggable" style="top: 410px; left: 270px" id="gilbert_upgrades" hidden>
 			<div class="title-bar cyan">
 				<div class="title-bar-text">
 					🛠️ Gilbert Upgrades
@@ -207,6 +223,7 @@
 			<div class="window-body">
 				<div class="centerGilbert">
 					<p id="shop-gold-display">🪙 Your Gold: <b>133</b></p>
+					<p><i id="shop-interaction-status"></i></p>
 				</div>
 				<menu role="tablist">
 					<li role="tab" id="shop-tab-label-3" onclick="setActiveWindow('3')" aria-selected="true"><a class="text-shadow">🌼 Health</a></li>
@@ -284,26 +301,6 @@
 
 		</div>
 
-
-		<div class="center ontop2" style="z-index: 999998;">
-			<div class="draggable window postwindow windowShake user-div" id="user-div">
-				<div class="title-bar inactive" id="user-div">
-					<div class="title-bar-text">
-						📋 Wall of Shame
-					</div>
-
-					<div class="title-bar-controls">
-						<button aria-label="Help" title="Users who've tried to break the website..."></button>
-					</div>
-				</div>
-				<div class="window-body">
-
-					<ul class="tree-view" id="user-list">
-					</ul>
-				</div>
-
-			</div>
-		</div>
 
 		<div class="window taskbar">
 			<div class="window-body scroll" id="windowbody">
