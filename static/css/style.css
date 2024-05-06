@@ -240,15 +240,15 @@ body {
   }
   25% {
     transform: translateX(-2px) rotate(-1deg);
-    opacity: 0.75;
+    opacity: 0.66;
   }
   50% {
     transform: translateX(2px) rotate(1deg);
-    opacity: 0.5;
+    opacity: 0.33;
   }
   750% {
     transform: translateX(-2px) rotate(-1deg);
-    opacity: 0.25;
+    opacity: 0;
   }
   100% {
     transform: translateX(0) rotate(0);

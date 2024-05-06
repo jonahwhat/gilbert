@@ -1,3 +1,9 @@
+// this code is awful please ignore
+// this code is awful please ignore
+// this code is awful please ignore
+// this code is awful please ignore
+// this code is awful please ignore
+
 const ws = true;
 let socket = null
 
@@ -372,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // reset all to normal
+        // todo change this to socket type=reset instead of timeout, let this be handled by server
         setTimeout(function () {
             feed_button.disabled = false;
             update_gilb_thought("i wish someone would give me some food...")
@@ -395,6 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById("pet_button").style.display = "none"
             document.getElementById("gilbert_upgrades").hidden = true
+
+            document.getElementById('health-upgrade-button').disabled = false
+            document.getElementById('defense-upgrade-button').disabled = false
+            document.getElementById('damage-upgrade-button').disabled = false
+            document.getElementById('luck-upgrade-button').disabled = false
+            document.getElementById('regen-upgrade-button').disabled = false
+
 
             // remove stats div
             const aboutGilbert = document.getElementById("aboutGilbertDiv");
@@ -427,6 +441,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (health >= 1) {
             emoji = "😔"
         } else {
+            emoji = "💀"
+        }
+
+        if (status == "dead") {
             emoji = "💀"
         }
 
@@ -636,7 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (data.interaction_type == "loot") {
         
 
-            const postElement = document.getElementById(data.id);
+            const postElement = document.getElementById(data.id + "_loot");
             if (postElement) {
                 
                 if (audioDict.pickup.paused) { 
@@ -660,16 +678,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // delete window + animation
             const postElement = document.getElementById(data.id);
             if (postElement) {
+                // if bonus remove existing animation class
+                if (data.type == "bonus") {
+                    postElement.classList.remove('float')
+                }
+
                 postElement.classList.add('delete-animation-fast');
+                createLoot(data)
+                audioDict.good.play()
+
                 postElement.addEventListener('animationend', function () {
-
-                    postElement.remove();
-                    
-                    
-                    audioDict.good.play()
-                    createLoot(data)
-
-
+                    postElement.remove();   
                 });
             }
 
@@ -920,6 +939,7 @@ function enemyInteraction(monsterID) {
 
 function enemyLoot(monsterID) {
 
+    let id = monsterID.slice(0, monsterID.lastIndexOf("_"));
 
     let button = document.getElementById(`buttonid_${monsterID}`);
     button.disabled = true;
@@ -943,7 +963,7 @@ function enemyLoot(monsterID) {
     }
 
 
-    socket.emit('enemy_interaction', monsterID);
+    socket.emit('enemy_interaction', id);
 }
 
 
@@ -965,6 +985,7 @@ function createEnemy(messageJSON) {
         if (messageJSON.type == "bonus") { 
             newlyAddedPost.classList.add('float');
         }
+
     }, { once: true });
 
     makeDraggable();
@@ -1041,7 +1062,7 @@ function createLootHTML(enemyJSON) {
     const top = enemyJSON.top;
     const left = enemyJSON.left;
     const name_of_enemy = enemyJSON.name;
-    const id = enemyJSON.id;
+    const id = enemyJSON.id + "_loot";
     const gold = enemyJSON.gold_drop;
     const xp = enemyJSON.xp_drop;
     const health = enemyJSON.health_drop;
