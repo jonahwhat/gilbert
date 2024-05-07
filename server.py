@@ -70,7 +70,7 @@ gilbert_upgrade_prices = {
     }
 }
 
-debug = False
+debug = True
 online_users = {}
 
 
@@ -484,7 +484,7 @@ def send_updates():
 
 
                 if ((int(time.time()) + 5) % 16 == 0) or (gilbert_stats.get("level") >= 13 and int(time.time()) % 48 == 0) or (gilbert_stats.get("level") >= 23 and int(time.time() + 3) % 120 == 0):
-                    if len(gilbert_enemies_dict) <= 15:
+                    if get_enemy_spawn_weight(gilbert_enemies_dict) <= 10:
                         enemy_group = {}
                         # BOSS: don't spawn enemies if alive boss exists
                         # generate a group of enemies based on gilbert's level

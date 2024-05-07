@@ -591,6 +591,24 @@ def get_enemy_count(level):
     return amount_of_enemies
 
 
+# get the rough strength of all of the current enemies on screen
+def get_enemy_spawn_weight(gilbert_enemies_dict):
+
+    enemy_weight = 0
+
+    for id, enemy in gilbert_enemies_dict.items():
+        enemy_type = enemy.get("type", "normal")
+        enemy_is_alive = enemy.get("alive")
+
+        if enemy_type == "boss" and enemy_is_alive:
+            enemy_weight += 3
+
+        if enemy_type == "normal" and enemy_is_alive:
+            enemy_weight += 1
+
+    return enemy_weight
+
+
 if __name__ == '__main__':
 
     print("level 1: ", get_enemy_count(1))
