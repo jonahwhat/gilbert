@@ -40,6 +40,26 @@ body {
   word-wrap: break-word;
 }
 
+
+.bossWindow {
+  width: auto;
+  height: auto;
+  max-width: 400px;
+  width: 310px;
+  position: absolute;
+  word-wrap: break-word;
+}
+
+.bossWindowSmaller {
+  width: auto;
+  height: auto;
+  max-width: 400px;
+  width: 250px;
+  position: absolute;
+  word-wrap: break-word;
+}
+
+
 .upgrades {
 	max-width:500px;
 	position: absolute;
@@ -95,7 +115,7 @@ body {
 }
 
 #window2 {
-  top: 300px;
+  top: 285px;
   left: 20px;
 }
 
@@ -167,23 +187,53 @@ body {
   animation: scroll 20s linear infinite; /* Apply the animation */
 }
 
-@keyframes fancy-shake {
+@-webkit-keyframes fancy-shake {
   0% {
-    transform: translateY(0) rotate(0) scale(1);
+    -webkit-transform: translateY(0) rotate(0) scale(1);
+            transform: translateY(0) rotate(0) scale(1);
   }
   25% {
-    transform: translateY(-3px) rotate(-2deg) scale(1.1);
+    -webkit-transform: translateY(-3px) rotate(-2deg) scale(1.1);
+            transform: translateY(-3px) rotate(-2deg) scale(1.1);
   }
   50% {
-    transform: translateY(3px) rotate(2deg) scale(0.9);
+    -webkit-transform: translateY(3px) rotate(2deg) scale(0.9);
+            transform: translateY(3px) rotate(2deg) scale(0.9);
   }
   75% {
-    transform: translateY(-2px) rotate(-1deg) scale(1.05);
+    -webkit-transform: translateY(-2px) rotate(-1deg) scale(1.05);
+            transform: translateY(-2px) rotate(-1deg) scale(1.05);
   }
   100% {
-    transform: translateY(0) rotate(0) scale(1);
+    -webkit-transform: translateY(0) rotate(0) scale(1);
+            transform: translateY(0) rotate(0) scale(1);
   }
 }
+
+@keyframes fancy-shake {
+  0% {
+    -webkit-transform: translateY(0) rotate(0) scale(1);
+            transform: translateY(0) rotate(0) scale(1);
+  }
+  25% {
+    -webkit-transform: translateY(-3px) rotate(-2deg) scale(1.1);
+            transform: translateY(-3px) rotate(-2deg) scale(1.1);
+  }
+  50% {
+    -webkit-transform: translateY(3px) rotate(2deg) scale(0.9);
+            transform: translateY(3px) rotate(2deg) scale(0.9);
+  }
+  75% {
+    -webkit-transform: translateY(-2px) rotate(-1deg) scale(1.05);
+            transform: translateY(-2px) rotate(-1deg) scale(1.05);
+  }
+  100% {
+    -webkit-transform: translateY(0) rotate(0) scale(1);
+            transform: translateY(0) rotate(0) scale(1);
+  }
+}
+
+
 
 /* Define the delete animation */
 @keyframes deletePostAnimation {
@@ -606,6 +656,26 @@ a:active {
   }
 }
 
+@keyframes squareMove {
+  0% { transform: translate(-200px, 0); }
+  25% { transform: translate(200px, 0); }
+  50% { transform: translate(200px, 100px); }
+  75% { transform: translate(-200px, 100px); }
+  100% { transform: translate(-200px, 0); }
+}
+@keyframes sideToSide {
+  0% { transform: translate(-300px, 0); }
+  50% { transform: translate(300px, 0); }
+  100% { transform: translate(-300px, 0); }
+}
+
+.button-square-fast {
+animation: squareMove 5.5s ease-in-out infinite;
+}
+
+.button-side-fast {
+animation: sideToSide 5.5s ease-in-out infinite;
+}
 
 .button-fast {
   animation: moveBackAndForth 1s ease-in-out infinite; 
@@ -702,7 +772,6 @@ a:active {
 
 .rotate-vert-center {
   animation: fancy-shake 0.5s;
-
 }
 
 li[role="tab"] {
@@ -813,9 +882,11 @@ li[role="tab"] {
 }
 
 .float {
-animation: floatAnimation 3.5s ease-in-out infinite;
+	animation: floatAnimation 3.5s ease-in-out infinite;
+	animation-delay: -0.4375s;
 }
 
 .float-slow {
-animation: floatAnimation 6s ease-in-out infinite;
+	animation: floatAnimation 7s ease-in-out infinite;
+	animation-delay: -0.875s;
 }

@@ -14,8 +14,10 @@
   --window-frame: #0a0a0a;
   --dialog-blue: #000080;
   --dialog-blue-light: #1084d0;
-  --dialog-red: #780e00;
-  --dialog-red-light: #ca2f1a;
+  --dialog-red: #941c0c;
+  --dialog-red-light: #cc3521;
+  --dialog-darkred: #4d0017;
+  --dialog-darkred-light: #a7121e;
   --dialog-green: #008004;
   --dialog-green-light: #20d010;
   --dialog-gold: #c69b0e;
@@ -27,6 +29,8 @@
   --dialog-gray: #808080;
   --dialog-gray-light: #b5b5b5;
   --link-blue: #0000ff;
+  --boss-shadow-color: #b01e1e55;
+
 
   /* Spacing */
   --element-spacing: 8px;
@@ -78,6 +82,7 @@
     inset 1px 1px var(--button-face);
   --border-window-inner: inset -2px -2px var(--button-shadow),
     inset 2px 2px var(--button-highlight);
+  --boss-shadow: 0 0 15px 2px var(--boss-shadow-color);
 
   /* Field borders (checkbox, input, etc) flip window-frame and button-shadow */
   --border-field: inset -1px -1px var(--button-highlight),
@@ -234,6 +239,10 @@ input[type="reset"]:disabled,
   padding: 3px;
 }
 
+.window.boss-window {
+  box-shadow: var(--border-window-outer), var(--border-window-inner), var(--boss-shadow);
+}
+
 .title-bar {
   background: linear-gradient(
     90deg,
@@ -259,6 +268,14 @@ input[type="reset"]:disabled,
     90deg,
     var(--dialog-red),
     var(--dialog-red-light)
+  );
+}
+
+.title-bar.red-dark {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-darkred),
+    var(--dialog-darkred-light)
   );
 }
 
@@ -314,6 +331,22 @@ input[type="reset"]:disabled,
   background: linear-gradient(
     90deg,
     var(--dialog-gold),
+    var(--dialog-gray-light)
+  );
+}
+
+.title-bar.cyan-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-cyan),
+    var(--dialog-gray-light)
+  );
+}
+
+.title-bar.green-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--dialog-green),
     var(--dialog-gray-light)
   );
 }

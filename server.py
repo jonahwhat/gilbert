@@ -37,8 +37,9 @@ gilbert_stats = {
 }
 
 gilbert_thoughts_userlist = ["gilbert"]
-
 gilbert_enemies_dict = {}
+gilbert_temporary_statistics = {
+}
 
 # should probably be in a different file but its ok
 gilbert_upgrade_prices = {
@@ -69,10 +70,9 @@ gilbert_upgrade_prices = {
     }
 }
 
-debug = True
-
+debug = False
 online_users = {}
-# {"capybara" : {"username": "capybara", "disconnect_countdown": 10}}
+
 
 
 
@@ -215,8 +215,8 @@ def delete_post(post_id):
 @socket.on('like_post')
 def handle_like_post(message_id):
     result = handle_post_like_ws(session["username"], posts_collection, message_id)
-    statistics['global_likes'] += result[1]
     if result != None:
+        statistics['global_likes'] += result[1]
         socket.emit('post_liked', {'message_id': message_id, 'likes': result[0]})
         socket.emit('statistics', statistics)
 
@@ -309,21 +309,51 @@ def handle_monster_attack(monster_id):
     
     monster = gilbert_enemies_dict.get(monster_id)
 
+
     if monster:
+
+        enemy_type = monster.get("type", None)
+        boss_type = monster.get("boss_type", None)
+        boss_id = monster.get("boss_id", None)
+        is_boss = enemy_type == "boss"
+
         if monster.get("alive"):
             new_health = max(monster.get("health") - gilbert_stats.get("damage"), 0)
             gilbert_enemies_dict[monster_id]["health"] = new_health
             # if health is zero emit death, else emit new stats
 
             if new_health <= 0:
-                # emit death, update stats to reflect that, only remove from dict once player takes loot    
-                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
-                gilbert_enemies_dict[monster_id]["alive"] = False
-                gilbert_stats["enemies_defeated"] += 1
+                # emit death, update stats to reflect that, only remove from dict once player takes loot 
+                # check dictionary for enemies that have boss_id equal
+                # if there are any bossid alive, don't emit death
+                if boss_type == "emoji":
+                    if is_emoji_boss_alive(gilbert_enemies_dict, boss_id):
+                        # emit nothing, maybe gray out button
+                        # emit health only
+                        # don't emit if enemy is already dead?
+                        socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name"), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
+                    
+                    else:
+                        # dend delete frame to all 5 emojis
+                        emoji_boss_ids = get_all_valid_emoji_boss_ids(gilbert_enemies_dict, boss_id)
+
+                        for enemy_id in emoji_boss_ids:
+                            socket.emit('update_enemy_frontend', {"interaction_type": "emoji_death", "id": enemy_id}) 
+
+                        # remove all bossid from dict
+                        gilbert_enemies_dict = remove_emoji_boss_from_dict(gilbert_enemies_dict, boss_id, monster_id)
+                        gilbert_enemies_dict[monster_id]["alive"] = False
+
+                        socket.emit('update_enemy_frontend', {"interaction_type": "boss_loot", "id": monster_id, "is_boss": True , "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
+
+                else:
+                    socket.emit('update_enemy_frontend', {"interaction_type": "death", "is_boss": is_boss, "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
+                    gilbert_enemies_dict[monster_id]["alive"] = False
+                    gilbert_stats["enemies_defeated"] += 1
 
             else:
                 # update health of enemy
-                socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name"), "emoji": monster.get("emoji")})
+                socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name"), "emoji": monster.get("emoji"), "boss_type": boss_type})
 
 
         else:
@@ -374,6 +404,7 @@ def handle_gilbert_start():
     global gilbert_respawn_timer
     global gilbert_thoughts_userlist
     global gilbert_enemies_dict
+    global gilbert_temporary_statistics
 
     
     if (gilbert_respawn_timer > 0):
@@ -384,6 +415,7 @@ def handle_gilbert_start():
     if gilbert_stats.get("alive") == False:
         # reset stats
         gilbert_stats = set_initial_gilbert(debug)
+        gilbert_temporary_statistics = set_initial_temp_stats()
         socket.emit('recieve_gilbert_stats', gilbert_stats)
         socket.emit('start_gilbert')
 
@@ -414,6 +446,7 @@ def send_updates():
     global gilbert_respawn_timer
     global gilbert_thoughts_userlist
     global gilbert_enemies_dict
+    global gilbert_temporary_statistics
 
 
     while True:
@@ -455,11 +488,18 @@ def send_updates():
                     seconds_til_attack = enemy.get("seconds_til_attack")
                     attack_seconds = enemy.get("attack_seconds")
                     damage = max(1,int(enemy.get("damage_to_gilbert") - ((enemy.get("damage_to_gilbert") * gilbert_stats.get("defense")/100))))
+                    
+                    if enemy.get("name") == "Moai Head":
+                        damage = enemy.get("damage_to_gilbert")
+                    
+                    
                     name = enemy.get("name")
+                    enemy_type = enemy.get("type")
+                    boss_type = enemy.get("boss_type")
 
                     if seconds_til_attack <= 0:
                         # emit the attack anim
-                        socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name})
+                        socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name, "type": enemy_type, "boss_type": boss_type})
 
                         # reset seconds back to default
                         gilbert_enemies_dict[id]["seconds_til_attack"] = attack_seconds
@@ -475,13 +515,26 @@ def send_updates():
 
 
                 if ((int(time.time()) + 5) % 16 == 0) or (gilbert_stats.get("level") >= 13 and int(time.time()) % 48 == 0) or (gilbert_stats.get("level") >= 23 and int(time.time() + 3) % 120 == 0):
-                    if len(gilbert_enemies_dict) <= 15:
-                        # todo only take into account alive enemies
+                    if get_enemy_spawn_weight(gilbert_enemies_dict) <= 10:
+                        enemy_group = {}
                         # BOSS: don't spawn enemies if alive boss exists
                         # generate a group of enemies based on gilbert's level
-                        enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
+                        if gilbert_temporary_statistics.get("boss_moai_spawned") == False and gilbert_stats.get("level") >= 15:
+                            enemy = create_moai_boss(gilbert_stats.get("level"))
+                            enemy_group[enemy["id"]] = enemy
+                            gilbert_temporary_statistics["boss_moai_spawned"] = True
 
-                        # emit enemy group
+                        elif gilbert_temporary_statistics.get("boss_emoji_spawned") == False and gilbert_stats.get("level") >= 20:
+                            enemy_group = create_emoji_boss_group(gilbert_stats.get("level"))
+                            gilbert_temporary_statistics["boss_emoji_spawned"] = True
+
+                            
+                        else:
+                            enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
+                            gilbert_temporary_statistics["enemy_groups_spawned"] += 1
+                            gilbert_temporary_statistics["enemies_spawned"] += len(enemy_group)
+
+                        # send enemy group to front end
                         socket.emit('new_enemy_group', enemy_group)
 
                         # add all enemies to the dictionary

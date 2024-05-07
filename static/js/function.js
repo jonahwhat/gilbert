@@ -25,6 +25,11 @@ const audioDict = {
     "spider": new Audio("/static/sounds/spider_death.wav"),
     "pickup": new Audio("/static/sounds/pickup.wav"),
     "click": new Audio("/static/sounds/click.wav"),
+    "moai": new Audio("/static/sounds/moai.mp3"),
+    "boom": new Audio("/static/sounds/boom.mp3"),
+    "emoji_boss": new Audio("/static/sounds/emoji_boss_spawn.wav"),
+    "emoji_attack": new Audio("/static/sounds/emoji_attack.wav"),
+    "gilbert_damage": new Audio("/static/sounds/gilbert_damage.wav"),
 }
 
 
@@ -95,7 +100,7 @@ function updatePost() {
 
 // Function to get a random delay value
 function getRandomDelay() {
-    return Math.floor(Math.random() * 70); // Random delay between 0 and 3 seconds
+    return Math.floor(Math.random() * 100);
 }
 
 
@@ -173,9 +178,6 @@ function sendPost() {
     // updatePost();
 }
 
-function welcome() {
-    document.getElementById("js-test").innerHTML += " This text was added by JavaScript 😀";
-}
 
 function initializePostPage() {
     updatePost()
@@ -306,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // slightly horrible code, too bad!
     socket.on('update-online-users', function(incoming_data) {
-        console.log("update-online-users: ", incoming_data)
+        // console.log("update-online-users: ", incoming_data)
 
         const type = incoming_data.type
         const userList = document.getElementById(`user-list`)
@@ -316,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userList.innerHTML = ``
 
             for (const [index, username] of Object.entries(incoming_data.data)) {
-                console.log(username)
+                // console.log(username)
                 const id = `${username}-online-user-list`
                 if (!document.getElementById(id)) {
                     const userHTML = `<li id='${id}'>${username}</li>`
@@ -329,6 +331,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!document.getElementById(id)) {
                 const userHTML = `<li id='${id}'>${incoming_data.data}</li>`
                 userList.insertAdjacentHTML('afterbegin', userHTML);
+
+                usernameElement = document.getElementById(id)
+
+                usernameElement.classList.add('buttonClick');
+                usernameElement.addEventListener('animationend', function () {
+                    usernameElement.classList.remove('buttonClick');
+                });
             }
 
         } else if (type == 'single_user_disconnect') {
@@ -340,10 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event listener for when a message is received from the server
-    socket.on('message', function (data) {
-        // console.log('Received message:', data);
-    });
 
     socket.on('recieve_gilbert_thoughts', function (data) {
         // console.log('Received thought:', data.message);
@@ -610,16 +615,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('new_enemy_group', function (data) {
 
-        // console.log('New enemy group:', data);
-
         for (const [id, monster] of Object.entries(data)) {
-            // console.log(monster)
             setTimeout(() => {
            
                 createEnemy(monster);
 
                 if (monster.type == "bonus") {
                     audioDict.portal.play()
+                } else if (monster.type == "boss") {
+                    const boss = monster.boss_type
+                    if (boss == "moai") {
+                        var audio = audioDict.moai
+                        audio.volume = 0.5
+                        audio.play()
+                    } else if (boss == "emoji") {
+                        var audio = audioDict.emoji_boss
+                        audio.volume = 0.7
+                        audio.play()
+                    }
                 } else {
                     audioDict.enemy.play()
                 }
@@ -634,23 +647,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('update_enemy_frontend', function (data) {
 
-        // console.log('enemy interaction:', data);
-
         if (data.interaction_type == "player_attack") {
+
             document.getElementById(`monster_health_${data.id}`).innerHTML = `❤️ Health: <b>${data.health}</b>`
             document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.emoji} ${data.name} (${data.health} hp)`
-        } else if (data.interaction_type == "attack_gilbert") {
-            var audio = audioDict.hit
-            audio.volume = 0.2
-            audio.play()
 
-            const postElement = document.getElementById(data.id);
-            if (postElement) {
-                postElement.classList.add('wobble-hor-bottom');
-                postElement.addEventListener('animationend', function () {
-                    postElement.classList.remove('wobble-hor-bottom');
-                });
+            // if health is zero, gray out button
+            if (data.health <= 0) {
+                var button = document.getElementById(`buttonid_${data.id}`)
+                
+                // horrible code to make sure button is actually disabled
+                setTimeout(function () {
+                    button.disabled = true
+                }, 500);
+                setTimeout(function () {
+                    button.disabled = true
+                }, 1100);
+                setTimeout(function () {
+                    button.disabled = true
+                }, 2100);
+
+                button.innerHTML = "☠️ Emoji Dead"
+
+                setTimeout
             }
+
+        } else if (data.interaction_type == "attack_gilbert") {
+
+            const enemyType = data.type
+
+            if (enemyType == "boss") {
+                const bossType = data.boss_type
+                console.log(bossType)
+                if (bossType == "moai") {
+                    var audio = audioDict.boom
+                    audio.volume = 0.7
+                    audio.play()
+                } else if (bossType == "emoji") {
+                    var emojiAudio = audioDict.emoji_attack
+                    emojiAudio.volume = 0.7
+                    emojiAudio.play()
+                }
+
+
+                const postElement = document.getElementById(data.id);
+                if (postElement) {
+                    // remove existing animation because css sucks
+                    postElement.classList.remove('float-slow');
+                    postElement.classList.add('wobble-hor-bottom');
+                    
+                    // wait for animation to end, then readd the idle boss animation
+                    postElement.addEventListener('animationend', function () {
+                        postElement.classList.remove('wobble-hor-bottom');
+                        postElement.classList.add('float-slow');
+
+                    });
+                }
+
+            } else {
+                var hitSound = audioDict.hit
+                hitSound.volume = 0.3
+
+                if (hitSound.paused) { 
+                    hitSound.play();
+                } else {
+                    hitSound.currentTime = 0;
+                    hitSound.play();
+                }
+
+                    
+                const postElement = document.getElementById(data.id);
+                if (postElement) {
+                    postElement.classList.add('wobble-hor-bottom');
+                    postElement.addEventListener('animationend', function () {
+                        postElement.classList.remove('wobble-hor-bottom');
+                    });
+                }
+
+            }
+
+
         } else if (data.interaction_type == "loot") {
         
 
@@ -679,8 +755,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const postElement = document.getElementById(data.id);
             if (postElement) {
                 // if bonus remove existing animation class
-                if (data.type == "bonus") {
+                if (data.type == "bonus" || data.type == "boss") {
                     postElement.classList.remove('float')
+                    postElement.classList.remove('float-slow')
                 }
 
                 postElement.classList.add('delete-animation-fast');
@@ -692,6 +769,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
+        } else if (data.interaction_type == "emoji_death") {
+
+            const postElement = document.getElementById(data.id);
+
+            if (postElement) {
+                postElement.classList.remove('float-slow')
+
+                postElement.classList.add('delete-animation-fast');
+
+                postElement.addEventListener('animationend', function () {
+                    postElement.remove();   
+                });
+            }
+
+        } else if (data.interaction_type == "boss_loot") {
+            createLoot(data)
+            audioDict.good.play()
         }
     });
 
@@ -758,7 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('upgrade_purchase', function (data) {
-        console.log("upgrade: ", data)
+        // console.log("upgrade: ", data)
 
         // should really be in it's own function but whatever
         // timeout to remove after 5 seconds
@@ -929,9 +1023,15 @@ function enemyInteraction(monsterID) {
         button.classList.remove('buttonClick')
     }, 1000);
 
-    var audio = audioDict.hit
-    audio.volume = 0.2
-    audio.play()
+    var gilbAudio = audioDict.gilbert_damage
+    gilbAudio.volume = 0.8
+
+    if (gilbAudio.paused) { 
+        gilbAudio.play();
+    } else {
+        gilbAudio.currentTime = 0;
+        gilbAudio.play();
+    }
 
 
     socket.emit('enemy_interaction', monsterID);
@@ -984,6 +1084,8 @@ function createEnemy(messageJSON) {
         this.classList.remove('windowShake');
         if (messageJSON.type == "bonus") { 
             newlyAddedPost.classList.add('float');
+        } else if (messageJSON.type == "boss") {
+            newlyAddedPost.classList.add('float-slow');
         }
 
     }, { once: true });
@@ -998,7 +1100,6 @@ function createEnemyHTML(enemyJSON) {
     const health = enemyJSON.health;
     const emoji = enemyJSON.emoji;
     const description = enemyJSON.description;
-    const name = enemyJSON.name;
     const id = enemyJSON.id;
     const damage = enemyJSON.damage_to_gilbert;
     const level = enemyJSON.level;
@@ -1007,19 +1108,32 @@ function createEnemyHTML(enemyJSON) {
 
     let type = enemyJSON.type
     let enemyStats = ``
+    let windowClass = 'enemyWindow'
+    let name = enemyJSON.name;
+    let enemyLabel = `<p>${emoji}<b>${name}</b> (Level ${level})</p>`
+    let top_div_html = `<div class="draggable window ${windowClass}" id="${id}" style="top: ${top}%; left: ${left}%; overflow: hidden">`
 
     if (type == "bonus") {
         type = "purple-highlight"
+        enemyLabel = `<p>${emoji}<b>${name}</b> (Bonus)</p>`
 
     } else if (type == "boss") {
-        // todo make boss window larger than enemy windows 
-        type = "dark-red"
+        type = "red-dark"
+        windowClass = "bossWindow"
         enemyStats = `
         <ul class="tree-view" style="margin-top: 5px">
             <li id="monster_health_${id}">❤️ Health: <b>${health}</b></li>
             <li id="enemy_damage">🔪 Damage: <b>${damage}</b></li>
-            <li id="boss_bonus">⚖️ Special Effect: <b>TODO</b></li>
+            <li id="boss_bonus">🌀 Special Ability: <b>${enemyJSON.special_attack}</b></li>
+            <li id="enemy_damage" style="margin-top: 7px">${enemyJSON.attack_description}</li>
         </ul>`
+        top_div_html = `<div class="draggable window ${windowClass} boss-window" id="${id}" style="top: ${top}px; left: ${left}px; overflow: hidden">`
+
+        enemyLabel = `<p>${emoji}<b>${name}</b> (Boss)</p>`
+        if (enemyJSON.boss_type == "emoji") {
+            windowClass = "bossWindowSmaller"
+            top_div_html = `<div class="draggable window ${windowClass} boss-window" id="${id}" style="top: ${top}px; left: ${left}px; overflow: hidden">`
+        }
 
     } else {
         type = "red"
@@ -1032,7 +1146,7 @@ function createEnemyHTML(enemyJSON) {
 
 
     let enemyHTML = `
-    <div class="draggable window enemyWindow" id="${id}" style="top: ${top}%; left: ${left}%; overflow: hidden">
+    ${top_div_html}
             <div class="title-bar ${type}">
                 <div class="title-bar-text" id="monster_titleid_${id}">
                 ${emoji} ${name} (${health} hp)
@@ -1044,7 +1158,7 @@ function createEnemyHTML(enemyJSON) {
             <div class="window-body">
                 <div class="centerGilbert">
                     <p class="enemy-anim" style="font-size: 45px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">${emoji}</p>
-                    <p>${emoji}<b>${name}</b> (Level ${level})</p>
+                    ${enemyLabel}
                     <i>${description}</i>
                 </div>   
                 ${enemyStats}
@@ -1067,6 +1181,7 @@ function createLootHTML(enemyJSON) {
     const xp = enemyJSON.xp_drop;
     const health = enemyJSON.health_drop;
     const emoji = enemyJSON.emoji;
+    const is_boss = enemyJSON.is_boss;
     let healthHTML = ``
     let goldHTML = ``
     let xpHTML = ``
@@ -1082,8 +1197,43 @@ function createLootHTML(enemyJSON) {
         xpHTML = `<li>✨ XP: <b>${xp}</b></li>`
     }
 
+    let enemyHTML
 
-    let enemyHTML = `<div class="draggable window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
+    if (is_boss) {
+        enemyHTML = `<div class="draggable window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
+            <div class="title-bar gold-highlight">
+                <div class="title-bar-text">
+                💰 Boss Loot!
+                </div>
+                <div class="title-bar-controls">
+                    <button title="Loot dropped from an enemy!" aria-label="Help"></button>
+                </div>
+            </div>
+            <div class="window-body">
+                <div class="centerGilbert">
+                <p class="enemy-anim" style="font-size: 50px; padding: 3px; margin: 3px; text-shadow: 2px 1px 2px rgba(3, 3, 3, 0.349)">💰</p>
+                    <p><b>${emoji} ${name_of_enemy} Boss Defeated!</b></p>
+                    <i></i>
+                </div>   
+
+                <hr>
+
+                <p>📜 Items Dropped</p>
+                    <ul class="tree-view">
+                        ${goldHTML}
+                        ${xpHTML}
+                        ${healthHTML}
+                    </ul>
+
+                <section class="field-row" style="justify-content: center; margin-top: 7px">
+                    <button class="like-btn" onclick="enemyLoot('${id}')" id="buttonid_${id}">Grab Loot</button>
+                </section>
+            </div>
+    </div>`;
+
+    } else {
+
+    enemyHTML = `<div class="draggable window lootWindow" id="${id}" style="top: ${top}%; left: ${left}%">
             <div class="title-bar gold-highlight">
                 <div class="title-bar-text">
                     💰 Loot!
@@ -1113,6 +1263,7 @@ function createLootHTML(enemyJSON) {
                 </section>
             </div>
     </div>`;
+    }
 
     return enemyHTML;
 }
@@ -1161,11 +1312,14 @@ function setActiveWindow(windowId) {
 	if (activeWindow) {
 		activeWindow.setAttribute("aria-selected", true);
 
-        if (audioDict.click.paused) { 
-            audioDict.click.play();
+        let clickSound = audioDict.click
+        clickSound.volume = 0.5
+
+        if (clickSound.paused) { 
+            clickSound.play();
         } else {
-            audioDict.click.currentTime = 0;
-            audioDict.click.play();
+            clickSound.currentTime = 0;
+            clickSound.play();
         }
 
 	}
