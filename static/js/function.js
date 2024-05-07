@@ -1059,12 +1059,12 @@ function createEnemyHTML(enemyJSON) {
             <li id="enemy_damage">🔪 Damage: <b>${damage}</b></li>
             <li id="boss_bonus">⚖️ Special Effect: <b>${enemyJSON.special_attack}</b></li>
         </ul>`
-        top_div_html = `<div class="draggable window ${windowClass}" id="${id}" style="top: ${top}px; left: ${left}px; overflow: hidden">`
+        top_div_html = `<div class="draggable window ${windowClass} boss-window" id="${id}" style="top: ${top}px; left: ${left}px; overflow: hidden">`
 
         enemyLabel = `<p>${emoji}<b>${name}</b> (Boss)</p>`
         if (enemyJSON.name == "Emoji Squad") {
             windowClass = "bossWindowSmaller"
-            top_div_html = `<div class="draggable window ${windowClass}" id="${id}" style="top: ${top}px; left: ${left}px; overflow: hidden">`
+            top_div_html = `<div class="draggable window ${windowClass} boss-window" id="${id}" style="top: ${top}px; left: ${left}px; overflow: hidden">`
         }
 
     } else {
