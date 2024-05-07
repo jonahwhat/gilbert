@@ -37,8 +37,9 @@ gilbert_stats = {
 }
 
 gilbert_thoughts_userlist = ["gilbert"]
-
 gilbert_enemies_dict = {}
+gilbert_temporary_statistics = {
+}
 
 # should probably be in a different file but its ok
 gilbert_upgrade_prices = {
@@ -70,9 +71,8 @@ gilbert_upgrade_prices = {
 }
 
 debug = False
-
 online_users = {}
-# {"capybara" : {"username": "capybara", "disconnect_countdown": 10}}
+
 
 
 
@@ -374,6 +374,7 @@ def handle_gilbert_start():
     global gilbert_respawn_timer
     global gilbert_thoughts_userlist
     global gilbert_enemies_dict
+    global gilbert_temporary_statistics
 
     
     if (gilbert_respawn_timer > 0):
@@ -384,6 +385,7 @@ def handle_gilbert_start():
     if gilbert_stats.get("alive") == False:
         # reset stats
         gilbert_stats = set_initial_gilbert(debug)
+        gilbert_temporary_statistics = set_initial_temp_stats()
         socket.emit('recieve_gilbert_stats', gilbert_stats)
         socket.emit('start_gilbert')
 
@@ -414,6 +416,7 @@ def send_updates():
     global gilbert_respawn_timer
     global gilbert_thoughts_userlist
     global gilbert_enemies_dict
+    global gilbert_temporary_statistics
 
 
     while True:
@@ -455,11 +458,17 @@ def send_updates():
                     seconds_til_attack = enemy.get("seconds_til_attack")
                     attack_seconds = enemy.get("attack_seconds")
                     damage = max(1,int(enemy.get("damage_to_gilbert") - ((enemy.get("damage_to_gilbert") * gilbert_stats.get("defense")/100))))
+                    
+                    if enemy.get("name") == "Moai Head":
+                        damage = enemy.get("damage_to_gilbert")
+                    
+                    
                     name = enemy.get("name")
+                    enemyType = enemy.get("type", "none")
 
                     if seconds_til_attack <= 0:
                         # emit the attack anim
-                        socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name})
+                        socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name, "type": enemyType})
 
                         # reset seconds back to default
                         gilbert_enemies_dict[id]["seconds_til_attack"] = attack_seconds
@@ -476,12 +485,25 @@ def send_updates():
 
                 if ((int(time.time()) + 5) % 16 == 0) or (gilbert_stats.get("level") >= 13 and int(time.time()) % 48 == 0) or (gilbert_stats.get("level") >= 23 and int(time.time() + 3) % 120 == 0):
                     if len(gilbert_enemies_dict) <= 15:
-                        # todo only take into account alive enemies
+                        enemy_group = {}
                         # BOSS: don't spawn enemies if alive boss exists
                         # generate a group of enemies based on gilbert's level
-                        enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
+                        if gilbert_temporary_statistics.get("boss_moai_spawned") == False and gilbert_stats.get("level") >= 15:
+                            enemy = create_moai_boss(gilbert_stats.get("level"))
+                            enemy_group[enemy["id"]] = enemy
+                            gilbert_temporary_statistics["boss_moai_spawned"] = True
 
-                        # emit enemy group
+                        elif gilbert_temporary_statistics.get("boss_emoji_spawned") == False and gilbert_stats.get("level") >= 20:
+                            enemy_group = create_emoji_boss_group(gilbert_stats.get("level"))
+                            gilbert_temporary_statistics["boss_emoji_spawned"] = True
+
+                            
+                        else:
+                            enemy_group = spawn_enemy(gilbert_stats.get("level"), gilbert_stats.get("luck"), gilbert_stats.get("enemies_defeated"))
+                            gilbert_temporary_statistics["enemy_groups_spawned"] += 1
+                            gilbert_temporary_statistics["enemies_spawned"] += len(enemy_group)
+
+                        # send enemy group to front end
                         socket.emit('new_enemy_group', enemy_group)
 
                         # add all enemies to the dictionary

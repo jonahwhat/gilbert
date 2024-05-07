@@ -20,7 +20,6 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
         enemy_dict[enemy["id"]] = enemy
         return enemy_dict
     
-    
     # from level 1 to 5
     if gilbert_level >= 0:
         
@@ -93,7 +92,7 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
                 enemy_dict[enemy["id"]] = enemy
 
         elif random.randint(1,70) == 1 and gilbert_level >= 18:
-            enemy = create_moai(gilbert_level)
+            enemy = create_moai_boss(gilbert_level)
             enemy_dict[enemy["id"]] = enemy
 
         else:
@@ -101,7 +100,22 @@ def spawn_enemy(gilbert_level, luck, enemies_defeated):
             for i in range(amount_of_enemies):
                 enemy = create_shark(gilbert_level)
                 enemy_dict[enemy["id"]] = enemy
+
+
+
+    # if gilbert_level >= 18:
+    #     # small chance to use the previous enemy batch, or generate a new one with different enemies
+    #     if random.randint(0,5):
+    #         enemy_dict = {}
+    #     else:
+    #         return enemy_dict
         
+
+    #     # small chance to spawn boss
+    #     if random.randint(1,100) == 1 and gilbert_level >= 23:
+    #         enemy_dict = create_emoji_boss_group(gilbert_level)
+        
+    #     # todo add new mobs
 
     return enemy_dict
 
@@ -402,11 +416,11 @@ def create_puffer(level):
 
     return enemy
 
-def create_moai(level):
+def create_moai_boss(level):
     level_multiplier = get_level_multiplier(level)
 
     enemy = {
-    "name": "Moai head",
+    "name": "Moai Head",
     "description": "will kill you in 60 seconds.",
     "emoji": "🗿",
     "level": 50,
@@ -415,18 +429,147 @@ def create_moai(level):
     "seconds_til_attack": 60, 
     "attack_seconds": 60,
     "item_drops": {"health_potion" : 1},
-    "gold_drop": math.floor(250 * level_multiplier) + 10,
-    "xp_drop":  math.floor(35 * level_multiplier),
-    "health_drop":  math.floor(50 * level_multiplier) + 3,
+    "gold_drop": math.floor(100 * level_multiplier) + 10,
+    "xp_drop":  math.floor(30 * level_multiplier),
+    "health_drop":  math.floor(25 * level_multiplier) + 3,
     "id": str(uuid.uuid4()),
     "top": random.randint(30, 50),
     "left": random.randint(30, 70),
     "alive": True,
     "attack_speed": 1,
-    "type": "boss"
+    "type": "boss",
+    "special_attack": "Stomp of Death (ignores defense)"
     }
 
     return enemy
+
+def create_emoji_boss_group(level):
+    level_multiplier = get_level_multiplier(level)
+
+    enemy1 = {
+    "name": "Emoji Squad",
+    "description": "get ready to be tossed",
+    "emoji": "🚮",
+    "level": 50,
+    "health": 25 + math.floor(level_multiplier),
+    "damage_to_gilbert": 5,
+    "seconds_til_attack": 1, 
+    "attack_seconds": 10,
+    "item_drops": {"health_potion" : 1},
+    "gold_drop": math.floor(25 * level_multiplier) + 10,
+    "xp_drop":  math.floor(10 * level_multiplier),
+    "health_drop":  math.floor(10 * level_multiplier) + 3,
+    "id": str(uuid.uuid4()),
+    "top": 50,
+    "left": 410,
+    "alive": True,
+    "attack_speed": 1,
+    "type": "boss",
+    "special_attack": "Linked Mind",
+    "animation": "button-fade-fast",
+    }
+
+    enemy2 = {
+    "name": "Emoji Squad",
+    "description": "waaAAaaAAAaAA",
+    "emoji": "🚼",
+    "level": 50,
+    "health": 25 + math.floor(level_multiplier),
+    "damage_to_gilbert": 10,
+    "seconds_til_attack": 3, 
+    "attack_seconds": 10,
+    "item_drops": {"health_potion" : 1},
+    "gold_drop": math.floor(25 * level_multiplier) + 10,
+    "xp_drop":  math.floor(10 * level_multiplier),
+    "health_drop":  math.floor(8 * level_multiplier) + 3,
+    "id": str(uuid.uuid4()),
+    "top": 70,
+    "left": 960,
+    "alive": True,
+    "attack_speed": 1,
+    "type": "boss",
+    "special_attack": "Linked Mind",
+    "animation": "button-dodge-slow",
+    }
+
+    enemy3 = {
+    "name": "Emoji Squad",
+    "description": "3",
+    "emoji": "3️⃣",
+    "level": 50,
+    "health": 25 + math.floor(level_multiplier),
+    "damage_to_gilbert": 15,
+    "seconds_til_attack": 5, 
+    "attack_seconds": 10,
+    "item_drops": {"health_potion" : 1},
+    "gold_drop": math.floor(25 * level_multiplier) + 10,
+    "xp_drop":  math.floor(10 * level_multiplier),
+    "health_drop":  math.floor(8 * level_multiplier) + 3,
+    "id": str(uuid.uuid4()),
+    "top": 400,
+    "left": 1024,
+    "alive": True,
+    "attack_speed": 1,
+    "type": "boss",
+    "special_attack": "Linked Mind",
+    "animation": "button-dodge",
+    }
+
+    enemy4 = {
+    "name": "Emoji Squad",
+    "description": "you're done for.",
+    "emoji": "♿",
+    "level": 50,
+    "health": 25 + math.floor(level_multiplier),
+    "damage_to_gilbert": 20,
+    "seconds_til_attack": 7, 
+    "attack_seconds": 10,
+    "item_drops": {"health_potion" : 1},
+    "gold_drop": math.floor(25 * level_multiplier) + 10,
+    "xp_drop":  math.floor(10 * level_multiplier),
+    "health_drop":  math.floor(8 * level_multiplier) + 3,
+    "id": str(uuid.uuid4()),
+    "top": 510,
+    "left": 700,
+    "alive": True,
+    "attack_speed": 1,
+    "type": "boss",
+    "special_attack": "Linked Mind",
+    "animation": "button-fast",
+    }
+
+    enemy5 = {
+    "name": "Emoji Squad",
+    "description": "COOL WOW AMAZING",
+    "emoji": "🆒",
+    "level": 50,
+    "health": 25 + math.floor(level_multiplier),
+    "damage_to_gilbert": 25,
+    "seconds_til_attack": 9, 
+    "attack_seconds": 10,
+    "item_drops": {"health_potion" : 1},
+    "gold_drop": math.floor(25 * level_multiplier) + 10,
+    "xp_drop":  math.floor(10 * level_multiplier),
+    "health_drop":  math.floor(8 * level_multiplier) + 3,
+    "id": str(uuid.uuid4()),
+    "top": 330,
+    "left": 380,
+    "alive": True,
+    "attack_speed": 1,
+    "type": "boss",
+    "special_attack": "Linked Mind",
+    "animation": "button-medium",
+    }
+
+    boss_group = {
+        enemy1.get("id"): enemy1,
+        enemy2.get("id"): enemy2,
+        enemy3.get("id"): enemy3,
+        enemy4.get("id"): enemy4,
+        enemy5.get("id"): enemy5,
+    }
+
+    return boss_group
 
 # given an int representing gilbert's level, return a float for scaling enemy health/dmg/whatnot
 def get_level_multiplier(level):

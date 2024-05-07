@@ -214,6 +214,19 @@ def set_initial_gilbert(debug = False):
 
     return gilbert_stats
 
+def set_initial_temp_stats():
+
+    gilbert_temporary_statistics = {
+        "enemies_spawned": 0,
+        "enemy_groups_spawned": 0,
+        "boss_moai_spawned": False,
+        "boss_emoji_spawned": False,
+    }
+
+    return gilbert_temporary_statistics
+
+
+
 def generate_gilbert_thought(gilbert_thoughts_collection, userlist):
 
     # random message from chat

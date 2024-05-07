@@ -40,6 +40,26 @@ body {
   word-wrap: break-word;
 }
 
+
+.bossWindow {
+  width: auto;
+  height: auto;
+  max-width: 400px;
+  width: 310px;
+  position: absolute;
+  word-wrap: break-word;
+}
+
+.bossWindowSmaller {
+  width: auto;
+  height: auto;
+  max-width: 400px;
+  width: 250px;
+  position: absolute;
+  word-wrap: break-word;
+}
+
+
 .upgrades {
 	max-width:500px;
 	position: absolute;
