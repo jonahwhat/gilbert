@@ -70,7 +70,7 @@ gilbert_upgrade_prices = {
     }
 }
 
-debug = True
+debug = False
 online_users = {}
 
 
@@ -215,8 +215,8 @@ def delete_post(post_id):
 @socket.on('like_post')
 def handle_like_post(message_id):
     result = handle_post_like_ws(session["username"], posts_collection, message_id)
-    statistics['global_likes'] += result[1]
     if result != None:
+        statistics['global_likes'] += result[1]
         socket.emit('post_liked', {'message_id': message_id, 'likes': result[0]})
         socket.emit('statistics', statistics)
 
@@ -309,21 +309,51 @@ def handle_monster_attack(monster_id):
     
     monster = gilbert_enemies_dict.get(monster_id)
 
+
     if monster:
+
+        enemy_type = monster.get("type", None)
+        boss_type = monster.get("boss_type", None)
+        boss_id = monster.get("boss_id", None)
+        is_boss = enemy_type == "boss"
+
         if monster.get("alive"):
             new_health = max(monster.get("health") - gilbert_stats.get("damage"), 0)
             gilbert_enemies_dict[monster_id]["health"] = new_health
             # if health is zero emit death, else emit new stats
 
             if new_health <= 0:
-                # emit death, update stats to reflect that, only remove from dict once player takes loot    
-                socket.emit('update_enemy_frontend', {"interaction_type": "death", "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
-                gilbert_enemies_dict[monster_id]["alive"] = False
-                gilbert_stats["enemies_defeated"] += 1
+                # emit death, update stats to reflect that, only remove from dict once player takes loot 
+                # check dictionary for enemies that have boss_id equal
+                # if there are any bossid alive, don't emit death
+                if boss_type == "emoji":
+                    if is_emoji_boss_alive(gilbert_enemies_dict, boss_id):
+                        # emit nothing, maybe gray out button
+                        # emit health only
+                        # don't emit if enemy is already dead?
+                        socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name"), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
+                    
+                    else:
+                        # dend delete frame to all 5 emojis
+                        emoji_boss_ids = get_all_valid_emoji_boss_ids(gilbert_enemies_dict, boss_id)
+
+                        for enemy_id in emoji_boss_ids:
+                            socket.emit('update_enemy_frontend', {"interaction_type": "emoji_death", "id": enemy_id}) 
+
+                        # remove all bossid from dict
+                        gilbert_enemies_dict = remove_emoji_boss_from_dict(gilbert_enemies_dict, boss_id, monster_id)
+                        gilbert_enemies_dict[monster_id]["alive"] = False
+
+                        socket.emit('update_enemy_frontend', {"interaction_type": "boss_loot", "id": monster_id, "is_boss": True , "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
+
+                else:
+                    socket.emit('update_enemy_frontend', {"interaction_type": "death", "is_boss": is_boss, "id": monster_id, "gold_drop": monster.get("gold_drop"), "xp_drop": monster.get("xp_drop"), "health_drop": monster.get("health_drop"), "name": monster.get("name"), "top": random.randint(10, 60), "left": random.randint(10, 70), "emoji": monster.get("emoji"), "type": monster.get("type", "none")})
+                    gilbert_enemies_dict[monster_id]["alive"] = False
+                    gilbert_stats["enemies_defeated"] += 1
 
             else:
                 # update health of enemy
-                socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name"), "emoji": monster.get("emoji")})
+                socket.emit('update_enemy_frontend', {"interaction_type": "player_attack", "id": monster_id, "health": new_health, "name": monster.get("name"), "emoji": monster.get("emoji"), "boss_type": boss_type})
 
 
         else:
@@ -464,11 +494,12 @@ def send_updates():
                     
                     
                     name = enemy.get("name")
-                    enemyType = enemy.get("type", "none")
+                    enemy_type = enemy.get("type")
+                    boss_type = enemy.get("boss_type")
 
                     if seconds_til_attack <= 0:
                         # emit the attack anim
-                        socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name, "type": enemyType})
+                        socket.emit('update_enemy_frontend', {"interaction_type": "attack_gilbert", "id": id, "damage": damage, "name": name, "type": enemy_type, "boss_type": boss_type})
 
                         # reset seconds back to default
                         gilbert_enemies_dict[id]["seconds_til_attack"] = attack_seconds

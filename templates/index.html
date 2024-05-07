@@ -11,12 +11,12 @@
 	<title>Yappers</title>
 </head>
 
-<body onload="welcome();">
+<body>
 
 	<body>
 		<div class="center">
 
-			<div class="window windowtest windowShake" id="window1">
+			<div class="window windowtest windowShake draggable" id="window1">
 				<div class="title-bar" id="window1">
 					<div class="title-bar-text">
 						🔊 Welcome Message
@@ -49,7 +49,6 @@
 							<label for="radio16">Yap</label>
 						</div>
 					</fieldset>
-					<p id="js-test">❤️</p>
 					<section class="field-row" style="justify-content: flex-end">
 						<button class="buttonClick" onclick="playJoinSound()" >Submit</button>
 					</section>
@@ -57,8 +56,7 @@
 			</div>
 		</div>
 
-		<div class="center">
-			<div class="login window windowtest windowShake" id="window2">
+			<div class="login window windowtest windowShake draggable" id="window2">
 
 				<div class="title-bar inactive" id="window2">
 					<div class="title-bar-text">
@@ -90,9 +88,8 @@
 				</div>
 
 			</div>
-		</div>
-		<div class="center">
-			<div class="register window windowtest windowShake" id="window3">
+
+			<div class="register window windowtest windowShake draggable" id="window3">
 				<div class="title-bar inactive" id="window3">
 					<div class="title-bar-text">
 						📜 Register
@@ -127,12 +124,31 @@
 
 					</form>
 				</div>
+			</div>
+
+			<div class="window spamWindow windowShake draggable" style="left: 20px; top: 520px">
+				<div class="title-bar inactive">
+					<div class="title-bar-text">
+						☑️ Skip Login
+					</div>
+
+					<div class="title-bar-controls">
+						<button aria-label="Close"></button>
+					</div>
+				</div>
+				<div class="window-body">
+					<div class="centerGilbert">
+					<p>Join the website without an account!</p>
+					<p><i>Warning! Some features may not work properly.</i></p>
+					</div>
+					<section class="field-row" style="justify-content: center">
+						<a href="/application"><button onclick="playJoinSound()">Join!</button></a>
+					</section>
+				</div>
 
 			</div>
-		</div>
 
-		<div class="center">
-			<div class="window spamWindow windowShake" id="window4">
+			<div class="window spamWindow windowShake draggable" id="window4">
 				<div class="title-bar" id="window4">
 					<div class="title-bar-text">
 						🚨 IMPORTANT ALERT
@@ -157,11 +173,10 @@
 				</div>
 
 			</div>
-		</div>
 		
 	
 		<div class="center">
-			<div class="window spamWindow imagewindow windowShake" id="window6">
+			<div class="window spamWindow imagewindow windowShake draggable" id="window6">
 				<div class="title-bar" id="window6">
 					<div class="title-bar-text">
 						📬 Secure message from: microsoft_real@gmail.com
