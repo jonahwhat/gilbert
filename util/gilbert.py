@@ -190,11 +190,12 @@ def set_initial_gilbert(debug = False):
         "luck_cost": 100,
     }
 
+    # bad code lol
     gilbert_stats = {
         "alive": True,
         "health": 150 if debug else 100,
         "hunger": 1000 if debug else 70,
-        "happiness": 100 if debug else 70,
+        "happiness": 1000 if debug else 70,
         "level": 20 if debug else 1,
         "seconds_alive": 0,
         "status": "happy",
@@ -205,7 +206,7 @@ def set_initial_gilbert(debug = False):
 
         "damage": 5 if debug else 1,
         "defense": 0,
-        "max_health": 150 if debug else 1,
+        "max_health": 150 if debug else 100,
         "regen": 0,
         "luck": 0,
         "enemies_defeated": 0,

@@ -309,6 +309,10 @@ def handle_monster_attack(monster_id):
     
     monster = gilbert_enemies_dict.get(monster_id)
 
+    # add user to online users dict
+    username = session.get("username", "guest")
+    if username not in gilbert_thoughts_userlist:
+        gilbert_thoughts_userlist.append(username)
 
     if monster:
 
@@ -520,7 +524,7 @@ def send_updates():
                         # BOSS: don't spawn enemies if alive boss exists
                         # generate a group of enemies based on gilbert's level
                         if gilbert_temporary_statistics.get("boss_moai_spawned") == False and gilbert_stats.get("level") >= 15:
-                            enemy = create_moai_boss(gilbert_stats.get("level"))
+                            enemy = create_moai_boss(gilbert_stats.get("level"), online_users = len(gilbert_thoughts_userlist))
                             enemy_group[enemy["id"]] = enemy
                             gilbert_temporary_statistics["boss_moai_spawned"] = True
 
@@ -544,7 +548,7 @@ def send_updates():
 
             if gilbert_stats.get("stage") >= 3:
                 # regen implementation
-                if (int(time.time())) % 5 == 0:
+                if (int(time.time())) % 5 == 0 and gilbert_stats.get("health") > 0:
                     gilbert_stats["health"] = min(gilbert_stats.get("max_health"), gilbert_stats.get("health") + gilbert_stats.get("regen"))
 
 

@@ -417,18 +417,18 @@ def create_puffer(level):
 
     return enemy
 
-def create_moai_boss(level):
+def create_moai_boss(level, online_users = 1):
     level_multiplier = get_level_multiplier(level)
 
     enemy = {
     "name": "Moai Head",
-    "description": "will kill you in 60 seconds.",
+    "description": "will kill you in 30 seconds.",
     "emoji": "🗿",
-    "level": 50,
+    "level": 50 + (online_users * 5),
     "health": 50,
-    "damage_to_gilbert": 100,
-    "seconds_til_attack": 60, 
-    "attack_seconds": 60,
+    "damage_to_gilbert": 50,
+    "seconds_til_attack": 30, 
+    "attack_seconds": 30,
     "item_drops": {"health_potion" : 1},
     "gold_drop": math.floor(100 * level_multiplier) + 10,
     "xp_drop":  math.floor(30 * level_multiplier),
@@ -471,7 +471,7 @@ def create_emoji_boss_group(level):
     "type": "boss",
     "boss_type": "emoji",
     "special_attack": "Life Link",
-    "animation": "button-dodge-wait-fast",
+    "animation": "button-slow",
     "attack_description": "Will continue to attack until all 5 emojis are defeated.",
     "boss_id": boss_id
     }
