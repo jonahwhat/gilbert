@@ -431,7 +431,7 @@ def handle_gilbert_start():
         elif gilbert_food_countdown <= 0:
             # reset stats
             gilbert_stats = set_initial_gilbert(debug)
-            gilbert_temporary_statistics = set_initial_temp_stats()
+            gilbert_temporary_statistics = set_initial_temp_stats(debug)
             socket.emit('recieve_gilbert_stats', gilbert_stats)
             socket.emit('start_gilbert')
 
