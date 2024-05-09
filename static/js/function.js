@@ -47,12 +47,10 @@ function updateGilbertEnemiesDict() {
 
 
             const enemies = JSON.parse(this.response);
-            // console.log("entire enemy list: ", enemies)
 
             if (enemies) {
                 
                 for (const [id, monster] of Object.entries(enemies)) {
-                    // console.log(monster)
                     setTimeout(() => {
                         
                         if (monster.alive) {
@@ -89,7 +87,6 @@ function updatePost() {
                 setTimeout(() => {
                     displayPost(post);
 
-                    // console.log(post.content)
                 }, index * getRandomDelay());
             });
         }
@@ -154,17 +151,14 @@ function sendPost() {
 
     }, 2500);
 
-    // console.log(message)
     postTextBox.value = "";
     // Using AJAX
     if (ws) {
         socket.emit('create_post_ws', message);
-        // console.log("hello")
     } else {
         const request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
-                console.log(this.response);
             }
         }
         const messageJSON = { "content": message };
@@ -308,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // slightly horrible code, too bad!
     socket.on('update-online-users', function(incoming_data) {
-        // console.log("update-online-users: ", incoming_data)
 
         const type = incoming_data.type
         const userList = document.getElementById(`user-list`)
@@ -318,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userList.innerHTML = ``
 
             for (const [index, username] of Object.entries(incoming_data.data)) {
-                // console.log(username)
                 const id = `${username}-online-user-list`
                 if (!document.getElementById(id)) {
                     const userHTML = `<li id='${id}'>${username}</li>`
@@ -351,12 +343,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     socket.on('recieve_gilbert_thoughts', function (data) {
-        // console.log('Received thought:', data.message);
         update_gilb_thought(data.message)
     });
 
     socket.on('start_gilbert', function (data) {
-        // console.log('gilbert starting!');
         audioDict.startup.play()
         update_gilb_thought("i'm gilbert!!!")
 
@@ -366,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('gilbert_die', function (data) {
-        // console.log('gilbert died!');
         audioDict.dead.play()
         update_gilb_thought("i died...")
 
@@ -413,6 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('damage-upgrade-button').disabled = false
             document.getElementById('luck-upgrade-button').disabled = false
             document.getElementById('regen-upgrade-button').disabled = false
+            document.getElementById('website-title').innerHTML = `Yap Chat`;
 
 
             // remove stats div
@@ -425,7 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('recieve_gilbert_stats', function (data) {
-        // console.log('Received gilbert stats:', data);   
 
         let status = "dead"
         if (data.alive == true) {
@@ -434,8 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let emoji = "😎"
         let health = data.health
-
-        if (health >= 90) {
+        if (health >= 150) {
+            emoji = "🤩"
+        } else if (health >= 90) {
             emoji = "😎"
         } else if (health >= 75) {
             emoji = "🙂‍"
@@ -648,37 +638,52 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('update_enemy_frontend', function (data) {
 
         if (data.interaction_type == "player_attack") {
-
-            document.getElementById(`monster_health_${data.id}`).innerHTML = `❤️ Health: <b>${data.health}</b>`
-            document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.emoji} ${data.name} (${data.health} hp)`
-
             // if health is zero, gray out button
             if (data.health <= 0) {
                 var button = document.getElementById(`buttonid_${data.id}`)
                 
                 // horrible code to make sure button is actually disabled
+                button.disabled = true
+
                 setTimeout(function () {
                     button.disabled = true
-                }, 500);
+                }, 1020);
                 setTimeout(function () {
                     button.disabled = true
                 }, 1100);
                 setTimeout(function () {
                     button.disabled = true
-                }, 2100);
+                }, 2000);
 
                 button.innerHTML = "☠️ Emoji Dead"
+                document.getElementById(`monster_health_${data.id}`).innerHTML = `💔 Health: 0 (dead)`
+                document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.emoji} ${data.name} (Dead)`
 
                 setTimeout
+            } else {
+                document.getElementById(`monster_health_${data.id}`).innerHTML = `❤️ Health: <b>${data.health}</b>`
+                document.getElementById(`monster_titleid_${data.id}`).innerHTML = `${data.emoji} ${data.name} (${data.health} hp)`
             }
 
         } else if (data.interaction_type == "attack_gilbert") {
+            
+            // handle gilbert animation
+            const gilbert = document.getElementById("gilbert_div");
 
+            if (gilbert) {
+                
+                gilbert.classList.add('gilbert-damage');
+                gilbert.addEventListener('animationend', function () {
+                    gilbert.classList.remove('gilbert-damage');
+                });
+            }
+            
+
+            // handle enemy sound and animations
             const enemyType = data.type
 
             if (enemyType == "boss") {
                 const bossType = data.boss_type
-                console.log(bossType)
                 if (bossType == "moai") {
                     var audio = audioDict.boom
                     audio.volume = 0.7
@@ -796,18 +801,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return
         }
 
-        // console.log('New post:', data);
 
 
         const messageType = data.messageType;
-        // console.log(messageType)
         displayPost(data);
         audioDict.chord.play()
 
     });
 
     socket.on('statistics', function (data) {
-        // console.log('stats:', data);
 
         document.getElementById('posts-created').innerHTML = `Posts Created: <b>${data.posts_created}</b>`;
         document.getElementById('posts-deleted').innerHTML = `Posts Deleted: <b>${data.posts_deleted}</b>`;
@@ -833,7 +835,6 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('post_liked', function (data) {
         const postId = data.message_id;
         const likesNumber = data.likes;
-        // console.log("like recieved, new likes: ", likesNumber, postId)
         const postElement = document.getElementById(postId);
         if (postElement) {
 
@@ -852,7 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('upgrade_purchase', function (data) {
-        // console.log("upgrade: ", data)
 
         // should really be in it's own function but whatever
         // timeout to remove after 5 seconds

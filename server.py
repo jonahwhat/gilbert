@@ -38,8 +38,8 @@ gilbert_stats = {
 
 gilbert_thoughts_userlist = ["gilbert"]
 gilbert_enemies_dict = {}
-gilbert_temporary_statistics = {
-}
+gilbert_temporary_statistics = {}
+gilbert_food_countdown = 15
 
 # should probably be in a different file but its ok
 gilbert_upgrade_prices = {
@@ -309,6 +309,10 @@ def handle_monster_attack(monster_id):
     
     monster = gilbert_enemies_dict.get(monster_id)
 
+    # add user to online users dict
+    username = session.get("username", "guest")
+    if username not in gilbert_thoughts_userlist:
+        gilbert_thoughts_userlist.append(username)
 
     if monster:
 
@@ -405,27 +409,37 @@ def handle_gilbert_start():
     global gilbert_thoughts_userlist
     global gilbert_enemies_dict
     global gilbert_temporary_statistics
-
-    
-    if (gilbert_respawn_timer > 0):
-        return
+    global gilbert_food_countdown
 
 
     # check if glibert is already alive, if he is, ignore, if he isn't start the loop
     if gilbert_stats.get("alive") == False:
-        # reset stats
-        gilbert_stats = set_initial_gilbert(debug)
-        gilbert_temporary_statistics = set_initial_temp_stats()
-        socket.emit('recieve_gilbert_stats', gilbert_stats)
-        socket.emit('start_gilbert')
+        if gilbert_food_countdown > 0:
+            gilbert_food_countdown -= 1
+
+            if gilbert_food_countdown == 12:
+                socket.emit('recieve_gilbert_thoughts', {'message': 'i want more food than that...'})
+            if gilbert_food_countdown == 9:
+                socket.emit('recieve_gilbert_thoughts', {'message': 'MORE food...'})
+            if gilbert_food_countdown == 7:
+                socket.emit('recieve_gilbert_thoughts', {'message': 'EVEN MORE FOOD'})
+            if gilbert_food_countdown == 5:
+                socket.emit('recieve_gilbert_thoughts', {'message': "im so HUNGRY"})
+            if gilbert_food_countdown == 3:
+                socket.emit('recieve_gilbert_thoughts', {'message': "FOOOOOOOOD"})
+
+        elif gilbert_food_countdown <= 0:
+            # reset stats
+            gilbert_stats = set_initial_gilbert(debug)
+            gilbert_temporary_statistics = set_initial_temp_stats(debug)
+            socket.emit('recieve_gilbert_stats', gilbert_stats)
+            socket.emit('start_gilbert')
 
 
 
-        # reset and add user to gilbert thoughts userlist
-        gilbert_thoughts_userlist = [session.get("username", "guest")]
+            # reset and add user to gilbert thoughts userlist
+            gilbert_thoughts_userlist = [session.get("username", "guest")]
 
-        # maybe while true loop to show timing?
-        # only sendall when the epoch time changes
 
 
 
@@ -447,6 +461,7 @@ def send_updates():
     global gilbert_thoughts_userlist
     global gilbert_enemies_dict
     global gilbert_temporary_statistics
+    global gilbert_food_countdown
 
 
     while True:
@@ -474,6 +489,7 @@ def send_updates():
                 socket.emit('gilbert_die')
                 gilbert_respawn_timer = 15
                 gilbert_enemies_dict = {}
+                gilbert_food_countdown = 15
 
 
             #* handle enemy logic *#
@@ -520,7 +536,7 @@ def send_updates():
                         # BOSS: don't spawn enemies if alive boss exists
                         # generate a group of enemies based on gilbert's level
                         if gilbert_temporary_statistics.get("boss_moai_spawned") == False and gilbert_stats.get("level") >= 15:
-                            enemy = create_moai_boss(gilbert_stats.get("level"))
+                            enemy = create_moai_boss(gilbert_stats.get("level"), online_users = len(gilbert_thoughts_userlist))
                             enemy_group[enemy["id"]] = enemy
                             gilbert_temporary_statistics["boss_moai_spawned"] = True
 
@@ -544,7 +560,7 @@ def send_updates():
 
             if gilbert_stats.get("stage") >= 3:
                 # regen implementation
-                if (int(time.time())) % 5 == 0:
+                if (int(time.time())) % 5 == 0 and gilbert_stats.get("health") > 0:
                     gilbert_stats["health"] = min(gilbert_stats.get("max_health"), gilbert_stats.get("health") + gilbert_stats.get("regen"))
 
 

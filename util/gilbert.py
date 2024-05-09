@@ -190,22 +190,23 @@ def set_initial_gilbert(debug = False):
         "luck_cost": 100,
     }
 
+    # bad code lol
     gilbert_stats = {
         "alive": True,
         "health": 150 if debug else 100,
         "hunger": 1000 if debug else 70,
-        "happiness": 100 if debug else 70,
+        "happiness": 1000 if debug else 70,
         "level": 20 if debug else 1,
         "seconds_alive": 0,
         "status": "happy",
-        "gold": 1000000 if debug else 0,
+        "gold": 19405 if debug else 0,
         "xp": 0,
         "xp_to_levelup": 5,
         "stage": 0,
 
-        "damage": 5 if debug else 1,
-        "defense": 0,
-        "max_health": 150 if debug else 1,
+        "damage": 7 if debug else 1,
+        "defense": 25,
+        "max_health": 150 if debug else 100,
         "regen": 0,
         "luck": 0,
         "enemies_defeated": 0,
@@ -216,12 +217,12 @@ def set_initial_gilbert(debug = False):
 
     return gilbert_stats
 
-def set_initial_temp_stats():
+def set_initial_temp_stats(debug = False):
 
     gilbert_temporary_statistics = {
         "enemies_spawned": 0,
         "enemy_groups_spawned": 0,
-        "boss_moai_spawned": False,
+        "boss_moai_spawned": True if debug else False,
         "boss_emoji_spawned": False,
     }
 
