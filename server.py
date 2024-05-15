@@ -39,7 +39,7 @@ gilbert_stats = {
 gilbert_thoughts_userlist = ["gilbert"]
 gilbert_enemies_dict = {}
 gilbert_temporary_statistics = {}
-gilbert_food_countdown = 15
+gilbert_food_countdown = 12
 
 # should probably be in a different file but its ok
 gilbert_upgrade_prices = {
@@ -70,7 +70,7 @@ gilbert_upgrade_prices = {
     }
 }
 
-debug = False
+debug = True
 online_users = {}
 
 
@@ -161,7 +161,7 @@ def logout():
 
 @app.route('/static/js/<path:filename>')
 def function(filename):
-    return send_from_directory('static/js', filename, mimetype='text/javascript')
+    return send_from_directory('static/js', filename, mimetype='application/javascript')
 
 
 @app.route('/static/css/<path:filename>')
@@ -303,6 +303,8 @@ def handle_monster_attack(monster_id):
 
     # action can be attack or loot
     # attack damage is verified by server
+    
+    # TODO send delete frame when someone tries to attack a mob that's already dead (to fix desync)
 
     global gilbert_stats
     global gilbert_enemies_dict
@@ -417,15 +419,15 @@ def handle_gilbert_start():
         if gilbert_food_countdown > 0:
             gilbert_food_countdown -= 1
 
-            if gilbert_food_countdown == 12:
+            if gilbert_food_countdown == 8:
                 socket.emit('recieve_gilbert_thoughts', {'message': 'i want more food than that...'})
-            if gilbert_food_countdown == 9:
+            if gilbert_food_countdown == 6:
                 socket.emit('recieve_gilbert_thoughts', {'message': 'MORE food...'})
-            if gilbert_food_countdown == 7:
+            if gilbert_food_countdown == 4:
                 socket.emit('recieve_gilbert_thoughts', {'message': 'EVEN MORE FOOD'})
-            if gilbert_food_countdown == 5:
+            if gilbert_food_countdown == 2:
                 socket.emit('recieve_gilbert_thoughts', {'message': "im so HUNGRY"})
-            if gilbert_food_countdown == 3:
+            if gilbert_food_countdown == 0:
                 socket.emit('recieve_gilbert_thoughts', {'message': "FOOOOOOOOD"})
 
         elif gilbert_food_countdown <= 0:
@@ -466,7 +468,11 @@ def send_updates():
 
     while True:
 
-        if gilbert_respawn_timer > 0:
+        if gilbert_respawn_timer >= 0:
+                        
+            if gilbert_respawn_timer <= 0:
+                socket.emit('reset_gilbert')
+
             gilbert_respawn_timer -= 1
 
         # if gilbert alive, send gilbert dict
