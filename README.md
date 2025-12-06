@@ -4,8 +4,6 @@
 
 A unique chat platform with a nostalgic Windows 98 theme, featuring a multiplayer game that adapts based on the number of online users.
 
-View the project live at [yap-chat.com](https://yap-chat.com/application).
-
 ![Homescreen](https://i.imgur.com/Z2F7yc4.png)
 
 ## Features
