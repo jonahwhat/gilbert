@@ -31,7 +31,7 @@ A chat platform with a Windows 98 theme, featuring a multiplayer cookie clicker 
 - Updates to gameplay
 
 
-## Authors & Acknowledgements
+## Acknowledgements
 
 Base Windows 98 Theme: 98.css <br>
 Sound Effects: freesound.org <br>
